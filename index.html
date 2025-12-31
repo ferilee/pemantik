@@ -1,622 +1,725 @@
-import React, { useState, useEffect } from 'react';
-import { BookOpen, Compass, Rocket, Repeat, BarChart2, Play, ChevronRight, Menu, User, Award, Terminal, Wifi, Ruler, LogIn, Sparkles, X as CloseIcon, MessageSquare, LogOut, Settings, ChevronDown } from 'lucide-react';
-
-const App = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState('');
-  const [userClass, setUserClass] = useState('X TKJ A');
-  
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [selectedMajor, setSelectedMajor] = useState('TKJ'); 
-  const [selectedLevel, setSelectedLevel] = useState('X'); // 'X' or 'SENIOR'
-  const [selectedTopic, setSelectedTopic] = useState(''); // State untuk materi yang dipilih
-  const [activeDeltaStage, setActiveDeltaStage] = useState('Launch'); 
-
-  // AI States
-  const [showAIModal, setShowAIModal] = useState(false);
-  const [aiLoading, setAiLoading] = useState(false);
-  const [aiResponse, setAiResponse] = useState('');
-  const [aiPromptType, setAiPromptType] = useState(''); 
-
-  // --- DATABASE SILABUS (DAFTAR MATERI) ---
-  const syllabus = {
-    X: [
-      "Eksponen & Pangkat",
-      "SPLDV",
-      "Fungsi Kuadrat",
-      "Trigonometri",
-      "Statistika Dasar",
-      "Peluang"
-    ],
-    SENIOR: [
-      "Barisan & Deret",
-      "Anuitas & Investasi",
-      "Transformasi Geometri",
-      "Persamaan Lingkaran",
-      "Statistika Lanjut",
-      "Peluang Lanjutan"
-    ]
-  };
-
-  // --- DATABASE KONTEN (PERSONALISASI JURUSAN) ---
-  // Format: [Level] -> [Topic] -> [Major]
-  // Jika konten spesifik belum ada, akan menggunakan fallback generic generator.
-  const contentDatabase = {
-    X: {
-      "Eksponen & Pangkat": {
-        RPL: {
-          title: "Eksponen & Logaritma", context: "Optimasi Memori & Big Data",
-          task: "Hitung efisiensi penyimpanan data biner (bit/byte) menggunakan sifat eksponensial.",
-          img: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800"
-        },
-        TKJ: {
-          title: "Eksponen Jaringan", context: "Subnetting & IP Address",
-          task: "Hitung jumlah host maksimum dalam jaringan menggunakan perpangkatan basis 2.",
-          img: "https://images.unsplash.com/photo-1558494949-ef526b0042a0?auto=format&fit=crop&q=80&w=800"
-        },
-        DPIB: {
-          title: "Eksponen Struktur", context: "Kekuatan Material",
-          task: "Hitung peluruhan kekuatan beton atau pertumbuhan bakteri pada instalasi limbah.",
-          img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=800"
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeltaMath Vokasi - SMKN Pasirian</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Import Map untuk React & Lucide -->
+    <script type="importmap">
+    {
+        "imports": {
+            "react": "https://esm.sh/react@18.2.0",
+            "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+            "lucide-react": "https://esm.sh/lucide-react@0.263.1"
         }
-      },
-      "Trigonometri": {
-        RPL: {
-          title: "Trigonometri Game", context: "Pengembangan Game 2D",
-          task: "Tentukan arah peluru (vektor) berdasarkan sudut tembakan menggunakan Sin/Cos.",
-          img: "https://images.unsplash.com/photo-1556438064-2d7646166914?auto=format&fit=crop&q=80&w=800"
-        },
-        TKJ: {
-          title: "Trigonometri Sinyal", context: "Antena & Jangkauan WiFi",
-          task: "Hitung ketinggian tower antena agar sinyal menjangkau area radius 2km (Sudut Elevasi).",
-          img: "https://images.unsplash.com/photo-1544197150-b99a580bbcbf?auto=format&fit=crop&q=80&w=800"
-        },
-        DPIB: {
-          title: "Trigonometri Konstruksi", context: "Pengukuran Lahan (Theodolite)",
-          task: "Hitung kemiringan atap atau tinggi gedung menggunakan perbandingan trigonometri.",
-          img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=800"
+    }
+    </script>
+    
+    <!-- Babel untuk JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* Custom Styles */
+        body { margin: 0; padding: 0; background-color: #020617; }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
         }
-      }
-      // Topik lain akan menggunakan fallback logic di bawah
-    },
-    SENIOR: {
-      "Transformasi Geometri": {
-        RPL: {
-          title: "Transformasi Game Dev", context: "Computer Graphics",
-          task: "Buat matriks rotasi untuk memutar objek karakter game sebesar 90 derajat.",
-          img: "https://images.unsplash.com/photo-1614741118868-9c7c9da96307?auto=format&fit=crop&q=80&w=800"
-        },
-        TKJ: {
-          title: "Transformasi Sinyal", context: "Pengolahan Citra/Sinyal",
-          task: "Analisis perubahan gelombang sinyal menggunakan konsep translasi grafik.",
-          img: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800"
-        },
-        DPIB: {
-          title: "Transformasi CAD", context: "Desain Arsitektur (AutoCAD)",
-          task: "Pindahkan denah bangunan (Translasi) dan perbesar skala (Dilatasi) pada koordinat.",
-          img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=800"
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
-      },
-      "Anuitas & Investasi": {
-        RPL: {
-          title: "Fintech System", context: "Aplikasi Keuangan",
-          task: "Buat algoritma untuk menghitung cicilan bulanan (anuitas) pada aplikasi pinjol simulasi.",
-          img: "https://images.unsplash.com/photo-1563986768-7b06d938b39d?auto=format&fit=crop&q=80&w=800"
-        },
-        TKJ: {
-          title: "Investasi Perangkat", context: "Pengadaan Server",
-          task: "Hitung penyusutan nilai aset server dan biaya maintenance tahunan (Bunga Majemuk).",
-          img: "https://images.unsplash.com/photo-1558494949-ef526b0042a0?auto=format&fit=crop&q=80&w=800"
-        },
-        DPIB: {
-          title: "RAB Proyek", context: "Manajemen Konstruksi",
-          task: "Hitung angsuran pinjaman modal proyek perumahan dengan sistem anuitas.",
-          img: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=800"
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-      }
-    }
-  };
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
 
-  // --- LOGIKA MENDAPATKAN KONTEN ---
-  const getCurrentData = () => {
-    // 1. Cek apakah ada konten spesifik di database
-    const levelDB = contentDatabase[selectedLevel];
-    const topicDB = levelDB ? levelDB[selectedTopic] : null;
-    const specificData = topicDB ? topicDB[selectedMajor] : null;
+    <script type="text/babel" data-type="module">
+        import React, { useState, useEffect } from 'react';
+        import { createRoot } from 'react-dom/client';
+        import { 
+            BookOpen, Compass, Rocket, Repeat, BarChart2, Play, 
+            ChevronRight, Menu, User, Award, Terminal, Wifi, 
+            Ruler, LogIn, Sparkles, X as CloseIcon, MessageSquare, LogOut, Settings, ChevronDown 
+        } from 'lucide-react';
 
-    // 2. Jika ada, gunakan. Jika tidak, GENERATE GENERIC CONTENT (Fallback)
-    if (specificData) {
-      return { ...specificData, themeColor: getThemeColor(selectedMajor), accentColor: getAccentColor(selectedMajor), icon: getIcon(selectedMajor) };
-    } else {
-      // Fallback Content Generator
-      return {
-        title: selectedTopic || "Materi Matematika",
-        context: `Penerapan di ${selectedMajor}`,
-        task: `Selesaikan permasalahan kontekstual ${selectedTopic} yang berkaitan dengan studi kasus ${selectedMajor}.`,
-        img: getGenericImage(selectedMajor),
-        themeColor: getThemeColor(selectedMajor),
-        accentColor: getAccentColor(selectedMajor),
-        icon: getIcon(selectedMajor)
-      };
-    }
-  };
-
-  // Helpers for Fallback
-  const getThemeColor = (major) => major === 'RPL' ? 'blue' : major === 'TKJ' ? 'emerald' : 'orange';
-  const getAccentColor = (major) => major === 'RPL' ? 'from-blue-600 to-indigo-900' : major === 'TKJ' ? 'from-emerald-600 to-teal-900' : 'from-orange-600 to-red-900';
-  const getIcon = (major) => major === 'RPL' ? <Terminal className="w-5 h-5"/> : major === 'TKJ' ? <Wifi className="w-5 h-5"/> : <Ruler className="w-5 h-5"/>;
-  const getGenericImage = (major) => major === 'RPL' ? "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800" : major === 'TKJ' ? "https://images.unsplash.com/photo-1544197150-b99a580bbcbf?w=800" : "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800";
-
-  const currentData = getCurrentData();
-
-  const deltaStages = [
-    { id: 'Discover', title: '1. Discover', subtitle: 'Investigasi Masalah', icon: <BookOpen className="w-4 h-4" /> },
-    { id: 'Explore', title: '2. Explore', subtitle: 'Eksperimen Konsep', icon: <Compass className="w-4 h-4" /> },
-    { id: 'Launch', title: '3. Launch', subtitle: 'Misi Utama', icon: <Rocket className="w-4 h-4" /> },
-    { id: 'Transform', title: '4. Transform', subtitle: 'Refleksi Diri', icon: <Repeat className="w-4 h-4" /> },
-    { id: 'Assess', title: '5. Assess', subtitle: 'Uji Kompetensi', icon: <BarChart2 className="w-4 h-4" /> },
-  ];
-
-  // --- GEMINI API FUNCTION ---
-  const callGeminiAPI = async (type) => {
-    setAiLoading(true);
-    setAiResponse('');
-    setAiPromptType(type);
-    setShowAIModal(true);
-
-    const apiKey = "AIzaSyAS46ALiEZuE6hV3WT5qPu2IEHYZNHJyUU"; 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-
-    let prompt = "";
-    if (type === 'concept') {
-      prompt = `Sebagai guru matematika SMK yang asik bernama Pak Feri, jelaskan konsep "${currentData.title}" dalam konteks jurusan ${selectedMajor} (Kelas ${selectedLevel}) secara singkat, padat, dan memotivasi. Gunakan bahasa gaul yang sopan.`;
-    } else if (type === 'project') {
-      prompt = `Saya siswa jurusan ${selectedMajor} Kelas ${selectedLevel}. Topik: ${selectedTopic}. Tugas saya: "${currentData.task}". Berikan 3 langkah panduan praktis (step-by-step) untuk menyelesaikannya. Berikan rumus yang relevan jika ada.`;
-    }
-
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-      });
-      const data = await response.json();
-      if (data.candidates && data.candidates[0].content) {
-        setAiResponse(data.candidates[0].content.parts[0].text);
-      } else {
-        setAiResponse("Maaf, Guru AI sedang sibuk. Coba lagi nanti ya!");
-      }
-    } catch (error) {
-      console.error("Error calling Gemini:", error);
-      setAiResponse("Terjadi kesalahan koneksi.");
-    } finally {
-      setAiLoading(false);
-    }
-  };
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (userName.trim()) {
-      let major = 'RPL';
-      if (userClass.includes('TKJ')) major = 'TKJ';
-      else if (userClass.includes('DPIB')) major = 'DPIB';
-      
-      let level = 'SENIOR';
-      if (userClass.startsWith('X ') || userClass.startsWith('X-')) {
-        level = 'X';
-      }
-
-      setSelectedMajor(major);
-      setSelectedLevel(level);
-      
-      // Set Default Topic based on Level
-      const defaultTopic = level === 'X' ? syllabus.X[0] : syllabus.SENIOR[0];
-      setSelectedTopic(defaultTopic);
-      
-      setIsLoggedIn(true);
-    }
-  };
-
-  // --- LOGIN SCREEN ---
-  if (!isLoggedIn) {
-    return (
-      <div className="min-h-screen bg-slate-950 text-white font-sans flex items-center justify-center p-6 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-        <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-indigo-600 rounded-full blur-[100px] opacity-30"></div>
-        <div className="absolute bottom-[-10%] left-[-10%] w-96 h-96 bg-blue-600 rounded-full blur-[100px] opacity-30"></div>
-
-        <div className="relative z-10 w-full max-w-md space-y-8 animate-fadeIn">
-          <div className="text-center space-y-2">
-            <div className="w-20 h-20 bg-gradient-to-tr from-blue-500 to-indigo-600 rounded-3xl mx-auto flex items-center justify-center shadow-lg shadow-blue-500/30 mb-6 transform rotate-3">
-              <span className="text-4xl font-bold">Δ</span>
-            </div>
-            <h1 className="text-4xl font-bold tracking-tight">DeltaMath <span className="text-blue-400">Vokasi</span></h1>
-            <p className="text-slate-400 text-base">Platform Belajar Matematika Terpersonalisasi</p>
-          </div>
-
-          <div className="bg-slate-900/60 backdrop-blur-xl p-8 rounded-3xl border border-slate-800 shadow-2xl">
-            <div className="mb-6 pb-4 border-b border-slate-700/50">
-               <p className="text-xs text-slate-400 uppercase tracking-widest text-center mb-1">Guru Pengampu</p>
-               <p className="text-lg font-medium text-center text-white">Feri Dwi Hermawan, S.Pd.</p>
-            </div>
-
-            <form onSubmit={handleLogin} className="space-y-6">
-              <div className="relative">
-                <input 
-                  type="text" 
-                  id="floating_nama"
-                  required
-                  className="block px-4 pb-2.5 pt-5 w-full text-sm text-white bg-slate-800/50 border border-slate-600 rounded-xl appearance-none focus:outline-none focus:ring-0 focus:border-blue-500 peer placeholder-transparent"
-                  placeholder=" "
-                  value={userName}
-                  onChange={(e) => setUserName(e.target.value)}
-                />
-                <label 
-                  htmlFor="floating_nama" 
-                  className="absolute text-sm text-slate-400 duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] left-4 peer-focus:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4"
-                >
-                  Nama Lengkap
-                </label>
-              </div>
-              
-              <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1.5 ml-1">Kelas / Jurusan</label>
-                <div className="relative">
-                  <select 
-                    className="w-full bg-slate-800 border border-slate-600 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-white appearance-none cursor-pointer transition-all hover:border-slate-500"
-                    value={userClass}
-                    onChange={(e) => setUserClass(e.target.value)}
-                  >
-                    <option value="X TKJ A">X TKJ A</option>
-                    <option value="X TKJ B">X TKJ B</option>
-                    <option value="X DPIB">X DPIB</option>
-                    <option value="XI RPL">XI RPL</option>
-                    <option value="XII TKJ A">XII TKJ A</option>
-                    <option value="XII TKJ B">XII TKJ B</option>
-                  </select>
-                  <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-400">
-                    <ChevronRight className="w-4 h-4 rotate-90" />
-                  </div>
-                </div>
-              </div>
-
-              <button 
-                type="submit"
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-600/30 transition-all active:scale-95 flex items-center justify-center gap-2 mt-2"
-              >
-                Mulai Belajar <LogIn className="w-5 h-5" />
-              </button>
-            </form>
-          </div>
-          <p className="text-center text-xs text-slate-600">SMKN Pasirian • E-Course Platform</p>
-        </div>
-      </div>
-    );
-  }
-
-  // --- MAIN APP UI ---
-  return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans flex flex-col md:flex-row">
-      
-      {/* SIDEBAR (Desktop) */}
-      <aside className="hidden md:flex flex-col w-64 h-screen fixed left-0 top-0 bg-slate-900 border-r border-slate-800 z-50">
-        <div className="p-6 flex items-center gap-3 border-b border-slate-800">
-          <div className={`w-10 h-10 bg-gradient-to-tr from-${currentData.themeColor}-600 to-${currentData.themeColor}-400 rounded-xl flex items-center justify-center shadow-lg`}>
-            <span className="text-xl font-bold text-white">Δ</span>
-          </div>
-          <div>
-            <h1 className="font-bold text-white text-lg leading-none">DeltaMath</h1>
-            <span className="text-[10px] text-slate-400 uppercase tracking-wider">Vokasi</span>
-          </div>
-        </div>
-
-        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-          <button onClick={() => setActiveTab('dashboard')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'dashboard' ? `bg-${currentData.themeColor}-500/10 text-${currentData.themeColor}-400 border border-${currentData.themeColor}-500/20` : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-            <Menu className="w-5 h-5" />
-            <span className="font-medium text-sm">Beranda</span>
-          </button>
-          <button onClick={() => setActiveTab('search')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'search' ? `bg-${currentData.themeColor}-500/10 text-${currentData.themeColor}-400 border border-${currentData.themeColor}-500/20` : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-            <Play className="w-5 h-5" />
-            <span className="font-medium text-sm">Video Materi</span>
-          </button>
-          <button onClick={() => callGeminiAPI('concept')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'chat' ? `bg-indigo-500/10 text-indigo-400 border border-indigo-500/20` : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-            <MessageSquare className="w-5 h-5" />
-            <span className="font-medium text-sm">Tanya AI</span>
-          </button>
-          <button onClick={() => setActiveTab('downloads')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'downloads' ? `bg-${currentData.themeColor}-500/10 text-${currentData.themeColor}-400 border border-${currentData.themeColor}-500/20` : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-            <Award className="w-5 h-5" />
-            <span className="font-medium text-sm">Prestasi</span>
-          </button>
-        </nav>
-
-        <div className="p-4 border-t border-slate-800 bg-slate-900/50">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center text-slate-300">
-                  <User className="w-5 h-5" />
-              </div>
-              <div className="flex-1 overflow-hidden">
-                  <p className="text-sm font-bold text-white truncate">{userName}</p>
-                  <p className="text-xs text-slate-500 truncate">{userClass}</p>
-              </div>
-            </div>
-            <button onClick={() => setIsLoggedIn(false)} className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-slate-800 text-slate-400 text-xs hover:bg-red-900/20 hover:text-red-400 transition-colors">
-              <LogOut className="w-3 h-3" /> Keluar
-            </button>
-        </div>
-      </aside>
-
-      {/* MAIN CONTENT */}
-      <main className="flex-1 w-full md:ml-64 min-h-screen pb-20 md:pb-0 relative">
-        
-        {/* MOBILE NAVBAR */}
-        <div className="md:hidden absolute top-0 w-full z-20 p-4 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
-          <div className="flex items-center gap-2">
-             <span className={`text-${currentData.themeColor}-500 font-bold text-xl drop-shadow-md`}>Δ</span>
-             <span className="font-bold text-sm tracking-wide drop-shadow-md text-white">DeltaMath</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="text-right">
-              <p className="text-xs text-slate-200 font-bold drop-shadow-sm">{userName}</p>
-              <p className="text-[10px] text-slate-300 drop-shadow-sm">{userClass}</p>
-            </div>
-            <div className="w-8 h-8 rounded-md bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
-              <User className="w-4 h-4 text-white" />
-            </div>
-          </div>
-        </div>
-
-        {/* HERO SECTION */}
-        <div className="relative w-full h-[500px] md:h-[60vh] overflow-hidden group">
-          <img 
-            src={currentData.img} 
-            alt={selectedMajor}
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-          />
-          <div className={`absolute inset-0 bg-gradient-to-br ${currentData.accentColor} opacity-40 mix-blend-multiply`}></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-transparent to-transparent"></div>
-          
-          <div className="absolute bottom-0 w-full p-6 md:p-10 pb-8 space-y-4 max-w-4xl">
-            {/* TOP BAR DESKTOP WITH TOPIC SELECTOR */}
-            <div className="hidden md:flex absolute top-10 right-10 z-30">
-               <div className="relative group">
-                 <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md border border-white/20 rounded-xl px-4 py-2 cursor-pointer hover:bg-black/60 transition-all">
-                    <BookOpen className="w-4 h-4 text-white"/>
-                    <span className="text-sm font-bold text-white">{selectedTopic}</span>
-                    <ChevronDown className="w-4 h-4 text-white/70"/>
-                 </div>
-                 {/* DROPDOWN MENU */}
-                 <div className="absolute right-0 top-full mt-2 w-56 bg-slate-900 border border-slate-700 rounded-xl shadow-xl overflow-hidden hidden group-hover:block animate-fadeIn">
-                    <div className="p-2">
-                       <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider px-2 py-1">Pilih Materi Kelas {selectedLevel}</p>
-                       {syllabus[selectedLevel].map((topic) => (
-                         <button 
-                           key={topic}
-                           onClick={() => setSelectedTopic(topic)}
-                           className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-colors ${selectedTopic === topic ? `bg-${currentData.themeColor}-600 text-white` : 'text-slate-300 hover:bg-slate-800'}`}
-                         >
-                           {topic}
-                         </button>
-                       ))}
-                    </div>
-                 </div>
-               </div>
-            </div>
-
-            <div className="animate-fadeIn">
-              <p className="text-lg md:text-xl text-slate-200 font-medium drop-shadow-md">
-                Hai, <span className="font-bold text-white">{userName}</span>! 👋
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2 mb-1">
-               <span className={`px-2 py-0.5 bg-${currentData.themeColor}-600/80 backdrop-blur-sm border border-${currentData.themeColor}-400/50 rounded text-[10px] md:text-xs font-bold text-white uppercase shadow-lg`}>
-                 Materi Minggu Ini
-               </span>
-               <span className="px-2 py-0.5 bg-white/20 backdrop-blur-sm rounded text-[10px] md:text-xs text-white border border-white/30 font-semibold">
-                 {selectedMajor} • Kelas {selectedLevel}
-               </span>
-               {/* Mobile Topic Selector Trigger (Simple Text) */}
-               <div className="md:hidden ml-auto">
-                 <select 
-                    className="bg-black/50 text-white text-xs border border-white/30 rounded px-2 py-1 focus:outline-none"
-                    value={selectedTopic}
-                    onChange={(e) => setSelectedTopic(e.target.value)}
-                 >
-                    {syllabus[selectedLevel].map(t => <option key={t} value={t}>{t}</option>)}
-                 </select>
-               </div>
-            </div>
+        const App = () => {
+            const [isLoggedIn, setIsLoggedIn] = useState(false);
+            const [userName, setUserName] = useState('');
+            const [userClass, setUserClass] = useState('X TKJ A');
             
-            <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight drop-shadow-2xl">
-              {currentData.title}
-            </h1>
-            
-            <p className="text-sm md:text-lg text-slate-200 line-clamp-2 max-w-[90%] md:max-w-2xl drop-shadow-lg font-medium leading-relaxed">
-              {currentData.context}: {currentData.task}
-            </p>
+            const [activeTab, setActiveTab] = useState('dashboard');
+            const [selectedMajor, setSelectedMajor] = useState('TKJ'); 
+            const [selectedLevel, setSelectedLevel] = useState('X'); // 'X' or 'SENIOR'
+            const [selectedTopic, setSelectedTopic] = useState(''); 
+            const [activeDeltaStage, setActiveDeltaStage] = useState('Launch'); 
 
-            <div className="flex items-center gap-2 py-1">
-              <div className="w-5 h-5 rounded-full bg-slate-700 border border-slate-500 flex items-center justify-center overflow-hidden">
-                 <User className="w-3 h-3 text-slate-300" /> 
-              </div>
-              <p className="text-xs md:text-sm text-slate-300 font-medium">
-                Guru Pengampu: <span className="text-white">Feri Dwi Hermawan, S.Pd.</span>
-              </p>
-            </div>
-            
-            <div className="flex items-center gap-3 pt-2 max-w-md">
-              <button className="flex-1 bg-white text-black font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-slate-200 transition-colors shadow-xl shadow-black/20">
-                <Play className="w-5 h-5 fill-black" />
-                Lanjut Belajar
-              </button>
-              <button 
-                onClick={() => callGeminiAPI('concept')}
-                className="flex-none bg-slate-800/60 backdrop-blur-md text-white p-3 px-4 rounded-lg border border-slate-500/50 hover:bg-indigo-600 hover:border-indigo-400 transition-all group flex flex-col items-center justify-center"
-              >
-                <Sparkles className="w-5 h-5 text-yellow-400 mb-0.5" />
-              </button>
-            </div>
-          </div>
-        </div>
+            // AI States
+            const [showAIModal, setShowAIModal] = useState(false);
+            const [aiLoading, setAiLoading] = useState(false);
+            const [aiResponse, setAiResponse] = useState('');
+            const [aiPromptType, setAiPromptType] = useState(''); 
 
-        {/* DELTA STAGES */}
-        <div className="px-4 md:px-10 mt-6 md:mt-8">
-          <h3 className="text-white font-bold text-lg md:text-xl mb-4 flex items-center gap-2">
-            Tahapan DELTA <span className="text-xs font-normal text-slate-500 ml-auto">Geser →</span>
-          </h3>
-          
-          <div className="flex overflow-x-auto gap-4 md:gap-6 pb-8 -mx-4 md:-mx-0 px-4 md:px-0 snap-x hide-scrollbar">
-            {deltaStages.map((stage, index) => {
-              const isActive = activeDeltaStage === stage.id;
-              return (
-                <div 
-                  key={stage.id}
-                  onClick={() => setActiveDeltaStage(stage.id)}
-                  className={`snap-center flex-none w-40 md:w-56 relative group cursor-pointer transition-all duration-300
-                    ${isActive ? 'scale-105' : 'opacity-80 hover:opacity-100'}
-                  `}
-                >
-                  <div className={`
-                    h-56 md:h-72 rounded-xl overflow-hidden relative border-2 transition-all
-                    ${isActive 
-                      ? `border-${currentData.themeColor}-500 shadow-lg shadow-${currentData.themeColor}-900/50` 
-                      : 'border-slate-800 bg-slate-900'}
-                  `}>
-                    <div className={`absolute inset-0 bg-gradient-to-b ${isActive ? `from-${currentData.themeColor}-900/40 to-slate-900` : 'from-slate-800 to-slate-900'}`}></div>
-                    <div className="absolute top-2 right-4 text-5xl md:text-7xl font-black text-white/5 z-0">
-                      {index + 1}
-                    </div>
-                    <div className="absolute inset-0 p-4 flex flex-col justify-end z-10">
-                      <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center mb-3 ${isActive ? `bg-${currentData.themeColor}-500 text-white` : 'bg-slate-800 text-slate-500'}`}>
-                        {stage.icon}
-                      </div>
-                      <h4 className={`font-bold text-sm md:text-lg leading-tight mb-1 ${isActive ? 'text-white' : 'text-slate-300'}`}>
-                        {stage.title}
-                      </h4>
-                      <p className="text-[10px] md:text-xs text-slate-400 line-clamp-2">
-                        {stage.subtitle}
-                      </p>
-                      {isActive && (
-                        <div className="w-full h-1 bg-slate-700 rounded-full mt-4 overflow-hidden">
-                          <div className={`h-full bg-${currentData.themeColor}-500 w-2/3`}></div>
+            // API Key
+            const apiKey = "AIzaSyAS46ALiEZuE6hV3WT5qPu2IEHYZNHJyUU"; 
+
+            // --- DATABASE SILABUS (DAFTAR MATERI) ---
+            const syllabus = {
+                X: [
+                    "Eksponen & Pangkat Pecahan",
+                    "SP & PtLDV", // Sistem Persamaan Linear Dua Variabel
+                    "Fungsi Kuadrat",
+                    "Persamaan & Fungsi Eksponensial",
+                    "Trigonometri",
+                    "Statistika",
+                    "Peluang"
+                ],
+                SENIOR: [ // XI & XII
+                    "Barisan & Deret",
+                    "Anuitas & Investasi",
+                    "Komposisi & Invers Fungsi",
+                    "Transformasi Fungsi",
+                    "Lingkaran",
+                    "Statistika Lanjut",
+                    "Peluang Lanjutan"
+                ]
+            };
+
+            // --- DATABASE KONTEN (PERSONALISASI JURUSAN) ---
+            // Mapping specific topics to content. Fallback generator handles missing ones.
+            const contentDatabase = {
+                X: {
+                    "Eksponen & Pangkat Pecahan": {
+                        RPL: {
+                            title: "Eksponen & Biner", context: "Optimasi Memori & Big Data",
+                            task: "Hitung efisiensi penyimpanan data biner (bit/byte) menggunakan sifat eksponensial.",
+                            img: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800"
+                        },
+                        TKJ: {
+                            title: "Eksponen Jaringan", context: "Subnetting & IP Address",
+                            task: "Hitung jumlah host maksimum dalam jaringan menggunakan perpangkatan basis 2.",
+                            img: "https://images.unsplash.com/photo-1558494949-ef526b0042a0?auto=format&fit=crop&q=80&w=800"
+                        },
+                        DPIB: {
+                            title: "Eksponen Struktur", context: "Kekuatan Material",
+                            task: "Hitung peluruhan kekuatan beton atau pertumbuhan bakteri pada instalasi limbah.",
+                            img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=800"
+                        }
+                    },
+                    "Trigonometri": {
+                        RPL: {
+                            title: "Trigonometri Game", context: "Pengembangan Game 2D",
+                            task: "Tentukan arah peluru (vektor) berdasarkan sudut tembakan menggunakan Sin/Cos.",
+                            img: "https://images.unsplash.com/photo-1556438064-2d7646166914?auto=format&fit=crop&q=80&w=800"
+                        },
+                        TKJ: {
+                            title: "Trigonometri Sinyal", context: "Antena & Jangkauan WiFi",
+                            task: "Hitung ketinggian tower antena agar sinyal menjangkau area radius 2km (Sudut Elevasi).",
+                            img: "https://images.unsplash.com/photo-1544197150-b99a580bbcbf?auto=format&fit=crop&q=80&w=800"
+                        },
+                        DPIB: {
+                            title: "Trigonometri Konstruksi", context: "Pengukuran Lahan (Theodolite)",
+                            task: "Hitung kemiringan atap atau tinggi gedung menggunakan perbandingan trigonometri.",
+                            img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=800"
+                        }
+                    },
+                    "Fungsi Kuadrat": {
+                         RPL: {
+                            title: "Fungsi Kuadrat Game", context: "Fisika Game (Projectile)",
+                            task: "Buat persamaan parabola untuk lintasan lompatan karakter dalam game platformer.",
+                            img: "https://images.unsplash.com/photo-1556438064-2d7646166914?auto=format&fit=crop&q=80&w=800"
+                        },
+                        TKJ: {
+                            title: "Optimasi Jaringan", context: "Load Balancing",
+                            task: "Analisis kurva beban server untuk menemukan titik puncak traffic menggunakan fungsi kuadrat.",
+                            img: "https://images.unsplash.com/photo-1544197150-b99a580bbcbf?auto=format&fit=crop&q=80&w=800"
+                        },
+                        DPIB: {
+                            title: "Lengkung Jembatan", context: "Desain Jembatan",
+                            task: "Hitung beban maksimal pada titik puncak lengkungan jembatan gantung.",
+                            img: "https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?auto=format&fit=crop&q=80&w=800"
+                        }
+                    }
+                },
+                SENIOR: {
+                    "Transformasi Fungsi": {
+                        RPL: {
+                            title: "Transformasi Game", context: "Computer Graphics",
+                            task: "Buat matriks rotasi untuk memutar objek karakter game sebesar 90 derajat.",
+                            img: "https://images.unsplash.com/photo-1614741118868-9c7c9da96307?auto=format&fit=crop&q=80&w=800"
+                        },
+                        TKJ: {
+                            title: "Transformasi Sinyal", context: "Pengolahan Sinyal",
+                            task: "Analisis pergeseran fasa gelombang sinyal (translasi grafik).",
+                            img: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800"
+                        },
+                        DPIB: {
+                            title: "Transformasi CAD", context: "Desain Arsitektur (AutoCAD)",
+                            task: "Pindahkan denah bangunan (Translasi) dan perbesar skala (Dilatasi) pada koordinat.",
+                            img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=800"
+                        }
+                    },
+                    "Anuitas & Investasi": {
+                        RPL: {
+                            title: "Fintech System", context: "Aplikasi Keuangan",
+                            task: "Buat algoritma untuk menghitung cicilan bulanan (anuitas) pada aplikasi pinjol simulasi.",
+                            img: "https://images.unsplash.com/photo-1563986768-7b06d938b39d?auto=format&fit=crop&q=80&w=800"
+                        },
+                        TKJ: {
+                            title: "Investasi Perangkat", context: "Pengadaan Server",
+                            task: "Hitung penyusutan nilai aset server dan biaya maintenance tahunan (Bunga Majemuk).",
+                            img: "https://images.unsplash.com/photo-1558494949-ef526b0042a0?auto=format&fit=crop&q=80&w=800"
+                        },
+                        DPIB: {
+                            title: "RAB Proyek", context: "Manajemen Konstruksi",
+                            task: "Hitung angsuran pinjaman modal proyek perumahan dengan sistem anuitas.",
+                            img: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=800"
+                        }
+                    }
+                }
+            };
+
+            // --- LOGIKA MENDAPATKAN KONTEN ---
+            const getCurrentData = () => {
+                // 1. Cek apakah ada konten spesifik di database
+                const levelDB = contentDatabase[selectedLevel];
+                const topicDB = levelDB ? levelDB[selectedTopic] : null;
+                const specificData = topicDB ? topicDB[selectedMajor] : null;
+
+                // 2. Jika ada, gunakan. Jika tidak, GENERATE GENERIC CONTENT (Fallback)
+                if (specificData) {
+                    return { ...specificData, themeColor: getThemeColor(selectedMajor), accentColor: getAccentColor(selectedMajor), icon: getIcon(selectedMajor) };
+                } else {
+                    // Fallback Content Generator
+                    return {
+                        title: selectedTopic || "Materi Matematika",
+                        context: `Penerapan di ${selectedMajor}`,
+                        task: `Selesaikan permasalahan kontekstual ${selectedTopic} yang berkaitan dengan studi kasus ${selectedMajor}.`,
+                        img: getGenericImage(selectedMajor),
+                        themeColor: getThemeColor(selectedMajor),
+                        accentColor: getAccentColor(selectedMajor),
+                        icon: getIcon(selectedMajor)
+                    };
+                }
+            };
+
+            // Helpers for Fallback
+            const getThemeColor = (major) => major === 'RPL' ? 'blue' : major === 'TKJ' ? 'emerald' : 'orange';
+            const getAccentColor = (major) => major === 'RPL' ? 'from-blue-600 to-indigo-900' : major === 'TKJ' ? 'from-emerald-600 to-teal-900' : 'from-orange-600 to-red-900';
+            const getIcon = (major) => major === 'RPL' ? <Terminal className="w-5 h-5"/> : major === 'TKJ' ? <Wifi className="w-5 h-5"/> : <Ruler className="w-5 h-5"/>;
+            const getGenericImage = (major) => major === 'RPL' ? "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800" : major === 'TKJ' ? "https://images.unsplash.com/photo-1544197150-b99a580bbcbf?w=800" : "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800";
+
+            const currentData = getCurrentData();
+
+            const deltaStages = [
+                { id: 'Discover', title: '1. Discover', subtitle: 'Investigasi Masalah', icon: <BookOpen className="w-4 h-4" /> },
+                { id: 'Explore', title: '2. Explore', subtitle: 'Eksperimen Konsep', icon: <Compass className="w-4 h-4" /> },
+                { id: 'Launch', title: '3. Launch', subtitle: 'Misi Utama', icon: <Rocket className="w-4 h-4" /> },
+                { id: 'Transform', title: '4. Transform', subtitle: 'Refleksi Diri', icon: <Repeat className="w-4 h-4" /> },
+                { id: 'Assess', title: '5. Assess', subtitle: 'Uji Kompetensi', icon: <BarChart2 className="w-4 h-4" /> },
+            ];
+
+            // --- GEMINI API FUNCTION ---
+            const callGeminiAPI = async (type) => {
+                setAiLoading(true);
+                setAiResponse('');
+                setAiPromptType(type);
+                setShowAIModal(true);
+
+                if (!apiKey) {
+                    setAiResponse("⚠️ API Key belum diatur.");
+                    setAiLoading(false);
+                    return;
+                }
+
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+                let prompt = "";
+                if (type === 'concept') {
+                    prompt = `Sebagai guru matematika SMK yang asik bernama Pak Feri, jelaskan konsep "${currentData.title}" dalam konteks jurusan ${selectedMajor} (Kelas ${selectedLevel}) secara singkat, padat, dan memotivasi. Gunakan bahasa gaul yang sopan.`;
+                } else if (type === 'project') {
+                    prompt = `Saya siswa jurusan ${selectedMajor} Kelas ${selectedLevel}. Topik: ${selectedTopic}. Tugas saya: "${currentData.task}". Berikan 3 langkah panduan praktis (step-by-step) untuk menyelesaikannya. Berikan rumus yang relevan jika ada.`;
+                }
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                    });
+                    const data = await response.json();
+                    if (data.candidates && data.candidates[0].content) {
+                        setAiResponse(data.candidates[0].content.parts[0].text);
+                    } else if (data.error) {
+                         setAiResponse(`Error: ${data.error.message}`);
+                    } else {
+                        setAiResponse("Maaf, Guru AI sedang sibuk. Coba lagi nanti ya!");
+                    }
+                } catch (error) {
+                    console.error("Error calling Gemini:", error);
+                    setAiResponse("Terjadi kesalahan koneksi. Periksa internetmu.");
+                } finally {
+                    setAiLoading(false);
+                }
+            };
+
+            const handleLogin = (e) => {
+                e.preventDefault();
+                if (userName.trim()) {
+                    let major = 'RPL';
+                    if (userClass.includes('TKJ')) major = 'TKJ';
+                    else if (userClass.includes('DPIB')) major = 'DPIB';
+                    
+                    let level = 'SENIOR'; // Default XI/XII
+                    if (userClass.startsWith('X ') || userClass.startsWith('X-')) {
+                        level = 'X';
+                    }
+
+                    setSelectedMajor(major);
+                    setSelectedLevel(level);
+                    
+                    // Set Default Topic based on Level
+                    const defaultTopic = level === 'X' ? syllabus.X[0] : syllabus.SENIOR[0];
+                    setSelectedTopic(defaultTopic);
+                    
+                    setIsLoggedIn(true);
+                }
+            };
+
+            // --- LOGIN SCREEN ---
+            if (!isLoggedIn) {
+                return (
+                    <div className="min-h-screen bg-slate-950 text-white font-sans flex items-center justify-center p-6 relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+                        <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-indigo-600 rounded-full blur-[100px] opacity-30"></div>
+                        <div className="absolute bottom-[-10%] left-[-10%] w-96 h-96 bg-blue-600 rounded-full blur-[100px] opacity-30"></div>
+
+                        <div className="relative z-10 w-full max-w-md space-y-8 animate-fadeIn">
+                            <div className="text-center space-y-2">
+                                <div className="w-20 h-20 bg-gradient-to-tr from-blue-500 to-indigo-600 rounded-3xl mx-auto flex items-center justify-center shadow-lg shadow-blue-500/30 mb-6 transform rotate-3">
+                                    <span className="text-4xl font-bold">Δ</span>
+                                </div>
+                                <h1 className="text-4xl font-bold tracking-tight">DeltaMath <span className="text-blue-400">Vokasi</span></h1>
+                                <p className="text-slate-400 text-base">Platform Belajar Matematika Terpersonalisasi</p>
+                            </div>
+
+                            <div className="bg-slate-900/60 backdrop-blur-xl p-8 rounded-3xl border border-slate-800 shadow-2xl">
+                                <div className="mb-6 pb-4 border-b border-slate-700/50">
+                                    <p className="text-xs text-slate-400 uppercase tracking-widest text-center mb-1">Guru Pengampu</p>
+                                    <p className="text-lg font-medium text-center text-white">Feri Dwi Hermawan, S.Pd.</p>
+                                </div>
+
+                                <form onSubmit={handleLogin} className="space-y-6">
+                                    
+                                    {/* Floating Label Input: Nama Lengkap */}
+                                    <div className="relative">
+                                        <input 
+                                            type="text" 
+                                            id="floating_nama"
+                                            required
+                                            className="block px-4 pb-2.5 pt-5 w-full text-sm text-white bg-slate-800 border border-slate-700 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 peer placeholder-transparent"
+                                            placeholder=" "
+                                            value={userName}
+                                            onChange={(e) => setUserName(e.target.value)}
+                                        />
+                                        <label 
+                                            htmlFor="floating_nama" 
+                                            className="absolute text-sm text-slate-400 duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] left-4 peer-focus:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4"
+                                        >
+                                            Nama Lengkap
+                                        </label>
+                                    </div>
+                                    
+                                    {/* Dropdown Kelas Updated */}
+                                    <div>
+                                        <label className="block text-xs font-medium text-slate-400 mb-1.5 ml-1">Kelas / Jurusan</label>
+                                        <div className="relative">
+                                            <select 
+                                                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-white appearance-none cursor-pointer transition-all hover:border-slate-500"
+                                                value={userClass}
+                                                onChange={(e) => setUserClass(e.target.value)}
+                                            >
+                                                <option value="X TKJ A">X TKJ A</option>
+                                                <option value="X TKJ B">X TKJ B</option>
+                                                <option value="X DPIB">X DPIB</option>
+                                                <option value="XI RPL">XI RPL</option>
+                                                <option value="XII TKJ A">XII TKJ A</option>
+                                                <option value="XII TKJ B">XII TKJ B</option>
+                                            </select>
+                                            <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-400">
+                                                <ChevronRight className="w-4 h-4 rotate-90" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button 
+                                        type="submit"
+                                        className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-600/30 transition-all active:scale-95 flex items-center justify-center gap-2 mt-4"
+                                    >
+                                        Mulai Belajar <LogIn className="w-5 h-5" />
+                                    </button>
+                                </form>
+                            </div>
+                            <p className="text-center text-xs text-slate-600">SMKN Pasirian • E-Course Platform</p>
                         </div>
-                      )}
                     </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+                );
+            }
 
-        {/* CONTENT DETAIL */}
-        <div className="px-4 md:px-10 mb-8 max-w-6xl">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 relative overflow-hidden">
-             <div className={`absolute top-0 right-0 w-64 h-64 bg-${currentData.themeColor}-500/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none`}></div>
-             <div className="flex justify-between items-start mb-4">
-                <h4 className="text-slate-400 text-xs md:text-sm font-bold uppercase tracking-wider">Sedang Dibuka: <span className="text-white">{activeDeltaStage}</span></h4>
-                {activeDeltaStage === 'Launch' && (
-                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-900/50 border border-indigo-500/30 text-xs text-indigo-300 font-bold animate-pulse">
-                    <Sparkles className="w-3.5 h-3.5" /> AI Powered
-                  </span>
-                )}
-             </div>
-             <div className="flex flex-col gap-6 relative z-10">
-                <div className="flex-1">
-                   <h3 className="text-xl md:text-2xl font-bold text-white mb-2">Aktivitas Pembelajaran</h3>
-                   <p className="text-sm md:text-base text-slate-300 leading-relaxed max-w-3xl">
-                     {activeDeltaStage === 'Launch' 
-                       ? `Tantangan khusus jurusan ${selectedMajor} (${selectedLevel}): ${currentData.task}`
-                       : "Selesaikan aktivitas di tahap ini untuk membuka materi selanjutnya. Tonton video pengantar dan catat poin penting."}
-                   </p>
-                </div>
-                <div className="flex flex-wrap gap-3 mt-2">
-                  <button className={`py-3 px-6 rounded-xl text-sm font-bold bg-${currentData.themeColor}-600 hover:bg-${currentData.themeColor}-500 text-white flex items-center justify-center gap-2 transition-colors shadow-lg`}>
-                    Mulai Aktivitas <ChevronRight className="w-4 h-4" />
-                  </button>
-                  {activeDeltaStage === 'Launch' && (
-                    <button 
-                      onClick={() => callGeminiAPI('project')}
-                      className="py-3 px-6 rounded-xl text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center gap-2 border border-indigo-400 shadow-lg shadow-indigo-500/20 transition-all active:scale-95"
-                    >
-                      <Sparkles className="w-4 h-4" /> Tanya Mentor AI
-                    </button>
-                  )}
-                </div>
-             </div>
-          </div>
-        </div>
-      </main>
+            // --- MAIN APP UI ---
+            return (
+                <div className="min-h-screen bg-slate-950 text-slate-200 font-sans flex flex-col md:flex-row">
+                    
+                    {/* SIDEBAR (Desktop) */}
+                    <aside className="hidden md:flex flex-col w-64 h-screen fixed left-0 top-0 bg-slate-900 border-r border-slate-800 z-50">
+                        <div className="p-6 flex items-center gap-3 border-b border-slate-800">
+                            <div className={`w-10 h-10 bg-gradient-to-tr from-${currentData.themeColor}-600 to-${currentData.themeColor}-400 rounded-xl flex items-center justify-center shadow-lg`}>
+                                <span className="text-xl font-bold text-white">Δ</span>
+                            </div>
+                            <div>
+                                <h1 className="font-bold text-white text-lg leading-none">DeltaMath</h1>
+                                <span className="text-[10px] text-slate-400 uppercase tracking-wider">Vokasi</span>
+                            </div>
+                        </div>
 
-      {/* AI MODAL */}
-      {showAIModal && (
-        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center px-4 py-6 bg-black/80 backdrop-blur-sm animate-fadeIn">
-          <div className="w-full max-w-2xl bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl flex flex-col max-h-[85vh] overflow-hidden">
-            <div className="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900 sticky top-0">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-indigo-600 rounded-lg">
-                  <Sparkles className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-white">
-                    {aiPromptType === 'concept' ? 'Guru AI: Penjelasan Konsep' : 'Mentor AI: Panduan Proyek'}
-                  </h3>
-                  <p className="text-xs text-slate-400">Powered by Gemini AI</p>
-                </div>
-              </div>
-              <button onClick={() => setShowAIModal(false)} className="p-2 hover:bg-slate-800 rounded-full text-slate-400 transition-colors">
-                <CloseIcon className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-6 overflow-y-auto">
-              {aiLoading ? (
-                <div className="flex flex-col items-center justify-center py-12 space-y-4">
-                  <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                  <p className="text-sm text-indigo-300 animate-pulse font-medium">Sedang memikirkan jawaban terbaik...</p>
-                </div>
-              ) : (
-                <div className="prose prose-invert prose-sm md:prose-base max-w-none">
-                  <div className="text-slate-300 whitespace-pre-line leading-relaxed">
-                    {aiResponse}
-                  </div>
-                </div>
-              )}
-            </div>
-            {!aiLoading && (
-              <div className="p-4 border-t border-slate-800 bg-slate-900/50 flex justify-end">
-                <button onClick={() => setShowAIModal(false)} className="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-sm font-bold text-slate-300 rounded-lg transition-colors border border-slate-700">
-                  Tutup
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+                        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+                            <button onClick={() => setActiveTab('dashboard')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'dashboard' ? `bg-${currentData.themeColor}-500/10 text-${currentData.themeColor}-400 border border-${currentData.themeColor}-500/20` : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                                <Menu className="w-5 h-5" />
+                                <span className="font-medium text-sm">Beranda</span>
+                            </button>
+                            <button onClick={() => setActiveTab('search')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'search' ? `bg-${currentData.themeColor}-500/10 text-${currentData.themeColor}-400 border border-${currentData.themeColor}-500/20` : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                                <Play className="w-5 h-5" />
+                                <span className="font-medium text-sm">Video Materi</span>
+                            </button>
+                            <button onClick={() => callGeminiAPI('concept')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'chat' ? `bg-indigo-500/10 text-indigo-400 border border-indigo-500/20` : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                                <MessageSquare className="w-5 h-5" />
+                                <span className="font-medium text-sm">Tanya AI</span>
+                            </button>
+                            <button onClick={() => setActiveTab('downloads')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'downloads' ? `bg-${currentData.themeColor}-500/10 text-${currentData.themeColor}-400 border border-${currentData.themeColor}-500/20` : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                                <Award className="w-5 h-5" />
+                                <span className="font-medium text-sm">Prestasi</span>
+                            </button>
+                        </nav>
 
-      {/* MOBILE BOTTOM NAV */}
-      <nav className="md:hidden fixed bottom-0 w-full bg-[#121212] border-t border-slate-800/50 p-2 pb-4 z-40">
-        <div className="flex justify-around items-center">
-          <button className={`p-2 flex flex-col items-center gap-1 ${activeTab === 'dashboard' ? 'text-white' : 'text-slate-600'}`} onClick={() => setActiveTab('dashboard')}>
-            <Menu className="w-5 h-5" />
-            <span className="text-[9px] font-medium">Beranda</span>
-          </button>
-          <button className={`p-2 flex flex-col items-center gap-1 ${activeTab === 'search' ? 'text-white' : 'text-slate-600'}`} onClick={() => setActiveTab('search')}>
-            <Play className="w-5 h-5" />
-            <span className="text-[9px] font-medium">Video</span>
-          </button>
-          <button className={`p-2 flex flex-col items-center gap-1 ${activeTab === 'chat' ? 'text-indigo-400' : 'text-slate-600'}`} onClick={() => callGeminiAPI('concept')}>
-            <MessageSquare className="w-5 h-5" />
-            <span className="text-[9px] font-medium">Tanya AI</span>
-          </button>
-          <button className={`p-2 flex flex-col items-center gap-1 ${activeTab === 'downloads' ? 'text-white' : 'text-slate-600'}`} onClick={() => setActiveTab('downloads')}>
-            <Award className="w-5 h-5" />
-            <span className="text-[9px] font-medium">Prestasi</span>
-          </button>
-        </div>
-      </nav>
-    </div>
-  );
-};
+                        <div className="p-4 border-t border-slate-800 bg-slate-900/50">
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="w-10 h-10 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center text-slate-300">
+                                    <User className="w-5 h-5" />
+                                </div>
+                                <div className="flex-1 overflow-hidden">
+                                    <p className="text-sm font-bold text-white truncate">{userName}</p>
+                                    <p className="text-xs text-slate-500 truncate">{userClass}</p>
+                                </div>
+                            </div>
+                            <button onClick={() => setIsLoggedIn(false)} className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-slate-800 text-slate-400 text-xs hover:bg-red-900/20 hover:text-red-400 transition-colors">
+                                <LogOut className="w-3 h-3" /> Keluar
+                            </button>
+                        </div>
+                    </aside>
 
-export default App;
+                    {/* MAIN CONTENT */}
+                    <main className="flex-1 w-full md:ml-64 min-h-screen pb-20 md:pb-0 relative">
+                        
+                        {/* MOBILE NAVBAR */}
+                        <div className="md:hidden absolute top-0 w-full z-20 p-4 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
+                            <div className="flex items-center gap-2">
+                                <span className={`text-${currentData.themeColor}-500 font-bold text-xl drop-shadow-md`}>Δ</span>
+                                <span className="font-bold text-sm tracking-wide drop-shadow-md text-white">DeltaMath</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <div className="text-right">
+                                    <p className="text-xs text-slate-200 font-bold drop-shadow-sm">{userName}</p>
+                                    <p className="text-[10px] text-slate-300 drop-shadow-sm">{userClass}</p>
+                                </div>
+                                <div className="w-8 h-8 rounded-md bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
+                                    <User className="w-4 h-4 text-white" />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* HERO SECTION */}
+                        <div className="relative w-full h-[500px] md:h-[60vh] overflow-hidden group">
+                            <img 
+                                src={currentData.img} 
+                                alt={selectedMajor}
+                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                            />
+                            <div className={`absolute inset-0 bg-gradient-to-br ${currentData.accentColor} opacity-40 mix-blend-multiply`}></div>
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent"></div>
+                            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-transparent to-transparent"></div>
+                            
+                            <div className="absolute bottom-0 w-full p-6 md:p-10 pb-8 space-y-4 max-w-4xl">
+                                {/* TOP BAR DESKTOP WITH TOPIC SELECTOR */}
+                                <div className="hidden md:flex absolute top-10 right-10 z-30">
+                                    <div className="relative group">
+                                        <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md border border-white/20 rounded-xl px-4 py-2 cursor-pointer hover:bg-black/60 transition-all">
+                                            <BookOpen className="w-4 h-4 text-white"/>
+                                            <span className="text-sm font-bold text-white">{selectedTopic}</span>
+                                            <ChevronDown className="w-4 h-4 text-white/70"/>
+                                        </div>
+                                        {/* DROPDOWN MENU */}
+                                        <div className="absolute right-0 top-full mt-2 w-56 bg-slate-900 border border-slate-700 rounded-xl shadow-xl overflow-hidden hidden group-hover:block animate-fadeIn">
+                                            <div className="p-2">
+                                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider px-2 py-1">Pilih Materi Kelas {selectedLevel}</p>
+                                                {syllabus[selectedLevel].map((topic) => (
+                                                    <button 
+                                                        key={topic}
+                                                        onClick={() => setSelectedTopic(topic)}
+                                                        className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-colors ${selectedTopic === topic ? `bg-${currentData.themeColor}-600 text-white` : 'text-slate-300 hover:bg-slate-800'}`}
+                                                    >
+                                                        {topic}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="animate-fadeIn">
+                                    <p className="text-lg md:text-xl text-slate-200 font-medium drop-shadow-md">
+                                        Hai, <span className="font-bold text-white">{userName}</span>! 👋
+                                    </p>
+                                </div>
+
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className={`px-2 py-0.5 bg-${currentData.themeColor}-600/80 backdrop-blur-sm border border-${currentData.themeColor}-400/50 rounded text-[10px] md:text-xs font-bold text-white uppercase shadow-lg`}>
+                                        Materi Minggu Ini
+                                    </span>
+                                    <span className="px-2 py-0.5 bg-white/20 backdrop-blur-sm rounded text-[10px] md:text-xs text-white border border-white/30 font-semibold">
+                                        {selectedMajor} • Kelas {selectedLevel}
+                                    </span>
+                                    {/* Mobile Topic Selector Trigger */}
+                                    <div className="md:hidden ml-auto">
+                                        <select 
+                                            className="bg-black/50 text-white text-xs border border-white/30 rounded px-2 py-1 focus:outline-none"
+                                            value={selectedTopic}
+                                            onChange={(e) => setSelectedTopic(e.target.value)}
+                                        >
+                                            {syllabus[selectedLevel].map(t => <option key={t} value={t}>{t}</option>)}
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight drop-shadow-2xl">
+                                    {currentData.title}
+                                </h1>
+                                
+                                <p className="text-sm md:text-lg text-slate-200 line-clamp-2 max-w-[90%] md:max-w-2xl drop-shadow-lg font-medium leading-relaxed">
+                                    {currentData.context}: {currentData.task}
+                                </p>
+
+                                <div className="flex items-center gap-2 py-1">
+                                    <div className="w-5 h-5 rounded-full bg-slate-700 border border-slate-500 flex items-center justify-center overflow-hidden">
+                                        <User className="w-3 h-3 text-slate-300" /> 
+                                    </div>
+                                    <p className="text-xs md:text-sm text-slate-300 font-medium">
+                                        Guru Pengampu: <span className="text-white">Feri Dwi Hermawan, S.Pd.</span>
+                                    </p>
+                                </div>
+                                
+                                <div className="flex items-center gap-3 pt-2 max-w-md">
+                                    <button className="flex-1 bg-white text-black font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-slate-200 transition-colors shadow-xl shadow-black/20">
+                                        <Play className="w-5 h-5 fill-black" />
+                                        Lanjut Belajar
+                                    </button>
+                                    <button 
+                                        onClick={() => callGeminiAPI('concept')}
+                                        className="flex-none bg-slate-800/60 backdrop-blur-md text-white p-3 px-4 rounded-lg border border-slate-500/50 hover:bg-indigo-600 hover:border-indigo-400 transition-all group flex flex-col items-center justify-center"
+                                    >
+                                        <Sparkles className="w-5 h-5 text-yellow-400 mb-0.5" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* DELTA STAGES */}
+                        <div className="px-4 md:px-10 mt-6 md:mt-8">
+                            <h3 className="text-white font-bold text-lg md:text-xl mb-4 flex items-center gap-2">
+                                Tahapan DELTA <span className="text-xs font-normal text-slate-500 ml-auto">Geser →</span>
+                            </h3>
+                            
+                            <div className="flex overflow-x-auto gap-4 md:gap-6 pb-8 -mx-4 md:-mx-0 px-4 md:px-0 snap-x hide-scrollbar">
+                                {deltaStages.map((stage, index) => {
+                                    const isActive = activeDeltaStage === stage.id;
+                                    return (
+                                        <div 
+                                            key={stage.id}
+                                            onClick={() => setActiveDeltaStage(stage.id)}
+                                            className={`snap-center flex-none w-40 md:w-56 relative group cursor-pointer transition-all duration-300
+                                                ${isActive ? 'scale-105' : 'opacity-80 hover:opacity-100'}
+                                            `}
+                                        >
+                                            <div className={`
+                                                h-56 md:h-72 rounded-xl overflow-hidden relative border-2 transition-all
+                                                ${isActive 
+                                                    ? `border-${currentData.themeColor}-500 shadow-lg shadow-${currentData.themeColor}-900/50` 
+                                                    : 'border-slate-800 bg-slate-900'}
+                                            `}>
+                                                <div className={`absolute inset-0 bg-gradient-to-b ${isActive ? `from-${currentData.themeColor}-900/40 to-slate-900` : 'from-slate-800 to-slate-900'}`}></div>
+                                                <div className="absolute top-2 right-4 text-5xl md:text-7xl font-black text-white/5 z-0">
+                                                    {index + 1}
+                                                </div>
+                                                <div className="absolute inset-0 p-4 flex flex-col justify-end z-10">
+                                                    <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center mb-3 ${isActive ? `bg-${currentData.themeColor}-500 text-white` : 'bg-slate-800 text-slate-500'}`}>
+                                                        {stage.icon}
+                                                    </div>
+                                                    <h4 className={`font-bold text-sm md:text-lg leading-tight mb-1 ${isActive ? 'text-white' : 'text-slate-300'}`}>
+                                                        {stage.title}
+                                                    </h4>
+                                                    <p className="text-[10px] md:text-xs text-slate-400 line-clamp-2">
+                                                        {stage.subtitle}
+                                                    </p>
+                                                    {isActive && (
+                                                        <div className="w-full h-1 bg-slate-700 rounded-full mt-4 overflow-hidden">
+                                                            <div className={`h-full bg-${currentData.themeColor}-500 w-2/3`}></div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* CONTENT DETAIL */}
+                        <div className="px-4 md:px-10 mb-8 max-w-6xl">
+                            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 relative overflow-hidden">
+                                <div className={`absolute top-0 right-0 w-64 h-64 bg-${currentData.themeColor}-500/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none`}></div>
+                                <div className="flex justify-between items-start mb-4">
+                                    <h4 className="text-slate-400 text-xs md:text-sm font-bold uppercase tracking-wider">Sedang Dibuka: <span className="text-white">{activeDeltaStage}</span></h4>
+                                    {activeDeltaStage === 'Launch' && (
+                                        <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-900/50 border border-indigo-500/30 text-xs text-indigo-300 font-bold animate-pulse">
+                                            <Sparkles className="w-3.5 h-3.5" /> AI Powered
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="flex flex-col gap-6 relative z-10">
+                                    <div className="flex-1">
+                                        <h3 className="text-xl md:text-2xl font-bold text-white mb-2">Aktivitas Pembelajaran</h3>
+                                        <p className="text-sm md:text-base text-slate-300 leading-relaxed max-w-3xl">
+                                            {activeDeltaStage === 'Launch' 
+                                                ? `Tantangan khusus jurusan ${selectedMajor} (${selectedLevel}): ${currentData.task}`
+                                                : "Selesaikan aktivitas di tahap ini untuk membuka materi selanjutnya. Tonton video pengantar dan catat poin penting."}
+                                        </p>
+                                    </div>
+                                    <div className="flex flex-wrap gap-3 mt-2">
+                                        <button className={`py-3 px-6 rounded-xl text-sm font-bold bg-${currentData.themeColor}-600 hover:bg-${currentData.themeColor}-500 text-white flex items-center justify-center gap-2 transition-colors shadow-lg`}>
+                                            Mulai Aktivitas <ChevronRight className="w-4 h-4" />
+                                        </button>
+                                        {activeDeltaStage === 'Launch' && (
+                                            <button 
+                                                onClick={() => callGeminiAPI('project')}
+                                                className="py-3 px-6 rounded-xl text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center gap-2 border border-indigo-400 shadow-lg shadow-indigo-500/20 transition-all active:scale-95"
+                                            >
+                                                <Sparkles className="w-4 h-4" /> Tanya Mentor AI
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+
+                    {/* AI MODAL POPUP (Center fixed) */}
+                    {showAIModal && (
+                        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center px-4 py-6 bg-black/80 backdrop-blur-sm animate-fadeIn">
+                            <div className="w-full max-w-2xl bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl flex flex-col max-h-[85vh] overflow-hidden">
+                                <div className="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900 sticky top-0">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-indigo-600 rounded-lg">
+                                            <Sparkles className="w-5 h-5 text-white" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-base font-bold text-white">
+                                                {aiPromptType === 'concept' ? 'Guru AI: Penjelasan Konsep' : 'Mentor AI: Panduan Proyek'}
+                                            </h3>
+                                            <p className="text-xs text-slate-400">Powered by Gemini AI</p>
+                                        </div>
+                                    </div>
+                                    <button onClick={() => setShowAIModal(false)} className="p-2 hover:bg-slate-800 rounded-full text-slate-400 transition-colors">
+                                        <CloseIcon className="w-5 h-5" />
+                                    </button>
+                                </div>
+                                <div className="p-6 overflow-y-auto">
+                                    {aiLoading ? (
+                                        <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                                            <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                                            <p className="text-sm text-indigo-300 animate-pulse font-medium">Sedang memikirkan jawaban terbaik...</p>
+                                        </div>
+                                    ) : (
+                                        <div className="prose prose-invert prose-sm md:prose-base max-w-none">
+                                            <div className="text-slate-300 whitespace-pre-line leading-relaxed">
+                                                {aiResponse}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                                {!aiLoading && (
+                                    <div className="p-4 border-t border-slate-800 bg-slate-900/50 flex justify-end">
+                                        <button 
+                                            onClick={() => setShowAIModal(false)}
+                                            className="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-sm font-bold text-slate-300 rounded-lg transition-colors border border-slate-700"
+                                        >
+                                            Tutup
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* BOTTOM NAV (MOBILE ONLY) */}
+                    <nav className="md:hidden fixed bottom-0 w-full bg-[#121212] border-t border-slate-800/50 p-2 pb-4 z-40">
+                        <div className="flex justify-around items-center">
+                            <button className={`p-2 flex flex-col items-center gap-1 ${activeTab === 'dashboard' ? 'text-white' : 'text-slate-600'}`} onClick={() => setActiveTab('dashboard')}>
+                                <Menu className="w-5 h-5" />
+                                <span className="text-[9px] font-medium">Beranda</span>
+                            </button>
+                            <button className={`p-2 flex flex-col items-center gap-1 ${activeTab === 'search' ? 'text-white' : 'text-slate-600'}`} onClick={() => setActiveTab('search')}>
+                                <Play className="w-5 h-5" />
+                                <span className="text-[9px] font-medium">Video</span>
+                            </button>
+                            <button className={`p-2 flex flex-col items-center gap-1 ${activeTab === 'chat' ? 'text-indigo-400' : 'text-slate-600'}`} onClick={() => callGeminiAPI('concept')}>
+                                <MessageSquare className="w-5 h-5" />
+                                <span className="text-[9px] font-medium">Tanya AI</span>
+                            </button>
+                            <button className={`p-2 flex flex-col items-center gap-1 ${activeTab === 'downloads' ? 'text-white' : 'text-slate-600'}`} onClick={() => setActiveTab('downloads')}>
+                                <Award className="w-5 h-5" />
+                                <span className="text-[9px] font-medium">Prestasi</span>
+                            </button>
+                        </div>
+                    </nav>
+                </div>
+            );
+        };
+
+        const root = createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
