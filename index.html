@@ -66,7 +66,7 @@
             ChevronRight, Menu, User, Award, Terminal, Wifi, 
             Ruler, LogIn, Sparkles, X as CloseIcon, MessageSquare, 
             LogOut, Settings, ChevronDown, LayoutGrid, LayoutList, 
-            Clock, CheckCircle2, MoreHorizontal
+            Clock, CheckCircle2, MoreHorizontal, Globe, Lock
         } from 'lucide-react';
 
         const App = () => {
@@ -86,6 +86,11 @@
             const [aiLoading, setAiLoading] = useState(false);
             const [aiResponse, setAiResponse] = useState('');
             const [aiPromptType, setAiPromptType] = useState(''); 
+
+            // Admin Board States
+            const [showAdminModal, setShowAdminModal] = useState(false);
+            const [adminPassword, setAdminPassword] = useState('');
+            const [adminError, setAdminError] = useState('');
 
             const apiKey = "AIzaSyAS46ALiEZuE6hV3WT5qPu2IEHYZNHJyUU"; 
 
@@ -302,6 +307,16 @@
                     setSelectedTopic(defaultTopic);
                     
                     setIsLoggedIn(true);
+                }
+            };
+
+            const handleAdminAccess = (e) => {
+                e.preventDefault();
+                if (adminPassword === "F3r!-lee") {
+                    window.location.href = "https://feriboard.netlify.app/";
+                } else {
+                    setAdminError("Password salah!");
+                    setTimeout(() => setAdminError(''), 2000);
                 }
             };
 
@@ -661,6 +676,57 @@
                             </div>
                             <p className="text-center text-xs text-slate-600">SMKN Pasirian • E-Course Platform</p>
                         </div>
+
+                        {/* ADMIN BUTTON (FLOATING ON LOGIN TOO) */}
+                        <button
+                            onClick={() => setShowAdminModal(true)}
+                            className="fixed bottom-4 right-4 z-50 p-3 bg-red-600/90 hover:bg-red-500 text-white rounded-full shadow-lg border border-red-400/50 transition-all hover:scale-110 flex items-center justify-center group"
+                            title="Akses FeriBoard"
+                        >
+                            <Globe className="w-5 h-5 group-hover:animate-spin" />
+                        </button>
+
+                         {/* ADMIN MODAL */}
+                        {showAdminModal && (
+                            <div className="fixed inset-0 z-[101] flex items-center justify-center px-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+                                <div className="bg-slate-900 border border-slate-700 p-6 rounded-2xl shadow-2xl w-full max-w-sm relative">
+                                    <button 
+                                        onClick={() => setShowAdminModal(false)} 
+                                        className="absolute top-4 right-4 text-slate-400 hover:text-white"
+                                    >
+                                        <CloseIcon className="w-5 h-5"/>
+                                    </button>
+                                    
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <div className="p-2 bg-red-900/50 rounded-lg border border-red-500/30">
+                                            <Lock className="w-5 h-5 text-red-500"/> 
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-white text-lg">Admin Access</h3>
+                                            <p className="text-xs text-slate-400">Restricted Area</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <form onSubmit={handleAdminAccess} className="space-y-4">
+                                        <div>
+                                            <label className="text-xs font-bold text-slate-500 uppercase mb-1 block">Password</label>
+                                            <input 
+                                                type="password" 
+                                                className={`w-full bg-slate-800 border ${adminError ? 'border-red-500 animate-pulse' : 'border-slate-700'} rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500 transition-all`}
+                                                placeholder="Enter access code..."
+                                                value={adminPassword}
+                                                onChange={(e) => setAdminPassword(e.target.value)}
+                                                autoFocus
+                                            />
+                                            {adminError && <p className="text-xs text-red-500 mt-2 font-bold">{adminError}</p>}
+                                        </div>
+                                        <button type="submit" className="w-full bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-red-900/20 transition-all active:scale-95">
+                                            Buka FeriBoard
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 );
             }
@@ -841,6 +907,57 @@
                                         </button>
                                     </div>
                                 )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ADMIN BUTTON (FLOATING MAIN APP) */}
+                    <button
+                        onClick={() => setShowAdminModal(true)}
+                        className="fixed bottom-20 right-4 md:bottom-8 md:right-8 z-50 p-3 bg-red-600/90 hover:bg-red-500 text-white rounded-full shadow-lg border border-red-400/50 transition-all hover:scale-110 flex items-center justify-center group"
+                        title="Akses FeriBoard"
+                    >
+                        <Globe className="w-5 h-5 group-hover:animate-spin" />
+                    </button>
+
+                    {/* ADMIN MODAL (MAIN APP) */}
+                    {showAdminModal && (
+                        <div className="fixed inset-0 z-[101] flex items-center justify-center px-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+                            <div className="bg-slate-900 border border-slate-700 p-6 rounded-2xl shadow-2xl w-full max-w-sm relative">
+                                <button 
+                                    onClick={() => setShowAdminModal(false)} 
+                                    className="absolute top-4 right-4 text-slate-400 hover:text-white"
+                                >
+                                    <CloseIcon className="w-5 h-5"/>
+                                </button>
+                                
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="p-2 bg-red-900/50 rounded-lg border border-red-500/30">
+                                        <Lock className="w-5 h-5 text-red-500"/> 
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-white text-lg">Admin Access</h3>
+                                        <p className="text-xs text-slate-400">Restricted Area</p>
+                                    </div>
+                                </div>
+                                
+                                <form onSubmit={handleAdminAccess} className="space-y-4">
+                                    <div>
+                                        <label className="text-xs font-bold text-slate-500 uppercase mb-1 block">Password</label>
+                                        <input 
+                                            type="password" 
+                                            className={`w-full bg-slate-800 border ${adminError ? 'border-red-500 animate-pulse' : 'border-slate-700'} rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500 transition-all`}
+                                            placeholder="Enter access code..."
+                                            value={adminPassword}
+                                            onChange={(e) => setAdminPassword(e.target.value)}
+                                            autoFocus
+                                        />
+                                        {adminError && <p className="text-xs text-red-500 mt-2 font-bold">{adminError}</p>}
+                                    </div>
+                                    <button type="submit" className="w-full bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-red-900/20 transition-all active:scale-95">
+                                        Buka FeriBoard
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     )}
