@@ -66,7 +66,9 @@
             ChevronRight, Menu, User, Award, Terminal, Wifi, 
             Ruler, LogIn, Sparkles, X as CloseIcon, MessageSquare, 
             LogOut, Settings, ChevronDown, LayoutGrid, LayoutList, 
-            Clock, CheckCircle2, MoreHorizontal, Globe, Lock
+            Clock, CheckCircle2, MoreHorizontal, Globe, Lock, 
+            FileText, Video, HelpCircle, Bell, GraduationCap, Mail, Phone, Calendar,
+            Megaphone, AlertCircle, Pin, CalendarDays
         } from 'lucide-react';
 
         const App = () => {
@@ -75,7 +77,7 @@
             const [userClass, setUserClass] = useState('X TKJ A');
             
             const [activeTab, setActiveTab] = useState('dashboard');
-            const [viewMode, setViewMode] = useState('stream'); // 'stream' (Netflix) or 'kanban' (Project)
+            const [viewMode, setViewMode] = useState('stream'); 
             const [selectedMajor, setSelectedMajor] = useState('TKJ'); 
             const [selectedLevel, setSelectedLevel] = useState('X'); 
             const [selectedTopic, setSelectedTopic] = useState(''); 
@@ -86,6 +88,10 @@
             const [aiLoading, setAiLoading] = useState(false);
             const [aiResponse, setAiResponse] = useState('');
             const [aiPromptType, setAiPromptType] = useState(''); 
+
+            // Activity Content Modal States
+            const [showActivityModal, setShowActivityModal] = useState(false);
+            const [activityContent, setActivityContent] = useState(null);
 
             // Admin Board States
             const [showAdminModal, setShowAdminModal] = useState(false);
@@ -205,6 +211,23 @@
                             task: "Hitung angsuran pinjaman modal proyek perumahan dengan sistem anuitas.",
                             img: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=800"
                         }
+                    },
+                    "Pemrograman Web": {
+                        TKJ: {
+                            title: "Web & Mobile Dev", context: "Dasar Website & Apps",
+                            task: "Pelajari dasar pembuatan website responsif (HTML/CSS) dan pengenalan struktur aplikasi mobile. Terapkan logika layout grid.",
+                            img: "https://images.unsplash.com/photo-1547658719-da2b51169166?auto=format&fit=crop&q=80&w=800"
+                        },
+                        RPL: {
+                            title: "Web Programming", context: "Backend Logic",
+                            task: "Buat algoritma validasi data pada sisi server.",
+                            img: "https://images.unsplash.com/photo-1547658719-da2b51169166?auto=format&fit=crop&q=80&w=800"
+                        },
+                        DPIB: {
+                            title: "Web Portfolio", context: "Portfolio Arsitek",
+                            task: "Buat struktur layout galeri proyek menggunakan Grid System.",
+                            img: "https://images.unsplash.com/photo-1547658719-da2b51169166?auto=format&fit=crop&q=80&w=800"
+                        }
                     }
                 }
             };
@@ -244,6 +267,59 @@
                 { id: 'Transform', title: '4. Transform', subtitle: 'Refleksi Diri', icon: <Repeat className="w-4 h-4" />, kanbanStatus: 'review' },
                 { id: 'Assess', title: '5. Assess', subtitle: 'Uji Kompetensi', icon: <BarChart2 className="w-4 h-4" />, kanbanStatus: 'done' },
             ];
+
+            const handleStartActivity = () => {
+                const stage = activeDeltaStage;
+                let content = { title: "", body: "", icon: null, actionText: "Selesai" };
+
+                switch(stage) {
+                    case 'Discover':
+                        content = {
+                            title: "Studi Kasus Kontekstual",
+                            body: `Simak video permasalahan industri berikut terkait "${currentData.context}". \n\nTugas: Identifikasi variabel matematika (angka/rumus) apa saja yang muncul dalam masalah ini? Catat di buku catatanmu.`,
+                            icon: <Video className="w-12 h-12 text-blue-400 mb-4"/>,
+                            actionText: "Saya Sudah Menonton"
+                        };
+                        break;
+                    case 'Explore':
+                        content = {
+                            title: "Laboratorium Virtual",
+                            body: `Gunakan simulasi interaktif (GeoGebra/Desmos) untuk memahami konsep "${currentData.title}". \n\nTugas: Ubah nilai parameter pada grafik dan amati perubahannya. Temukan pola hubungannya sebelum lanjut ke tahap proyek.`,
+                            icon: <Compass className="w-12 h-12 text-emerald-400 mb-4"/>,
+                            actionText: "Buka Simulasi"
+                        };
+                        break;
+                    case 'Launch':
+                        content = {
+                            title: "Project Brief: Misi Utama",
+                            body: `TANTANGAN JURUSAN ${selectedMajor}:\n"${currentData.task}"\n\nLangkah:\n1. Analisis kebutuhan.\n2. Gunakan rumus ${currentData.title}.\n3. Validasi hasil hitunganmu.\n\nGunakan fitur "Tanya Mentor AI" jika buntu.`,
+                            icon: <Rocket className="w-12 h-12 text-orange-400 mb-4"/>,
+                            actionText: "Mulai Mengerjakan"
+                        };
+                        break;
+                    case 'Transform':
+                        content = {
+                            title: "Refleksi Diri",
+                            body: `Jawab pertanyaan ini:\n"Bagaimana pemahaman tentang ${currentData.title} akan membantumu menjadi seorang ahli ${selectedMajor} yang lebih baik?"\n\nRekam suaramu atau tuliskan minimal 1 paragraf.`,
+                            icon: <MessageSquare className="w-12 h-12 text-purple-400 mb-4"/>,
+                            actionText: "Kirim Refleksi"
+                        };
+                        break;
+                    case 'Assess':
+                        content = {
+                            title: "Evaluasi Kompetensi",
+                            body: `1. Kerjakan 5 soal kuis adaptif tentang ${currentData.title}.\n2. Unggah laporan penyelesaian proyek "${currentData.context}".\n\nPastikan semua data akurat.`,
+                            icon: <FileText className="w-12 h-12 text-red-400 mb-4"/>,
+                            actionText: "Mulai Kuis"
+                        };
+                        break;
+                    default:
+                        content = { title: "Info", body: "Konten sedang dimuat...", icon: <HelpCircle className="w-12 h-12"/> };
+                }
+                
+                setActivityContent(content);
+                setShowActivityModal(true);
+            };
 
             const callGeminiAPI = async (type) => {
                 setAiLoading(true);
@@ -320,7 +396,226 @@
                 }
             };
 
-            // --- KANBAN CARD COMPONENT ---
+            const getTopicsList = () => {
+                let topics = [...syllabus[selectedLevel]];
+                if (userClass.includes('XII TKJ')) {
+                    topics.push("Pemrograman Web");
+                }
+                return topics;
+            };
+
+            // --- ANNOUNCEMENTS VIEW COMPONENT ---
+            const AnnouncementsView = () => {
+                const announcements = [
+                    { id: 1, title: "Jadwal Penilaian Akhir Semester (PAS)", category: "Akademik", date: "5 Jan 2026", desc: "Ujian akan dilaksanakan mulai tanggal 15 Januari. Pastikan semua tugas DELTA tahap Launch sudah dikumpulkan.", urgent: true },
+                    { id: 2, title: "Deadline Proyek Statistika Diperpanjang", category: "Tugas", date: "4 Jan 2026", desc: "Untuk kelas X TKJ, deadline proyek analisis bandwidth diperpanjang hingga Jumat depan.", urgent: false },
+                    { id: 3, title: "Lomba Matematika Terapan Vokasi", category: "Prestasi", date: "2 Jan 2026", desc: "Pendaftaran dibuka untuk lomba tingkat provinsi. Hubungi Pak Feri jika berminat bimbingan.", urgent: false },
+                    { id: 4, title: "Libur Hari Raya", category: "Info", date: "1 Jan 2026", desc: "Sekolah libur pada tanggal merah. Gunakan waktu untuk istirahat atau refleksi mandiri.", urgent: false },
+                ];
+
+                const getCategoryColor = (cat) => {
+                    switch(cat) {
+                        case 'Akademik': return 'red';
+                        case 'Tugas': return 'yellow';
+                        case 'Prestasi': return 'purple';
+                        default: return 'blue';
+                    }
+                };
+
+                return (
+                    <div className="p-4 md:p-8 h-full overflow-y-auto pb-24 md:pb-0">
+                        {/* Header */}
+                        <div className="flex items-center justify-between mb-6">
+                            <div>
+                                <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                                    <Megaphone className="w-6 h-6 text-orange-500" /> Papan Pengumuman
+                                </h2>
+                                <p className="text-slate-400 text-sm mt-1">Info terbaru seputar akademik dan kegiatan sekolah.</p>
+                            </div>
+                            <div className="hidden md:block">
+                                <span className="bg-slate-800 text-slate-400 px-3 py-1 rounded-lg text-xs font-medium border border-slate-700">
+                                    Semester Genap 2025/2026
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Featured (Pinned) */}
+                        <div className="mb-8">
+                            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                <Pin className="w-4 h-4" /> Disematkan
+                            </h3>
+                            {announcements.filter(a => a.urgent).map(item => (
+                                <div key={item.id} className="bg-gradient-to-r from-red-900/40 to-slate-900 border border-red-500/30 rounded-xl p-6 relative overflow-hidden shadow-lg">
+                                    <div className="absolute top-0 right-0 p-3 opacity-10">
+                                        <AlertCircle className="w-24 h-24 text-red-500" />
+                                    </div>
+                                    <div className="relative z-10">
+                                        <span className="inline-block bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded mb-2">PENTING</span>
+                                        <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
+                                        <p className="text-slate-300 text-sm mb-4 max-w-2xl">{item.desc}</p>
+                                        <div className="flex items-center gap-2 text-slate-400 text-xs">
+                                            <CalendarDays className="w-4 h-4" /> {item.date}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Timeline */}
+                        <div>
+                            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Terbaru</h3>
+                            <div className="space-y-4">
+                                {announcements.filter(a => !a.urgent).map((item, idx) => (
+                                    <div key={item.id} className="flex gap-4 group">
+                                        <div className="flex flex-col items-center">
+                                            <div className={`w-3 h-3 rounded-full bg-${getCategoryColor(item.category)}-500 mt-2 ring-4 ring-slate-900`}></div>
+                                            {idx !== announcements.length - 1 && <div className="w-0.5 h-full bg-slate-800 my-2"></div>}
+                                        </div>
+                                        <div className="flex-1 bg-slate-900 border border-slate-800 p-4 rounded-xl hover:border-slate-700 transition-colors">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded bg-${getCategoryColor(item.category)}-900/30 text-${getCategoryColor(item.category)}-400 border border-${getCategoryColor(item.category)}-500/20`}>
+                                                    {item.category}
+                                                </span>
+                                                <span className="text-[10px] text-slate-500">{item.date}</span>
+                                            </div>
+                                            <h4 className="text-white font-bold text-sm mb-1">{item.title}</h4>
+                                            <p className="text-slate-400 text-xs leading-relaxed">{item.desc}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                );
+            };
+
+            const TeacherProfile = () => (
+                <div className="p-4 md:p-8 h-full overflow-y-auto pb-24 md:pb-0">
+                    <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl border border-slate-700 overflow-hidden relative mb-6">
+                        <div className="absolute top-0 w-full h-32 bg-gradient-to-r from-blue-900/50 to-purple-900/50"></div>
+                        <div className="p-6 relative pt-16 md:pt-20">
+                            <div className="flex flex-col md:flex-row items-start md:items-end gap-4">
+                                <div className="w-24 h-24 rounded-2xl bg-slate-700 border-4 border-slate-800 shadow-xl overflow-hidden flex items-center justify-center text-4xl">
+                                    👨‍🏫
+                                </div>
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <h2 className="text-2xl font-bold text-white">Feri Dwi Hermawan, S.Pd.</h2>
+                                        <span className="bg-blue-500/20 text-blue-300 text-[10px] px-2 py-0.5 rounded border border-blue-500/30">Verified Teacher</span>
+                                    </div>
+                                    <p className="text-slate-400 text-sm mb-3">Guru Matematika • SMKN Pasirian</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        <span className="bg-slate-800 text-slate-300 px-3 py-1 rounded-full text-xs border border-slate-700">RPL</span>
+                                        <span className="bg-slate-800 text-slate-300 px-3 py-1 rounded-full text-xs border border-slate-700">TKJ</span>
+                                        <span className="bg-slate-800 text-slate-300 px-3 py-1 rounded-full text-xs border border-slate-700">DPIB</span>
+                                    </div>
+                                </div>
+                                <div className="flex gap-2 w-full md:w-auto mt-4 md:mt-0">
+                                    <button className="flex-1 md:flex-none bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-colors">
+                                        <MessageSquare className="w-4 h-4" /> Chat WA
+                                    </button>
+                                    <button className="flex-1 md:flex-none bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-colors">
+                                        <Mail className="w-4 h-4" /> Email
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="space-y-6">
+                            <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                                <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                                    <BarChart2 className="w-4 h-4 text-indigo-400" /> Statistik Pengajaran
+                                </h3>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="bg-slate-800/50 p-3 rounded-lg border border-slate-700">
+                                        <p className="text-2xl font-bold text-white">12+</p>
+                                        <p className="text-[10px] text-slate-400 uppercase">Tahun Mengajar</p>
+                                    </div>
+                                    <div className="bg-slate-800/50 p-3 rounded-lg border border-slate-700">
+                                        <p className="text-2xl font-bold text-white">500+</p>
+                                        <p className="text-[10px] text-slate-400 uppercase">Siswa Lulus</p>
+                                    </div>
+                                    <div className="bg-slate-800/50 p-3 rounded-lg border border-slate-700 col-span-2">
+                                        <p className="text-sm font-bold text-white mb-1">Creator DELTA Strategy</p>
+                                        <p className="text-[10px] text-slate-400">Metode pembelajaran inovatif berbasis proyek.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                                <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                                    <Sparkles className="w-4 h-4 text-yellow-400" /> Filosofi Mengajar
+                                </h3>
+                                <p className="text-sm text-slate-300 leading-relaxed italic">
+                                    "Matematika bukan tentang menghafal rumus, tapi tentang seni memecahkan masalah. Di kelas ini, kita menggunakan strategi <strong>DELTA</strong> untuk mengubah (transform) ketakutan menjadi keahlian nyata."
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="md:col-span-2 space-y-6">
+                            <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                                <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                                    <Clock className="w-4 h-4 text-orange-400" /> Jam Konsultasi (Office Hours)
+                                </h3>
+                                <div className="space-y-3">
+                                    {[
+                                        { day: "Senin", time: "13:00 - 14:00", loc: "Ruang Guru / Zoom" },
+                                        { day: "Rabu", time: "09:40 - 10:20 (Istirahat)", loc: "Lab Komputer" },
+                                        { day: "Jumat", time: "11:00 - 13:00", loc: "Perpustakaan" },
+                                    ].map((slot, idx) => (
+                                        <div key={idx} className="flex justify-between items-center bg-slate-800/30 p-3 rounded-lg hover:bg-slate-800/60 transition-colors cursor-default">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-slate-300">
+                                                    <Calendar className="w-4 h-4" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-bold text-white">{slot.day}</p>
+                                                    <p className="text-xs text-slate-400">{slot.time}</p>
+                                                </div>
+                                            </div>
+                                            <span className="text-xs bg-indigo-900/30 text-indigo-300 px-2 py-1 rounded border border-indigo-500/20">
+                                                {slot.loc}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                                <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                                    <Award className="w-4 h-4 text-pink-400" /> Sertifikasi & Pencapaian
+                                </h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="flex items-start gap-3">
+                                        <div className="mt-1"><CheckCircle2 className="w-4 h-4 text-green-500" /></div>
+                                        <div>
+                                            <p className="text-sm font-bold text-white">Google Certified Educator</p>
+                                            <p className="text-xs text-slate-400">Level 1 & 2</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-3">
+                                        <div className="mt-1"><CheckCircle2 className="w-4 h-4 text-green-500" /></div>
+                                        <div>
+                                            <p className="text-sm font-bold text-white">Microsoft Innovative Educator</p>
+                                            <p className="text-xs text-slate-400">Expert 2024</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-3">
+                                        <div className="mt-1"><CheckCircle2 className="w-4 h-4 text-green-500" /></div>
+                                        <div>
+                                            <p className="text-sm font-bold text-white">Penulis Modul Matematika Vokasi</p>
+                                            <p className="text-xs text-slate-400">Kurikulum Merdeka</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+
             const KanbanCard = ({ stage, currentData, isActive, onClick }) => (
                 <div 
                     onClick={onClick}
@@ -354,6 +649,14 @@
 
             // --- RENDER CONTENT ---
             const renderContent = () => {
+                if (activeTab === 'teacher') {
+                    return <TeacherProfile />;
+                }
+
+                if (activeTab === 'announcements') {
+                    return <AnnouncementsView />;
+                }
+
                 if (viewMode === 'kanban') {
                     return (
                         <div className="p-4 md:p-8 h-full overflow-hidden flex flex-col">
@@ -576,11 +879,14 @@
                                         <p className="text-sm md:text-base text-slate-300 leading-relaxed max-w-3xl">
                                             {activeDeltaStage === 'Launch' 
                                                 ? `Tantangan khusus jurusan ${selectedMajor} (${selectedLevel}): ${currentData.task}`
-                                                : "Selesaikan aktivitas di tahap ini untuk membuka materi selanjutnya. Tonton video pengantar dan catat poin penting."}
+                                                : "Klik tombol 'Mulai Aktivitas' di bawah untuk membuka modul interaktif, video studi kasus, atau kuis yang sesuai dengan tahapan ini."}
                                         </p>
                                     </div>
                                     <div className="flex flex-wrap gap-3 mt-2">
-                                        <button className={`py-3 px-6 rounded-xl text-sm font-bold bg-${currentData.themeColor}-600 hover:bg-${currentData.themeColor}-500 text-white flex items-center justify-center gap-2 transition-colors shadow-lg`}>
+                                        <button 
+                                            onClick={handleStartActivity}
+                                            className={`py-3 px-6 rounded-xl text-sm font-bold bg-${currentData.themeColor}-600 hover:bg-${currentData.themeColor}-500 text-white flex items-center justify-center gap-2 transition-colors shadow-lg`}
+                                        >
                                             Mulai Aktivitas <ChevronRight className="w-4 h-4" />
                                         </button>
                                         {activeDeltaStage === 'Launch' && (
@@ -752,17 +1058,19 @@
                                 <Menu className="w-5 h-5" />
                                 <span className="font-medium text-sm">Beranda</span>
                             </button>
-                            <button onClick={() => setActiveTab('search')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'search' ? `bg-${currentData.themeColor}-500/10 text-${currentData.themeColor}-400 border border-${currentData.themeColor}-500/20` : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                                <Play className="w-5 h-5" />
-                                <span className="font-medium text-sm">Video Materi</span>
+                            {/* Updated Menu Item 2 */}
+                            <button onClick={() => setActiveTab('teacher')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'teacher' ? `bg-${currentData.themeColor}-500/10 text-${currentData.themeColor}-400 border border-${currentData.themeColor}-500/20` : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                                <GraduationCap className="w-5 h-5" />
+                                <span className="font-medium text-sm">Profil Guru</span>
                             </button>
                             <button onClick={() => callGeminiAPI('concept')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'chat' ? `bg-indigo-500/10 text-indigo-400 border border-indigo-500/20` : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
                                 <MessageSquare className="w-5 h-5" />
                                 <span className="font-medium text-sm">Tanya AI</span>
                             </button>
-                            <button onClick={() => setActiveTab('downloads')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'downloads' ? `bg-${currentData.themeColor}-500/10 text-${currentData.themeColor}-400 border border-${currentData.themeColor}-500/20` : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                                <Award className="w-5 h-5" />
-                                <span className="font-medium text-sm">Prestasi</span>
+                            {/* Updated Menu Item 4 */}
+                            <button onClick={() => setActiveTab('announcements')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'announcements' ? `bg-${currentData.themeColor}-500/10 text-${currentData.themeColor}-400 border border-${currentData.themeColor}-500/20` : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                                <Bell className="w-5 h-5" />
+                                <span className="font-medium text-sm">Pengumuman</span>
                             </button>
                         </nav>
 
@@ -799,7 +1107,7 @@
                                         value={selectedTopic}
                                         onChange={(e) => setSelectedTopic(e.target.value)}
                                     >
-                                        {syllabus[selectedLevel].map(t => <option key={t} value={t}>{t}</option>)}
+                                        {getTopicsList().map(t => <option key={t} value={t}>{t}</option>)}
                                     </select>
                                 </div>
                                 <div className="w-8 h-8 rounded-md bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
@@ -843,7 +1151,7 @@
                                      <div className="absolute right-0 top-full mt-2 w-64 bg-slate-900 border border-slate-700 rounded-xl shadow-xl overflow-hidden hidden group-hover:block animate-fadeIn z-50">
                                         <div className="max-h-64 overflow-y-auto p-2">
                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider px-2 py-1 sticky top-0 bg-slate-900">Materi Kelas {selectedLevel}</p>
-                                           {syllabus[selectedLevel].map((topic) => (
+                                           {getTopicsList().map((topic) => (
                                              <button 
                                                key={topic}
                                                onClick={() => setSelectedTopic(topic)}
@@ -911,6 +1219,42 @@
                         </div>
                     )}
 
+                    {/* ACTIVITY CONTENT MODAL (NEW) */}
+                    {showActivityModal && activityContent && (
+                        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center px-4 py-6 bg-black/90 backdrop-blur-md animate-fadeIn">
+                            <div className="w-full max-w-lg bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden relative">
+                                {/* Header Image Placeholder */}
+                                <div className={`h-24 w-full bg-gradient-to-r from-${currentData.themeColor}-900 to-slate-900 flex items-center justify-center`}>
+                                    {activityContent.icon}
+                                </div>
+                                
+                                <div className="p-6">
+                                    <div className="mb-4">
+                                        <span className={`text-[10px] font-bold uppercase tracking-widest text-${currentData.themeColor}-400 mb-1 block`}>
+                                            Aktivitas {activeDeltaStage}
+                                        </span>
+                                        <h3 className="text-2xl font-bold text-white">{activityContent.title}</h3>
+                                    </div>
+                                    
+                                    <div className="prose prose-invert text-sm text-slate-300 whitespace-pre-line leading-relaxed mb-6">
+                                        {activityContent.body}
+                                    </div>
+
+                                    <button 
+                                        onClick={() => setShowActivityModal(false)}
+                                        className={`w-full py-3.5 rounded-xl font-bold text-white bg-${currentData.themeColor}-600 hover:bg-${currentData.themeColor}-500 shadow-lg shadow-${currentData.themeColor}-900/20 transition-all active:scale-95 flex items-center justify-center gap-2`}
+                                    >
+                                        {activityContent.actionText} <CheckCircle2 className="w-4 h-4"/>
+                                    </button>
+                                </div>
+
+                                <button onClick={() => setShowActivityModal(false)} className="absolute top-4 right-4 p-2 bg-black/20 hover:bg-black/40 rounded-full text-white/70 hover:text-white transition-colors">
+                                    <CloseIcon className="w-5 h-5" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
                     {/* ADMIN BUTTON (FLOATING MAIN APP) */}
                     <button
                         onClick={() => setShowAdminModal(true)}
@@ -969,17 +1313,19 @@
                                 <Menu className="w-5 h-5" />
                                 <span className="text-[9px] font-medium">Beranda</span>
                             </button>
-                            <button className={`p-2 flex flex-col items-center gap-1 ${activeTab === 'search' ? 'text-white' : 'text-slate-600'}`} onClick={() => setActiveTab('search')}>
-                                <Play className="w-5 h-5" />
-                                <span className="text-[9px] font-medium">Video</span>
+                            {/* Updated Mobile Menu Item 2 */}
+                            <button className={`p-2 flex flex-col items-center gap-1 ${activeTab === 'teacher' ? 'text-white' : 'text-slate-600'}`} onClick={() => setActiveTab('teacher')}>
+                                <GraduationCap className="w-5 h-5" />
+                                <span className="text-[9px] font-medium">Profil</span>
                             </button>
                             <button className={`p-2 flex flex-col items-center gap-1 ${activeTab === 'chat' ? 'text-indigo-400' : 'text-slate-600'}`} onClick={() => callGeminiAPI('concept')}>
                                 <MessageSquare className="w-5 h-5" />
                                 <span className="text-[9px] font-medium">Tanya AI</span>
                             </button>
-                            <button className={`p-2 flex flex-col items-center gap-1 ${activeTab === 'downloads' ? 'text-white' : 'text-slate-600'}`} onClick={() => setActiveTab('downloads')}>
-                                <Award className="w-5 h-5" />
-                                <span className="text-[9px] font-medium">Prestasi</span>
+                            {/* Updated Mobile Menu Item 4 */}
+                            <button className={`p-2 flex flex-col items-center gap-1 ${activeTab === 'announcements' ? 'text-white' : 'text-slate-600'}`} onClick={() => setActiveTab('announcements')}>
+                                <Bell className="w-5 h-5" />
+                                <span className="text-[9px] font-medium">Pengumuman</span>
                             </button>
                         </div>
                     </nav>
