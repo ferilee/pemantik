@@ -53,6 +53,13 @@
         .animate-pulse {
             animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
+        @keyframes bounce-slow {
+            0%, 100% { transform: translateY(-5%); }
+            50% { transform: translateY(5%); }
+        }
+        .animate-bounce-slow {
+            animation: bounce-slow 3s infinite ease-in-out;
+        }
     </style>
 </head>
 <body>
@@ -68,7 +75,7 @@
             LogOut, Settings, ChevronDown, LayoutGrid, LayoutList, 
             Clock, CheckCircle2, MoreHorizontal, Globe, Lock, 
             FileText, Video, HelpCircle, Bell, GraduationCap, Mail, Phone, Calendar,
-            Megaphone, AlertCircle, Pin, CalendarDays
+            Megaphone, AlertCircle, Pin, CalendarDays, Map
         } from 'lucide-react';
 
         const App = () => {
@@ -97,6 +104,10 @@
             const [showAdminModal, setShowAdminModal] = useState(false);
             const [adminPassword, setAdminPassword] = useState('');
             const [adminError, setAdminError] = useState('');
+
+            // Tour Guide States
+            const [isTourActive, setIsTourActive] = useState(false);
+            const [tourStep, setTourStep] = useState(0);
 
             const apiKey = "AIzaSyAS46ALiEZuE6hV3WT5qPu2IEHYZNHJyUU"; 
 
@@ -364,6 +375,11 @@
                 }
             };
 
+            const startTour = () => {
+                setIsTourActive(true);
+                setTourStep(0);
+            };
+
             const handleLogin = (e) => {
                 e.preventDefault();
                 if (userName.trim()) {
@@ -383,6 +399,8 @@
                     setSelectedTopic(defaultTopic);
                     
                     setIsLoggedIn(true);
+                    // Start Tour Automatically on First Login (Simulated)
+                    setTimeout(() => startTour(), 1000);
                 }
             };
 
@@ -404,7 +422,66 @@
                 return topics;
             };
 
-            // --- ANNOUNCEMENTS VIEW COMPONENT ---
+            // --- HELPERS FOR TOUR HIGHLIGHT ---
+            const getHighlightClass = (stepIndex) => {
+                return isTourActive && tourStep === stepIndex 
+                    ? "relative z-[201] ring-4 ring-indigo-500 rounded-xl box-border shadow-2xl transition-all duration-300" 
+                    : "";
+            };
+
+            // --- COMPONENTS ---
+
+            const TourOverlay = () => {
+                const steps = [
+                    { title: "Selamat Datang di DeltaMath!", desc: "Platform belajar matematika vokasi yang dipersonalisasi sesuai jurusanmu. Mari kita lihat fitur utamanya.", position: "center" },
+                    { title: "Materi & Jurusan", desc: "Di sini kamu bisa melihat materi yang sedang aktif. Konten dan tugasnya sudah disesuaikan dengan jurusanmu.", position: "top" },
+                    { title: "Alur DELTA", desc: "Ikuti 5 tahapan belajar: Discover, Explore, Launch, Transform, dan Assess. Selesaikan satu per satu untuk menguasai materi.", position: "middle" },
+                    { title: "Mentor AI", desc: "Bingung saat mengerjakan proyek? Klik 'Tanya AI' untuk mendapatkan bantuan personal 24/7.", position: "bottom-left" },
+                    { title: "FeriBoard Access", desc: "Tombol rahasia untuk mengakses FeriBoard. Gunakan password khusus dari Pak Feri.", position: "bottom-right" },
+                ];
+
+                const current = steps[tourStep];
+
+                const handleNext = (inc) => {
+                    const nextStep = tourStep + inc;
+                    if (nextStep >= steps.length) {
+                        setIsTourActive(false);
+                    } else if (nextStep < 0) {
+                        // do nothing
+                    } else {
+                        setTourStep(nextStep);
+                    }
+                };
+
+                return (
+                    <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex transition-all duration-500 animate-fadeIn" onClick={() => handleNext(1)}>
+                       <div 
+                            onClick={(e) => e.stopPropagation()}
+                            className={`absolute p-6 bg-white text-slate-900 rounded-2xl shadow-2xl max-w-xs border-4 border-indigo-500 transition-all duration-500 ease-in-out z-[202]
+                                ${current.position === 'center' ? 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2' : ''}
+                                ${current.position === 'top' ? 'top-24 left-1/2 -translate-x-1/2' : ''}
+                                ${current.position === 'middle' ? 'top-1/2 left-1/2 -translate-x-1/2 translate-y-24' : ''}
+                                ${current.position === 'bottom-left' ? 'bottom-32 left-4 md:left-auto md:right-1/3 md:bottom-24' : ''}
+                                ${current.position === 'bottom-right' ? 'bottom-24 right-4' : ''}
+                            `}
+                        >
+                          <div className="flex justify-between items-center mb-2">
+                             <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider">Tur Panduan {tourStep + 1}/{steps.length}</span>
+                             <button onClick={() => setIsTourActive(false)} className="text-slate-400 hover:text-red-500"><CloseIcon className="w-4 h-4"/></button>
+                          </div>
+                          <h3 className="text-lg font-bold mb-2 text-slate-900">{current.title}</h3>
+                          <p className="text-sm text-slate-600 mb-4 leading-relaxed">{current.desc}</p>
+                          <div className="flex justify-end gap-2">
+                             {tourStep > 0 && <button onClick={() => handleNext(-1)} className="text-xs font-bold text-slate-500 px-3 py-2 hover:bg-slate-100 rounded">Kembali</button>}
+                             <button onClick={() => handleNext(1)} className="bg-indigo-600 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-lg hover:bg-indigo-500 transition-all">
+                                {tourStep === steps.length - 1 ? "Selesai" : "Lanjut"}
+                             </button>
+                          </div>
+                       </div>
+                    </div>
+                )
+            };
+
             const AnnouncementsView = () => {
                 const announcements = [
                     { id: 1, title: "Jadwal Penilaian Akhir Semester (PAS)", category: "Akademik", date: "5 Jan 2026", desc: "Ujian akan dilaksanakan mulai tanggal 15 Januari. Pastikan semua tugas DELTA tahap Launch sudah dikumpulkan.", urgent: true },
@@ -424,7 +501,6 @@
 
                 return (
                     <div className="p-4 md:p-8 h-full overflow-y-auto pb-24 md:pb-0">
-                        {/* Header */}
                         <div className="flex items-center justify-between mb-6">
                             <div>
                                 <h2 className="text-2xl font-bold text-white flex items-center gap-3">
@@ -439,7 +515,6 @@
                             </div>
                         </div>
 
-                        {/* Featured (Pinned) */}
                         <div className="mb-8">
                             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
                                 <Pin className="w-4 h-4" /> Disematkan
@@ -461,7 +536,6 @@
                             ))}
                         </div>
 
-                        {/* Timeline */}
                         <div>
                             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Terbaru</h3>
                             <div className="space-y-4">
@@ -753,7 +827,7 @@
                 return (
                     <div className="relative w-full h-full overflow-y-auto pb-20 md:pb-0">
                          {/* HERO SECTION */}
-                        <div className="relative w-full h-[500px] md:h-[60vh] overflow-hidden group">
+                        <div className={`relative w-full h-[500px] md:h-[60vh] overflow-hidden group ${getHighlightClass(1)}`}>
                             <img 
                                 src={currentData.img} 
                                 alt={selectedMajor}
@@ -812,7 +886,7 @@
                         </div>
 
                         {/* DELTA STAGES HORIZONTAL */}
-                        <div className="px-4 md:px-10 mt-6 md:mt-8">
+                        <div className={`px-4 md:px-10 mt-6 md:mt-8 transition-all ${getHighlightClass(2)}`}>
                             <h3 className="text-white font-bold text-lg md:text-xl mb-4 flex items-center gap-2">
                                 Tahapan DELTA <span className="text-xs font-normal text-slate-500 ml-auto">Geser →</span>
                             </h3>
@@ -892,7 +966,7 @@
                                         {activeDeltaStage === 'Launch' && (
                                             <button 
                                                 onClick={() => callGeminiAPI('project')}
-                                                className="py-3 px-6 rounded-xl text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center gap-2 border border-indigo-400 shadow-lg shadow-indigo-500/20 transition-all active:scale-95"
+                                                className={`py-3 px-6 rounded-xl text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center gap-2 border border-indigo-400 shadow-lg shadow-indigo-500/20 transition-all active:scale-95 ${getHighlightClass(3)}`}
                                             >
                                                 <Sparkles className="w-4 h-4" /> Tanya Mentor AI
                                             </button>
@@ -1081,7 +1155,12 @@
                                 </div>
                                 <div className="flex-1 overflow-hidden">
                                     <p className="text-sm font-bold text-white truncate">{userName}</p>
-                                    <p className="text-xs text-slate-500 truncate">{userClass}</p>
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-xs text-slate-500 truncate">{userClass}</p>
+                                        <button onClick={() => startTour()} className="text-xs text-indigo-400 hover:text-indigo-300" title="Ulangi Tur">
+                                            <HelpCircle className="w-4 h-4" />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                             <button onClick={() => setIsLoggedIn(false)} className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-slate-800 text-slate-400 text-xs hover:bg-red-900/20 hover:text-red-400 transition-colors">
@@ -1255,10 +1334,13 @@
                         </div>
                     )}
 
+                    {/* TOUR GUIDE OVERLAY (NEW) */}
+                    {isTourActive && <TourOverlay />}
+
                     {/* ADMIN BUTTON (FLOATING MAIN APP) */}
                     <button
                         onClick={() => setShowAdminModal(true)}
-                        className="fixed bottom-20 right-4 md:bottom-8 md:right-8 z-50 p-3 bg-red-600/90 hover:bg-red-500 text-white rounded-full shadow-lg border border-red-400/50 transition-all hover:scale-110 flex items-center justify-center group"
+                        className={`fixed bottom-20 right-4 md:bottom-8 md:right-8 z-[150] p-3 bg-red-600/90 hover:bg-red-500 text-white rounded-full shadow-lg border border-red-400/50 transition-all hover:scale-110 flex items-center justify-center group ${getHighlightClass(4)}`}
                         title="Akses FeriBoard"
                     >
                         <Globe className="w-5 h-5 group-hover:animate-spin" />
@@ -1266,7 +1348,7 @@
 
                     {/* ADMIN MODAL (MAIN APP) */}
                     {showAdminModal && (
-                        <div className="fixed inset-0 z-[101] flex items-center justify-center px-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+                        <div className="fixed inset-0 z-[201] flex items-center justify-center px-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
                             <div className="bg-slate-900 border border-slate-700 p-6 rounded-2xl shadow-2xl w-full max-w-sm relative">
                                 <button 
                                     onClick={() => setShowAdminModal(false)} 
