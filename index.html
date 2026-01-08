@@ -3,8 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mathflix - E-Learning SMKN Pasirian</title>
     
+    <!-- --- SEO & SOCIAL MEDIA PREVIEW (Open Graph) --- -->
+    <title>Mathflix - E-Learning SMKN Pasirian</title>
+    <meta name="description" content="Platform belajar matematika mandiri gaya Netflix untuk siswa RPL, TKJ, dan DPIB SMKN Pasirian. Belajar jadi lebih seru!">
+    
+    <!-- Facebook / WhatsApp / Telegram -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://mathflix-smkn-pasirian.netlify.app/">
+    <meta property="og:title" content="Mathflix - Belajar Matematika Serasa Nonton Film">
+    <meta property="og:description" content="Akses materi Fase E dan F khusus untuk SMKN Pasirian. Login sekarang untuk mulai belajar!">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=1200&auto=format&fit=crop">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://mathflix-smkn-pasirian.netlify.app/">
+    <meta property="twitter:title" content="Mathflix SMKN Pasirian">
+    <meta property="twitter:description" content="Platform belajar mandiri Matematika untuk SMK.">
+    <meta property="twitter:image" content="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=1200&auto=format&fit=crop">
+
+    <!-- --- FAVICON (Logo M Merah di Tab Browser) --- -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2210%22 fill=%22black%22/><text x=%2250%22 y=%2280%22 font-size=%2270%22 font-family=%22Arial, sans-serif%22 font-weight=%22bold%22 fill=%22%23E50914%22 text-anchor=%22middle%22>M</text></svg>">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -89,20 +109,23 @@
             Quote: (p) => <IconBase {...p}><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path></IconBase>
         };
 
-        // --- DATA MATERI ---
+        // --- DATA MATERI (DIPERLUAS UNTUK KONTEN LEBIH LENGKAP) ---
         const movies = [
-            // FASE E
-            { id: 1, title: "Bilangan Berpangkat", description: "Sifat bilangan berpangkat & pecahan.", thumbnail: "from-purple-900 to-blue-900", duration: "45m", match: "98%", phase: "E", tags: ["Bilangan"], category: "fase-e", delta: ["Diagnosa", "Video", "Latihan", "Tes"] },
-            { id: 2, title: "Sistem Pertidaksamaan", description: "SPtLDV konteks nyata.", thumbnail: "from-red-900 to-orange-900", duration: "50m", match: "85%", phase: "E", tags: ["Aljabar"], category: "fase-e", delta: ["Studi Kasus", "Materi", "Quiz", "Proyek"] },
-            { id: 3, title: "Fungsi Kuadrat", description: "Grafik & akar imajiner.", thumbnail: "from-green-900 to-teal-900", duration: "60m", match: "95%", phase: "E", tags: ["Grafik"], category: "fase-e", delta: ["Pre-Test", "Simulasi", "Drill", "Refleksi"] },
-            { id: 4, title: "Trigonometri Dasar", description: "Sin Cos Tan sudut lancip.", thumbnail: "from-yellow-800 to-amber-900", duration: "55m", match: "90%", phase: "E", tags: ["Geometri"], category: "fase-e", delta: ["Survey", "Teori", "Hitungan", "Penerapan"] },
-            { id: 9, title: "Analisis Data (Fase E)", description: "Box plot, Histogram, Dot plot.", thumbnail: "from-gray-800 to-gray-600", duration: "1h 10m", match: "99%", phase: "E", tags: ["Data"], category: "data", delta: ["Data", "Olah", "Interpretasi"] },
-            
-            // FASE F
-            { id: 5, title: "Bunga Majemuk", description: "Model pinjaman & investasi.", thumbnail: "from-emerald-900 to-green-800", duration: "1h 10m", match: "99%", phase: "F", tags: ["Keuangan"], category: "financial", delta: ["Simulasi", "Rumus", "Kasus", "Evaluasi"] },
-            { id: 6, title: "Transformasi Fungsi", description: "Invers & komposisi fungsi.", thumbnail: "from-indigo-900 to-purple-800", duration: "55m", match: "88%", phase: "F", tags: ["Aljabar"], category: "fase-f", delta: ["Pola", "Konsep", "Latihan", "Review"] },
-            { id: 7, title: "Lingkaran Analitik", description: "Persamaan garis singgung.", thumbnail: "from-pink-900 to-rose-800", duration: "50m", match: "92%", phase: "F", tags: ["Geometri"], category: "fase-f", delta: ["Visual", "Rumus", "Problem", "Analisis"] },
-            { id: 8, title: "Statistika Lanjut", description: "Regresi linear & Peluang.", thumbnail: "from-slate-900 to-slate-700", duration: "1h 20m", match: "97%", phase: "F", tags: ["Data"], category: "data", delta: ["Data", "Regresi", "Peluang"] }
+            // --- FASE E (KELAS X) ---
+            { id: 1, title: "Bilangan Berpangkat", description: "Konsep dasar eksponen, sifat perkalian & pembagian pangkat, serta pangkat pecahan.", thumbnail: "from-purple-900 to-blue-900", duration: "45m", match: "98%", phase: "E", tags: ["Bilangan"], category: "fase-e", delta: ["Diagnosa", "Video Eksplorasi", "Latihan Mandiri", "Tes Formatif"] },
+            { id: 2, title: "Sistem Pertidaksamaan", description: "Penyelesaian SPtLDV dan penerapannya dalam memecahkan masalah program linear sederhana.", thumbnail: "from-red-900 to-orange-900", duration: "50m", match: "85%", phase: "E", tags: ["Aljabar"], category: "fase-e", delta: ["Studi Kasus", "Video Materi", "Quiz Interaktif", "Proyek"] },
+            { id: 3, title: "Fungsi Kuadrat", description: "Memahami karakteristik grafik fungsi kuadrat, titik puncak, dan sumbu simetri.", thumbnail: "from-green-900 to-teal-900", duration: "60m", match: "95%", phase: "E", tags: ["Grafik"], category: "fase-e", delta: ["Pre-Test", "Simulasi Grafik", "Drill Soal", "Refleksi"] },
+            { id: 4, title: "Trigonometri Dasar", description: "Pengantar Sinus, Cosinus, dan Tangen pada segitiga siku-siku serta penerapannya.", thumbnail: "from-yellow-800 to-amber-900", duration: "55m", match: "90%", phase: "E", tags: ["Geometri"], category: "fase-e", delta: ["Survey Lapangan", "Teori Dasar", "Hitungan", "Penerapan"] },
+            { id: 9, title: "Analisis Data (Dasar)", description: "Pengenalan jenis data, mean, median, modus, dan penyajian data sederhana.", thumbnail: "from-gray-800 to-gray-600", duration: "1h 10m", match: "99%", phase: "E", tags: ["Data"], category: "data", delta: ["Pengumpulan Data", "Pengolahan", "Interpretasi"] },
+            { id: 10, title: "Barisan Aritmatika", description: "Menentukan suku ke-n dan jumlah n suku pertama barisan aritmatika.", thumbnail: "from-cyan-900 to-blue-800", duration: "40m", match: "92%", phase: "E", tags: ["Bilangan"], category: "fase-e", delta: ["Pola Bilangan", "Rumus Umum", "Latihan", "Quiz"] },
+
+            // --- FASE F (KELAS XI & XII) ---
+            { id: 5, title: "Bunga Majemuk", description: "Penerapan barisan geometri dalam menghitung bunga majemuk dan pertumbuhan investasi.", thumbnail: "from-emerald-900 to-green-800", duration: "1h 10m", match: "99%", phase: "F", tags: ["Keuangan"], category: "financial", delta: ["Simulasi Bank", "Rumus Bunga", "Studi Kasus", "Evaluasi"] },
+            { id: 6, title: "Transformasi Fungsi", description: "Memahami translasi, refleksi, dilatasi, dan rotasi pada berbagai fungsi matematika.", thumbnail: "from-indigo-900 to-purple-800", duration: "55m", match: "88%", phase: "F", tags: ["Aljabar"], category: "fase-f", delta: ["Observasi Pola", "Konsep", "Latihan", "Review"] },
+            { id: 7, title: "Lingkaran Analitik", description: "Persamaan lingkaran pusat (0,0) dan (a,b), serta garis singgung lingkaran.", thumbnail: "from-pink-900 to-rose-800", duration: "50m", match: "92%", phase: "F", tags: ["Geometri"], category: "fase-f", delta: ["Visualisasi", "Bedah Rumus", "Problem Solving", "Analisis"] },
+            { id: 8, title: "Statistika Lanjut", description: "Regresi linear, korelasi, dan analisis data bivariat untuk prediksi tren.", thumbnail: "from-slate-900 to-slate-700", duration: "1h 20m", match: "97%", phase: "F", tags: ["Data"], category: "data", delta: ["Data Mining", "Regresi", "Peluang"] },
+            { id: 11, title: "Peluang Kejadian", description: "Peluang kejadian saling lepas, saling bebas, dan peluang bersyarat.", thumbnail: "from-fuchsia-900 to-pink-900", duration: "1h 05m", match: "94%", phase: "F", tags: ["Peluang"], category: "data", delta: ["Teori Peluang", "Studi Kasus Dadu", "Latihan", "Ujian"] },
+            { id: 12, title: "Anuitas & Pinjaman", description: "Perhitungan angsuran pinjaman dan rencana pelunasan (Financial Literacy).", thumbnail: "from-teal-900 to-emerald-900", duration: "1h 15m", match: "96%", phase: "F", tags: ["Keuangan"], category: "financial", delta: ["Simulasi KPR", "Tabel Anuitas", "Analisis", "Laporan"] }
         ];
 
         // --- COMPONENT: LOGIN SCREEN (NEW PREMIUM DESIGN) ---
@@ -427,6 +450,20 @@
                                     <h2 className="text-white text-lg md:text-xl font-bold mb-4 drop-shadow-md">Literasi Data & Statistik</h2>
                                     <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide pr-4">
                                         {movies.filter(m => m.category === 'data').map(item => (
+                                            <div key={item.id} className="flex-none w-[160px] md:w-[240px] group cursor-pointer" onClick={() => setSelectedMovie(item)}>
+                                                <div className={`h-[100px] md:h-[135px] w-full rounded bg-gradient-to-br ${item.thumbnail} flex flex-col justify-end p-3 transition-transform duration-300 group-hover:scale-105 shadow-lg border border-gray-800`}>
+                                                    <h3 className="text-white font-bold text-sm md:text-base leading-tight drop-shadow-md line-clamp-2">{item.title}</h3>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Baris 3: Literasi Finansial */}
+                                <div>
+                                    <h2 className="text-white text-lg md:text-xl font-bold mb-4 drop-shadow-md">Literasi Finansial (Wajib SMK)</h2>
+                                    <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide pr-4">
+                                        {movies.filter(m => m.category === 'financial').map(item => (
                                             <div key={item.id} className="flex-none w-[160px] md:w-[240px] group cursor-pointer" onClick={() => setSelectedMovie(item)}>
                                                 <div className={`h-[100px] md:h-[135px] w-full rounded bg-gradient-to-br ${item.thumbnail} flex flex-col justify-end p-3 transition-transform duration-300 group-hover:scale-105 shadow-lg border border-gray-800`}>
                                                     <h3 className="text-white font-bold text-sm md:text-base leading-tight drop-shadow-md line-clamp-2">{item.title}</h3>
