@@ -3,719 +3,561 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DeltaMath Vokasi - SMKN Pasirian</title>
+    <title>Mathflix - E-Learning SMKN Pasirian</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Import Map untuk React & Lucide -->
-    <script type="importmap">
-    {
-        "imports": {
-            "react": "https://esm.sh/react@18.2.0",
-            "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
-            "lucide-react": "https://esm.sh/lucide-react@0.263.1"
-        }
-    }
-    </script>
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
     
-    <!-- Babel untuk JSX -->
+    <!-- Babel untuk compile JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
+    <!-- PapaParse untuk membaca CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <!-- Custom Styles -->
     <style>
-        /* Custom Styles & Animations */
-        body { margin: 0; padding: 0; background-color: #020617; font-family: 'Inter', sans-serif; }
-        
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
+        body {
+            background-color: #000000;
+            color: white;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .animate-fadeIn {
-            animation: fadeIn 0.6s ease-out forwards;
+        .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
+        
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
         
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        .animate-spin {
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes pulse-glow {
-            0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(99, 102, 241, 0.5); }
-            50% { opacity: .7; box-shadow: 0 0 20px rgba(99, 102, 241, 0.8); }
-        }
-        .animate-pulse-glow {
-            animation: pulse-glow 2s infinite;
+        /* Select styling override */
+        select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.75rem center;
+            background-repeat: no-repeat;
+            background-size: 1.2em 1.2em;
+            padding-right: 2.5rem;
+            -webkit-appearance: none;
+            appearance: none;
         }
 
-        /* Glassmorphism Utilities */
-        .glass {
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        /* Hero Pattern for Login Right Side */
+        .hero-pattern {
+            background-image: url("https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2070&auto=format&fit=crop");
+            background-size: cover;
+            background-position: center;
         }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
-    <script type="text/babel" data-type="module">
-        import React, { useState, useEffect, useRef } from 'react';
-        import { createRoot } from 'react-dom/client';
-        import { 
-            BookOpen, Compass, Rocket, Repeat, BarChart2, Play, 
-            ChevronRight, Menu, User, Award, Terminal, Wifi, 
-            Ruler, LogIn, Sparkles, X as CloseIcon, MessageSquare, 
-            LogOut, Settings, ChevronDown, LayoutGrid, LayoutList, 
-            Clock, CheckCircle2, MoreHorizontal, Globe, Lock, 
-            FileText, Video, HelpCircle, Bell, GraduationCap, Mail, Phone, Calendar,
-            Megaphone, AlertCircle, Pin, CalendarDays, Map, Send
-        } from 'lucide-react';
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
 
-        const App = () => {
-            // --- STATE MANAGEMENT ---
-            const [isLoggedIn, setIsLoggedIn] = useState(false);
-            const [userName, setUserName] = useState('');
-            const [userClass, setUserClass] = useState('X TKJ A');
+        // --- ICONS ---
+        const IconBase = ({ children, size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{children}</svg>
+        );
+
+        const Icons = {
+            Play: (p) => <IconBase {...p} fill={p.fill || "none"}><polygon points="5 3 19 12 5 21 5 3"></polygon></IconBase>,
+            Info: (p) => <IconBase {...p}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></IconBase>,
+            Search: (p) => <IconBase {...p}><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></IconBase>,
+            Bell: (p) => <IconBase {...p}><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></IconBase>,
+            User: (p) => <IconBase {...p}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></IconBase>,
+            Home: (p) => <IconBase {...p}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></IconBase>,
+            LogOut: (p) => <IconBase {...p}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></IconBase>,
+            X: (p) => <IconBase {...p}><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></IconBase>,
+            Menu: (p) => <IconBase {...p}><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></IconBase>,
+            ChevronRight: (p) => <IconBase {...p}><polyline points="9 18 15 12 9 6"></polyline></IconBase>,
+            Lock: (p) => <IconBase {...p}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></IconBase>,
+            WhatsApp: (p) => <IconBase {...p}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></IconBase>,
+            Telegram: (p) => <IconBase {...p}><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></IconBase>,
+            Quote: (p) => <IconBase {...p}><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path></IconBase>
+        };
+
+        // --- DATA MATERI ---
+        const movies = [
+            // FASE E
+            { id: 1, title: "Bilangan Berpangkat", description: "Sifat bilangan berpangkat & pecahan.", thumbnail: "from-purple-900 to-blue-900", duration: "45m", match: "98%", phase: "E", tags: ["Bilangan"], category: "fase-e", delta: ["Diagnosa", "Video", "Latihan", "Tes"] },
+            { id: 2, title: "Sistem Pertidaksamaan", description: "SPtLDV konteks nyata.", thumbnail: "from-red-900 to-orange-900", duration: "50m", match: "85%", phase: "E", tags: ["Aljabar"], category: "fase-e", delta: ["Studi Kasus", "Materi", "Quiz", "Proyek"] },
+            { id: 3, title: "Fungsi Kuadrat", description: "Grafik & akar imajiner.", thumbnail: "from-green-900 to-teal-900", duration: "60m", match: "95%", phase: "E", tags: ["Grafik"], category: "fase-e", delta: ["Pre-Test", "Simulasi", "Drill", "Refleksi"] },
+            { id: 4, title: "Trigonometri Dasar", description: "Sin Cos Tan sudut lancip.", thumbnail: "from-yellow-800 to-amber-900", duration: "55m", match: "90%", phase: "E", tags: ["Geometri"], category: "fase-e", delta: ["Survey", "Teori", "Hitungan", "Penerapan"] },
+            { id: 9, title: "Analisis Data (Fase E)", description: "Box plot, Histogram, Dot plot.", thumbnail: "from-gray-800 to-gray-600", duration: "1h 10m", match: "99%", phase: "E", tags: ["Data"], category: "data", delta: ["Data", "Olah", "Interpretasi"] },
             
-            const [activeTab, setActiveTab] = useState('dashboard');
-            const [viewMode, setViewMode] = useState('stream'); 
-            const [selectedMajor, setSelectedMajor] = useState('TKJ'); 
-            const [selectedLevel, setSelectedLevel] = useState('X'); 
-            const [selectedTopic, setSelectedTopic] = useState(''); 
-            const [activeDeltaStage, setActiveDeltaStage] = useState('Launch'); 
+            // FASE F
+            { id: 5, title: "Bunga Majemuk", description: "Model pinjaman & investasi.", thumbnail: "from-emerald-900 to-green-800", duration: "1h 10m", match: "99%", phase: "F", tags: ["Keuangan"], category: "financial", delta: ["Simulasi", "Rumus", "Kasus", "Evaluasi"] },
+            { id: 6, title: "Transformasi Fungsi", description: "Invers & komposisi fungsi.", thumbnail: "from-indigo-900 to-purple-800", duration: "55m", match: "88%", phase: "F", tags: ["Aljabar"], category: "fase-f", delta: ["Pola", "Konsep", "Latihan", "Review"] },
+            { id: 7, title: "Lingkaran Analitik", description: "Persamaan garis singgung.", thumbnail: "from-pink-900 to-rose-800", duration: "50m", match: "92%", phase: "F", tags: ["Geometri"], category: "fase-f", delta: ["Visual", "Rumus", "Problem", "Analisis"] },
+            { id: 8, title: "Statistika Lanjut", description: "Regresi linear & Peluang.", thumbnail: "from-slate-900 to-slate-700", duration: "1h 20m", match: "97%", phase: "F", tags: ["Data"], category: "data", delta: ["Data", "Regresi", "Peluang"] }
+        ];
 
-            // AI States
-            const [showAIModal, setShowAIModal] = useState(false);
-            const [aiLoading, setAiLoading] = useState(false);
-            const [aiResponse, setAiResponse] = useState('');
-            const [aiPromptType, setAiPromptType] = useState(''); 
+        // --- COMPONENT: LOGIN SCREEN (NEW PREMIUM DESIGN) ---
+        const LoginScreen = ({ onLogin }) => {
+            const [students, setStudents] = useState([]);
+            const [classes, setClasses] = useState([]);
+            const [loading, setLoading] = useState(true);
+            const [error, setError] = useState(null);
 
-            // Activity Content Modal States
-            const [showActivityModal, setShowActivityModal] = useState(false);
-            const [activityContent, setActivityContent] = useState(null);
+            const [selectedClass, setSelectedClass] = useState("");
+            const [selectedStudentName, setSelectedStudentName] = useState("");
+            const [password, setPassword] = useState("");
+            const [loginError, setLoginError] = useState("");
 
-            // Admin Board States
-            const [showAdminModal, setShowAdminModal] = useState(false);
-            const [adminPassword, setAdminPassword] = useState('');
-            const [adminError, setAdminError] = useState('');
-
-            // Tour Guide States
-            const [isTourActive, setIsTourActive] = useState(false);
-            const [tourStep, setTourStep] = useState(0);
-
-            // API Configuration
-            const apiKey = ""; // Diset kosong agar menggunakan environment runtime jika tersedia
-
-            // --- DATABASE SILABUS ---
-            const syllabus = {
-                X: [
-                    "Eksponen & Pangkat Pecahan", "SP & PtLDV", "Fungsi Kuadrat",
-                    "Persamaan & Fungsi Eksponensial", "Trigonometri", "Statistika", "Peluang"
-                ],
-                SENIOR: [
-                    "Barisan & Deret", "Anuitas & Investasi", "Komposisi & Invers Fungsi",
-                    "Transformasi Fungsi", "Lingkaran", "Statistika Lanjut", "Peluang Lanjutan"
-                ]
-            };
-
-            // --- DATABASE KONTEN (Simplified for Demo) ---
-            const contentDatabase = {
-                X: {
-                    "Eksponen & Pangkat Pecahan": {
-                        RPL: { title: "Eksponen & Biner", context: "Optimasi Memori", task: "Hitung efisiensi penyimpanan data biner (bit/byte) menggunakan sifat eksponensial.", img: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800" },
-                        TKJ: { title: "Eksponen Jaringan", context: "Subnetting & IP", task: "Hitung jumlah host maksimum dalam jaringan menggunakan perpangkatan basis 2.", img: "https://images.unsplash.com/photo-1558494949-ef526b0042a0?w=800" },
-                        DPIB: { title: "Eksponen Struktur", context: "Kekuatan Material", task: "Hitung peluruhan kekuatan beton atau pertumbuhan bakteri pada instalasi limbah.", img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800" }
-                    },
-                    "Trigonometri": {
-                        RPL: { title: "Trigonometri Game", context: "Game Dev 2D", task: "Tentukan arah peluru (vektor) berdasarkan sudut tembakan menggunakan Sin/Cos.", img: "https://images.unsplash.com/photo-1556438064-2d7646166914?w=800" },
-                        TKJ: { title: "Trigonometri Sinyal", context: "Antena & WiFi", task: "Hitung ketinggian tower antena agar sinyal menjangkau area radius 2km (Sudut Elevasi).", img: "https://images.unsplash.com/photo-1544197150-b99a580bbcbf?w=800" },
-                        DPIB: { title: "Trigonometri Konstruksi", context: "Pengukuran Lahan", task: "Hitung kemiringan atap atau tinggi gedung menggunakan perbandingan trigonometri.", img: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=800" }
-                    },
-                    "Fungsi Kuadrat": {
-                         RPL: { title: "Fungsi Kuadrat Game", context: "Fisika Game", task: "Buat persamaan parabola untuk lintasan lompatan karakter dalam game platformer.", img: "https://images.unsplash.com/photo-1552820728-8b83bb6b773f?w=800" },
-                        TKJ: { title: "Optimasi Jaringan", context: "Load Balancing", task: "Analisis kurva beban server untuk menemukan titik puncak traffic menggunakan fungsi kuadrat.", img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800" },
-                        DPIB: { title: "Lengkung Jembatan", context: "Desain Jembatan", task: "Hitung beban maksimal pada titik puncak lengkungan jembatan gantung.", img: "https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?w=800" }
-                    }
-                },
-                SENIOR: {
-                    "Anuitas & Investasi": {
-                        RPL: { title: "Fintech System", context: "Aplikasi Keuangan", task: "Buat algoritma untuk menghitung cicilan bulanan (anuitas) pada aplikasi pinjol simulasi.", img: "https://images.unsplash.com/photo-1563986768-7b06d938b39d?w=800" },
-                        TKJ: { title: "Investasi Perangkat", context: "Pengadaan Server", task: "Hitung penyusutan nilai aset server dan biaya maintenance tahunan (Bunga Majemuk).", img: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800" },
-                        DPIB: { title: "RAB Proyek", context: "Manajemen Konstruksi", task: "Hitung angsuran pinjaman modal proyek perumahan dengan sistem anuitas.", img: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800" }
-                    }
-                }
-            };
-
-            // --- HELPER FUNCTIONS ---
-            const getCurrentData = () => {
-                const levelDB = contentDatabase[selectedLevel];
-                const topicDB = levelDB ? levelDB[selectedTopic] : null;
-                const specificData = topicDB ? topicDB[selectedMajor] : null;
-
-                if (specificData) {
-                    return { ...specificData, themeColor: getThemeColor(selectedMajor), accentColor: getAccentColor(selectedMajor), icon: getIcon(selectedMajor) };
-                } else {
-                    return {
-                        title: selectedTopic || "Materi Matematika",
-                        context: `Penerapan di ${selectedMajor}`,
-                        task: `Selesaikan permasalahan kontekstual ${selectedTopic} yang berkaitan dengan studi kasus ${selectedMajor}.`,
-                        img: getGenericImage(selectedMajor),
-                        themeColor: getThemeColor(selectedMajor),
-                        accentColor: getAccentColor(selectedMajor),
-                        icon: getIcon(selectedMajor)
-                    };
-                }
-            };
-
-            const getThemeColor = (major) => major === 'RPL' ? 'blue' : major === 'TKJ' ? 'emerald' : 'orange';
-            const getAccentColor = (major) => major === 'RPL' ? 'from-blue-600 to-indigo-900' : major === 'TKJ' ? 'from-emerald-600 to-teal-900' : 'from-orange-600 to-red-900';
-            const getIcon = (major) => major === 'RPL' ? <Terminal className="w-5 h-5"/> : major === 'TKJ' ? <Wifi className="w-5 h-5"/> : <Ruler className="w-5 h-5"/>;
-            const getGenericImage = (major) => major === 'RPL' ? "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800" : major === 'TKJ' ? "https://images.unsplash.com/photo-1544197150-b99a580bbcbf?w=800" : "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800";
-
-            const currentData = getCurrentData();
-
-            const deltaStages = [
-                { id: 'Discover', title: '1. Discover', subtitle: 'Investigasi Masalah', icon: <BookOpen className="w-4 h-4" />, kanbanStatus: 'todo' },
-                { id: 'Explore', title: '2. Explore', subtitle: 'Eksperimen Konsep', icon: <Compass className="w-4 h-4" />, kanbanStatus: 'todo' },
-                { id: 'Launch', title: '3. Launch', subtitle: 'Misi Utama', icon: <Rocket className="w-4 h-4" />, kanbanStatus: 'inprogress' },
-                { id: 'Transform', title: '4. Transform', subtitle: 'Refleksi Diri', icon: <Repeat className="w-4 h-4" />, kanbanStatus: 'review' },
-                { id: 'Assess', title: '5. Assess', subtitle: 'Uji Kompetensi', icon: <BarChart2 className="w-4 h-4" />, kanbanStatus: 'done' },
-            ];
-
-            // --- ACTIONS ---
-
-            const handleStartActivity = () => {
-                const stage = activeDeltaStage;
-                let content = { title: "", body: "", icon: null, actionText: "Selesai" };
-
-                switch(stage) {
-                    case 'Discover':
-                        content = {
-                            title: "Studi Kasus Kontekstual",
-                            body: `Simak video permasalahan industri berikut terkait "${currentData.context}". \n\nTugas: Identifikasi variabel matematika (angka/rumus) apa saja yang muncul dalam masalah ini? Catat di buku catatanmu.`,
-                            icon: <Video className="w-12 h-12 text-blue-400 mb-4"/>,
-                            actionText: "Saya Sudah Menonton"
-                        };
-                        break;
-                    case 'Explore':
-                        content = {
-                            title: "Laboratorium Virtual",
-                            body: `Gunakan simulasi interaktif (GeoGebra/Desmos) untuk memahami konsep "${currentData.title}". \n\nTugas: Ubah nilai parameter pada grafik dan amati perubahannya. Temukan pola hubungannya sebelum lanjut ke tahap proyek.`,
-                            icon: <Compass className="w-12 h-12 text-emerald-400 mb-4"/>,
-                            actionText: "Buka Simulasi"
-                        };
-                        break;
-                    case 'Launch':
-                        content = {
-                            title: "Project Brief: Misi Utama",
-                            body: `TANTANGAN JURUSAN ${selectedMajor}:\n"${currentData.task}"\n\nLangkah:\n1. Analisis kebutuhan.\n2. Gunakan rumus ${currentData.title}.\n3. Validasi hasil hitunganmu.\n\nGunakan fitur "Tanya Mentor AI" jika buntu.`,
-                            icon: <Rocket className="w-12 h-12 text-orange-400 mb-4"/>,
-                            actionText: "Mulai Mengerjakan"
-                        };
-                        break;
-                    case 'Transform':
-                        content = {
-                            title: "Refleksi Diri",
-                            body: `Jawab pertanyaan ini:\n"Bagaimana pemahaman tentang ${currentData.title} akan membantumu menjadi seorang ahli ${selectedMajor} yang lebih baik?"\n\nRekam suaramu atau tuliskan minimal 1 paragraf.`,
-                            icon: <MessageSquare className="w-12 h-12 text-purple-400 mb-4"/>,
-                            actionText: "Kirim Refleksi"
-                        };
-                        break;
-                    case 'Assess':
-                        content = {
-                            title: "Evaluasi Kompetensi",
-                            body: `1. Kerjakan 5 soal kuis adaptif tentang ${currentData.title}.\n2. Unggah laporan penyelesaian proyek "${currentData.context}".\n\nPastikan semua data akurat.`,
-                            icon: <FileText className="w-12 h-12 text-red-400 mb-4"/>,
-                            actionText: "Mulai Kuis"
-                        };
-                        break;
-                    default:
-                        content = { title: "Info", body: "Konten sedang dimuat...", icon: <HelpCircle className="w-12 h-12"/> };
-                }
-                setActivityContent(content);
-                setShowActivityModal(true);
-            };
-
-            const callGeminiAPI = async (type) => {
-                setAiLoading(true);
-                setAiResponse('');
-                setAiPromptType(type);
-                setShowAIModal(true);
-
-                // Use environment key or check specific variable
-                const keyToUse = typeof apiKey !== 'undefined' && apiKey !== "" ? apiKey : ""; 
+            useEffect(() => {
+                const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNxfl64ybd5HEX-Ln3ubR8C-SxModDRkPVuRpShlUDX2UCRgKib2cIqXtsUPT4d0rJY_gkaCQVOTSb/pub?gid=1562678039&single=true&output=csv";
                 
-                // Using the specific model as requested in system instructions
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${keyToUse}`;
+                Papa.parse(csvUrl, {
+                    download: true,
+                    header: false,
+                    complete: (results) => {
+                        let data = results.data;
+                        if (data.length > 0 && (data[0][0] === "Nama Siswa" || data[0][0] === "Nama")) {
+                            data = data.slice(1);
+                        }
+                        const parsedStudents = data.map(row => ({
+                            name: row[0],
+                            kelas: row[1],
+                            jurusan: row[2],
+                            password: row[3] ? row[3].toString().trim() : ""
+                        })).filter(s => s.name && s.kelas);
 
-                let prompt = "";
-                if (type === 'concept') {
-                    prompt = `Sebagai guru matematika SMK yang asik bernama Pak Feri, jelaskan konsep "${currentData.title}" dalam konteks jurusan ${selectedMajor} (Kelas ${selectedLevel}) secara singkat, padat, dan memotivasi. Gunakan bahasa gaul yang sopan.`;
-                } else if (type === 'project') {
-                    prompt = `Saya siswa jurusan ${selectedMajor} Kelas ${selectedLevel}. Topik: ${selectedTopic}. Tugas saya: "${currentData.task}". Berikan 3 langkah panduan praktis (step-by-step) untuk menyelesaikannya. Berikan rumus yang relevan jika ada.`;
-                }
-
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-                    });
-                    const data = await response.json();
-                    if (data.candidates && data.candidates[0].content) {
-                        setAiResponse(data.candidates[0].content.parts[0].text);
-                    } else if (data.error) {
-                         setAiResponse(`Error: ${data.error.message}. (API Key mungkin belum diset)`);
-                    } else {
-                        setAiResponse("Maaf, Guru AI sedang sibuk. Coba lagi nanti ya!");
+                        setStudents(parsedStudents);
+                        const uniqueClasses = [...new Set(parsedStudents.map(s => s.kelas))].sort();
+                        setClasses(uniqueClasses);
+                        setLoading(false);
+                    },
+                    error: (err) => {
+                        setError("Gagal memuat data. Periksa koneksi.");
+                        setLoading(false);
                     }
-                } catch (error) {
-                    console.error("Error calling Gemini:", error);
-                    setAiResponse("Terjadi kesalahan koneksi. Periksa internetmu.");
-                } finally {
-                    setAiLoading(false);
-                }
-            };
+                });
+            }, []);
+
+            const filteredStudents = useMemo(() => {
+                return students.filter(s => s.kelas === selectedClass);
+            }, [selectedClass, students]);
 
             const handleLogin = (e) => {
                 e.preventDefault();
-                if (userName.trim()) {
-                    let major = 'RPL';
-                    if (userClass.includes('TKJ')) major = 'TKJ';
-                    else if (userClass.includes('DPIB')) major = 'DPIB';
-                    
-                    let level = 'SENIOR'; 
-                    if (userClass.startsWith('X ') || userClass.startsWith('X-')) {
-                        level = 'X';
-                    }
-
-                    setSelectedMajor(major);
-                    setSelectedLevel(level);
-                    
-                    const defaultTopic = level === 'X' ? syllabus.X[0] : syllabus.SENIOR[0];
-                    setSelectedTopic(defaultTopic);
-                    
-                    setIsLoggedIn(true);
-                    setTimeout(() => startTour(), 1000);
+                setLoginError("");
+                const student = filteredStudents.find(s => s.name === selectedStudentName);
+                if (!student) {
+                    setLoginError("Silakan pilih nama siswa.");
+                    return;
                 }
-            };
-
-            const startTour = () => {
-                setIsTourActive(true);
-                setTourStep(0);
-            };
-
-            const handleAdminAccess = (e) => {
-                e.preventDefault();
-                if (adminPassword === "F3r!-lee") {
-                    window.location.href = "https://feriboard.netlify.app/";
+                if (student.password === password) {
+                    onLogin(student);
                 } else {
-                    setAdminError("Password salah!");
-                    setTimeout(() => setAdminError(''), 2000);
+                    setLoginError("Password salah.");
                 }
             };
 
-            const getTopicsList = () => {
-                let topics = [...syllabus[selectedLevel]];
-                if (userClass.includes('XII TKJ')) {
-                    topics.push("Pemrograman Web");
-                }
-                return topics;
-            };
-
-            // --- SUB-COMPONENTS ---
-            
-            const TourOverlay = () => {
-                const steps = [
-                    { title: "Selamat Datang!", desc: "Mari kita lihat fitur utama DeltaMath.", position: "center" },
-                    { title: "Pilih Materi", desc: "Ganti topik pembelajaran di sini sesuai kebutuhanmu.", position: "top" },
-                    { title: "Alur DELTA", desc: "5 Tahapan belajar: Discover hingga Assess.", position: "middle" },
-                    { title: "Aktivitas Pembelajaran", desc: "Tempat mengerjakan tugas, kuis, dan simulasi.", position: "center" },
-                    { title: "Pengumuman", desc: "Cek info sekolah dan deadline tugas di menu ini.", position: "bottom-right" },
-                ];
-                const current = steps[tourStep];
-
-                return (
-                    <React.Fragment>
-                        <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm transition-all duration-500 animate-fadeIn" onClick={() => { if(tourStep < steps.length-1) setTourStep(tourStep+1); else setIsTourActive(false); }}></div>
-                        <div className={`fixed p-6 bg-white text-slate-900 rounded-2xl shadow-2xl max-w-xs border-4 border-indigo-500 z-[202] transition-all
-                            ${current.position === 'center' ? 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2' : ''}
-                            ${current.position === 'top' ? 'top-24 left-1/2 -translate-x-1/2' : ''}
-                            ${current.position === 'middle' ? 'top-1/2 left-1/2 -translate-x-1/2 translate-y-32' : ''}
-                            ${current.position === 'bottom-right' ? 'bottom-24 right-4 md:right-auto md:left-64 md:bottom-24' : ''}
-                        `}>
-                          <div className="flex justify-between items-center mb-2">
-                             <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider">Tur {tourStep + 1}/{steps.length}</span>
-                             <button onClick={() => setIsTourActive(false)} className="text-slate-400 hover:text-red-500"><CloseIcon className="w-4 h-4"/></button>
-                          </div>
-                          <h3 className="text-lg font-bold mb-2 text-slate-900">{current.title}</h3>
-                          <p className="text-sm text-slate-600 mb-4 leading-relaxed">{current.desc}</p>
-                          <div className="flex justify-end gap-2">
-                             {tourStep > 0 && <button onClick={() => setTourStep(tourStep-1)} className="text-xs font-bold text-slate-500 px-3 py-2 hover:bg-slate-100 rounded">Kembali</button>}
-                             <button onClick={() => { if(tourStep < steps.length-1) setTourStep(tourStep+1); else setIsTourActive(false); }} className="bg-indigo-600 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-lg hover:bg-indigo-500 transition-all">
-                                {tourStep === steps.length - 1 ? "Selesai" : "Lanjut"}
-                             </button>
-                          </div>
-                        </div>
-                    </React.Fragment>
-                )
-            };
-
-            const AnnouncementsView = () => {
-                const announcements = [
-                    { id: 1, title: "Jadwal Penilaian Akhir Semester (PAS)", category: "Akademik", date: "5 Jan 2026", desc: "Ujian akan dilaksanakan mulai tanggal 15 Januari. Pastikan semua tugas DELTA tahap Launch sudah dikumpulkan.", urgent: true },
-                    { id: 2, title: "Deadline Proyek Statistika", category: "Tugas", date: "4 Jan 2026", desc: "Untuk kelas X TKJ, deadline proyek analisis bandwidth diperpanjang hingga Jumat depan.", urgent: false },
-                    { id: 3, title: "Lomba Matematika Terapan", category: "Prestasi", date: "2 Jan 2026", desc: "Pendaftaran dibuka untuk lomba tingkat provinsi. Hubungi Pak Feri jika berminat bimbingan.", urgent: false }
-                ];
-
-                return (
-                    <div className="p-4 pt-20 md:p-8 md:pt-8 h-full overflow-y-auto pb-24 md:pb-0">
-                        <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3"><Megaphone className="text-orange-500"/> Papan Pengumuman</h2>
-                        <div className="space-y-4">
-                            {announcements.map(item => (
-                                <div key={item.id} className={`p-6 rounded-xl border relative overflow-hidden ${item.urgent ? 'bg-red-900/20 border-red-500/50' : 'bg-slate-800 border-slate-700'}`}>
-                                    {item.urgent && <div className="absolute top-0 right-0 p-2"><AlertCircle className="text-red-500 opacity-50 w-12 h-12"/></div>}
-                                    <div className="relative z-10">
-                                        <div className="flex justify-between items-start mb-2">
-                                            <span className={`text-[10px] font-bold px-2 py-1 rounded ${item.urgent ? 'bg-red-600 text-white' : 'bg-blue-600/30 text-blue-300'}`}>{item.category}</span>
-                                            <span className="text-xs text-slate-400 flex items-center gap-1"><CalendarDays className="w-3 h-3"/> {item.date}</span>
-                                        </div>
-                                        <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
-                                        <p className="text-slate-300 text-sm">{item.desc}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                );
-            };
-
-            const TeacherProfile = () => (
-                <div className="p-4 md:p-8 h-full overflow-y-auto pb-24 md:pb-0">
-                    <div className="bg-slate-800 rounded-2xl p-8 border border-slate-700 text-center md:text-left flex flex-col md:flex-row items-center gap-8">
-                        <div className="w-32 h-32 rounded-full border-4 border-indigo-500 overflow-hidden shadow-2xl">
-                            <img src="https://i.ibb.co.com/x82PbSjy/IMG-20250927-210909.png" alt="Pak Feri" className="w-full h-full object-cover"/>
-                        </div>
-                        <div>
-                            <h2 className="text-3xl font-bold text-white mb-2">Feri Dwi Hermawan, S.Pd.</h2>
-                            <p className="text-indigo-400 font-medium mb-4">Guru Matematika • SMKN Pasirian</p>
-                            <p className="text-slate-300 text-sm max-w-xl italic">"Matematika bukan tentang menghafal rumus, tapi tentang seni memecahkan masalah. Gunakan strategi DELTA untuk mengubah ketakutan menjadi keahlian."</p>
-                            <div className="flex gap-3 mt-6 justify-center md:justify-start">
-                                <button className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2" onClick={() => window.open('https://wa.me/6285174244128')}>
-                                    <MessageSquare className="w-4 h-4"/> WhatsApp
-                                </button>
-                                <button className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2" onClick={() => window.open('https://t.me/ferilee')}>
-                                    <Send className="w-4 h-4"/> Telegram
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                        <div className="bg-slate-900 p-5 rounded-xl border border-slate-800">
-                             <h3 className="text-white font-bold mb-2 flex items-center gap-2"><Clock className="w-4 h-4 text-orange-400"/> Jam Konsultasi</h3>
-                             <ul className="text-sm text-slate-400 space-y-2">
-                                <li className="flex justify-between"><span>Senin</span> <span>13:00 - 14:00</span></li>
-                                <li className="flex justify-between"><span>Rabu</span> <span>09:40 - 10:20</span></li>
-                                <li className="flex justify-between"><span>Jumat</span> <span>11:00 - 13:00</span></li>
-                             </ul>
-                        </div>
-                        <div className="bg-slate-900 p-5 rounded-xl border border-slate-800">
-                             <h3 className="text-white font-bold mb-2 flex items-center gap-2"><Award className="w-4 h-4 text-purple-400"/> Sertifikasi</h3>
-                             <ul className="text-sm text-slate-400 space-y-1">
-                                <li><CheckCircle2 className="w-3 h-3 inline text-green-500 mr-1"/> Google Certified Educator</li>
-                                <li><CheckCircle2 className="w-3 h-3 inline text-green-500 mr-1"/> Microsoft Innovative Educator</li>
-                                <li><CheckCircle2 className="w-3 h-3 inline text-green-500 mr-1"/> Penulis Modul Vokasi</li>
-                             </ul>
-                        </div>
-                    </div>
+            if (loading) return (
+                <div className="min-h-screen flex flex-col items-center justify-center bg-black text-white">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600 mb-4"></div>
                 </div>
             );
 
-            // --- MAIN VIEW RENDER ---
-            const renderContent = () => {
-                if (activeTab === 'teacher') return <TeacherProfile />;
-                if (activeTab === 'announcements') return <AnnouncementsView />;
-
-                // DASHBOARD / STREAM VIEW
-                return (
-                    <div className="relative w-full h-full overflow-y-auto pb-20 md:pb-0">
-                        {/* HERO */}
-                        <div className="relative w-full h-[500px] md:h-[60vh] overflow-hidden group">
-                            <img src={currentData.img} className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="Hero"/>
-                            <div className={`absolute inset-0 bg-gradient-to-br ${currentData.accentColor} opacity-40 mix-blend-multiply`}></div>
-                            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent"></div>
-                            
-                            <div className="absolute bottom-0 w-full p-6 md:p-10 pb-8 space-y-4 max-w-4xl animate-fadeIn">
-                                <p className="text-lg text-slate-200">Hai, <span className="font-bold text-white">{userName}</span>! 👋</p>
-                                <div className="flex items-center gap-2">
-                                    <span className={`px-2 py-0.5 bg-${currentData.themeColor}-600 rounded text-xs font-bold text-white uppercase`}>Materi Minggu Ini</span>
-                                    <span className="px-2 py-0.5 border border-white/30 rounded text-xs text-white">{selectedMajor} • Kelas {selectedLevel}</span>
-                                </div>
-                                <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight drop-shadow-2xl">{currentData.title}</h1>
-                                <p className="text-sm md:text-lg text-slate-200 line-clamp-2 max-w-2xl">{currentData.context}: {currentData.task}</p>
-                                
-                                <div className="flex gap-3 pt-4">
-                                    <button onClick={handleStartActivity} className="bg-white text-black font-bold py-3 px-6 rounded-lg flex items-center gap-2 hover:bg-slate-200 transition-colors">
-                                        <Play className="w-5 h-5 fill-black" /> Mulai Belajar
-                                    </button>
-                                    <button onClick={() => callGeminiAPI('concept')} className="glass text-white py-3 px-6 rounded-lg flex items-center gap-2 hover:bg-white/10 transition-colors">
-                                        <Sparkles className="w-5 h-5 text-yellow-400" /> Tanya Konsep AI
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* DELTA STAGES */}
-                        <div className="px-4 md:px-10 mt-8 mb-12">
-                            <h3 className="text-white font-bold text-xl mb-4">Tahapan DELTA</h3>
-                            <div className="flex overflow-x-auto gap-4 pb-4 snap-x hide-scrollbar">
-                                {deltaStages.map((stage, index) => {
-                                    const isActive = activeDeltaStage === stage.id;
-                                    return (
-                                        <div key={stage.id} onClick={() => setActiveDeltaStage(stage.id)} 
-                                            className={`snap-center flex-none w-48 md:w-64 cursor-pointer transition-all duration-300 ${isActive ? 'scale-105' : 'opacity-70 hover:opacity-100'}`}>
-                                            <div className={`h-40 md:h-52 rounded-xl border-2 relative overflow-hidden p-4 flex flex-col justify-end ${isActive ? `border-${currentData.themeColor}-500 bg-gradient-to-t from-${currentData.themeColor}-900/50 to-slate-900` : 'border-slate-800 bg-slate-900'}`}>
-                                                <div className="absolute top-2 right-4 text-6xl font-black text-white/5">{index + 1}</div>
-                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${isActive ? `bg-${currentData.themeColor}-500 text-white` : 'bg-slate-800 text-slate-500'}`}>
-                                                    {stage.icon}
-                                                </div>
-                                                <h4 className="font-bold text-white text-lg">{stage.title}</h4>
-                                                <p className="text-xs text-slate-400">{stage.subtitle}</p>
-                                            </div>
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                        </div>
-                        
-                        {/* CURRENT ACTIVITY DETAIL */}
-                        <div className="px-4 md:px-10 mb-20 max-w-5xl">
-                            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6 items-center">
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <span className={`text-${currentData.themeColor}-400 font-bold uppercase tracking-widest text-xs`}>Tahap {activeDeltaStage}</span>
-                                        {activeDeltaStage === 'Launch' && <span className="bg-indigo-900 text-indigo-300 text-[10px] px-2 py-0.5 rounded border border-indigo-500/50 animate-pulse">AI Powered</span>}
-                                    </div>
-                                    <h3 className="text-2xl font-bold text-white mb-2">Aktivitas Pembelajaran</h3>
-                                    <p className="text-slate-300 mb-4">{activeDeltaStage === 'Launch' ? `Tantangan Jurusan ${selectedMajor}: ${currentData.task}` : "Klik tombol mulai untuk membuka modul interaktif."}</p>
-                                    <button onClick={handleStartActivity} className={`bg-${currentData.themeColor}-600 hover:bg-${currentData.themeColor}-500 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2`}>
-                                        Buka Materi <ChevronRight className="w-4 h-4"/>
-                                    </button>
-                                </div>
-                                <div className={`w-full md:w-1/3 h-32 rounded-xl bg-gradient-to-br from-${currentData.themeColor}-900 to-slate-800 flex items-center justify-center`}>
-                                    {activeDeltaStage === 'Launch' ? <Rocket className="w-16 h-16 text-white opacity-20"/> : <BookOpen className="w-16 h-16 text-white opacity-20"/>}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                );
-            };
-
-            // --- LOGIN UI ---
-            if (!isLoggedIn) {
-                return (
-                    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 relative overflow-hidden">
-                        <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-600 rounded-full blur-[120px] opacity-20"></div>
-                        <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-indigo-600 rounded-full blur-[120px] opacity-20"></div>
-                        
-                        <div className="relative z-10 w-full max-w-md bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-8 rounded-3xl shadow-2xl animate-fadeIn">
-                            <div className="text-center mb-8">
-                                <div className="w-16 h-16 bg-gradient-to-tr from-blue-500 to-indigo-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg mb-4 transform rotate-3">
-                                    <span className="text-3xl font-bold text-white">Δ</span>
-                                </div>
-                                <h1 className="text-3xl font-bold text-white">DeltaMath <span className="text-blue-400">Vokasi</span></h1>
-                                <p className="text-slate-400 text-sm">Platform Belajar SMK Pasirian</p>
-                            </div>
-                            
-                            <form onSubmit={handleLogin} className="space-y-4">
-                                <div>
-                                    <label className="text-xs text-slate-400 font-bold uppercase ml-1">Nama Lengkap</label>
-                                    <input type="text" value={userName} onChange={(e) => setUserName(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none mt-1" placeholder="Masukkan nama..." required />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-slate-400 font-bold uppercase ml-1">Kelas</label>
-                                    <div className="relative mt-1">
-                                        <select value={userClass} onChange={(e) => setUserClass(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none appearance-none cursor-pointer">
-                                            <option value="X TKJ A">X TKJ A</option>
-                                            <option value="X TKJ B">X TKJ B</option>
-                                            <option value="X DPIB">X DPIB</option>
-                                            <option value="XI RPL">XI RPL</option>
-                                            <option value="XI DPIB">XI DPIB</option>
-                                            <option value="XII TKJ A">XII TKJ A</option>
-                                        </select>
-                                        <ChevronDown className="absolute right-4 top-3.5 w-5 h-5 text-slate-400 pointer-events-none"/>
-                                    </div>
-                                </div>
-                                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-600/20 transition-all mt-4 flex items-center justify-center gap-2">
-                                    Mulai Belajar <LogIn className="w-4 h-4"/>
-                                </button>
-                            </form>
-                            
-                            <button onClick={() => setShowAdminModal(true)} className="mt-6 text-xs text-slate-600 hover:text-slate-400 w-full text-center">Admin Access</button>
-                        </div>
-
-                        {/* ADMIN MODAL */}
-                        {showAdminModal && (
-                            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-                                <div className="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-full max-w-sm relative">
-                                    <button onClick={() => setShowAdminModal(false)} className="absolute top-4 right-4 text-slate-400"><CloseIcon className="w-5 h-5"/></button>
-                                    <h3 className="font-bold text-white mb-4 flex items-center gap-2"><Lock className="w-4 h-4 text-red-500"/> FeriBoard Access</h3>
-                                    <form onSubmit={handleAdminAccess}>
-                                        <input type="password" value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white mb-2" placeholder="Enter Code..."/>
-                                        {adminError && <p className="text-red-500 text-xs mb-2">{adminError}</p>}
-                                        <button type="submit" className="w-full bg-red-600 text-white py-2 rounded-lg font-bold text-sm">Unlock</button>
-                                    </form>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                );
-            }
-
-            // --- APP LAYOUT ---
+            // DESAIN BARU: Split Screen Layout
             return (
-                <div className="min-h-screen bg-slate-950 text-slate-200 font-sans flex flex-col md:flex-row">
-                    {/* SIDEBAR DESKTOP */}
-                    <aside className="hidden md:flex flex-col w-64 h-screen fixed bg-slate-900 border-r border-slate-800 z-40">
-                        <div className="p-6 flex items-center gap-3 border-b border-slate-800">
-                            <div className={`w-10 h-10 bg-gradient-to-tr from-${currentData.themeColor}-600 to-${currentData.themeColor}-400 rounded-xl flex items-center justify-center font-bold text-white`}>Δ</div>
-                            <div><h1 className="font-bold text-white">DeltaMath</h1><span className="text-[10px] text-slate-400 uppercase">Vokasi</span></div>
-                        </div>
-                        <nav className="flex-1 p-4 space-y-2">
-                            {['dashboard', 'teacher', 'chat', 'announcements'].map(tab => (
-                                <button key={tab} onClick={tab === 'chat' ? () => callGeminiAPI('concept') : () => setActiveTab(tab)} 
-                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-sm ${activeTab === tab && tab !== 'chat' ? `bg-${currentData.themeColor}-500/10 text-${currentData.themeColor}-400 border border-${currentData.themeColor}-500/20` : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
-                                    {tab === 'dashboard' && <Menu className="w-5 h-5"/>}
-                                    {tab === 'teacher' && <GraduationCap className="w-5 h-5"/>}
-                                    {tab === 'chat' && <MessageSquare className="w-5 h-5"/>}
-                                    {tab === 'announcements' && <Bell className="w-5 h-5"/>}
-                                    <span className="capitalize">{tab === 'chat' ? 'Tanya AI' : tab === 'teacher' ? 'Profil Guru' : tab === 'announcements' ? 'Pengumuman' : 'Beranda'}</span>
-                                </button>
-                            ))}
-                        </nav>
-                        <div className="p-4 border-t border-slate-800">
-                            <div className="flex items-center gap-3 mb-3">
-                                <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center"><User className="w-4 h-4"/></div>
-                                <div className="overflow-hidden"><p className="text-sm font-bold text-white truncate">{userName}</p><p className="text-xs text-slate-500">{userClass}</p></div>
-                            </div>
-                            <button onClick={() => setIsLoggedIn(false)} className="w-full flex items-center justify-center gap-2 py-2 rounded bg-slate-800 text-slate-400 text-xs hover:text-white"><LogOut className="w-3 h-3"/> Keluar</button>
-                        </div>
-                    </aside>
-
-                    {/* MAIN CONTENT AREA */}
-                    <main className="flex-1 w-full md:ml-64 min-h-screen bg-slate-950 relative flex flex-col">
-                        {/* MOBILE HEADER */}
-                        <div className="md:hidden absolute top-0 w-full z-20 p-4 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
-                            <span className="text-white font-bold text-lg">DeltaMath</span>
-                            <div className="bg-white/10 backdrop-blur rounded p-1">
-                                <select className="bg-transparent text-white text-xs outline-none" value={selectedTopic} onChange={(e) => setSelectedTopic(e.target.value)}>
-                                    {getTopicsList().map(t => <option key={t} value={t} className="text-black">{t}</option>)}
-                                </select>
-                            </div>
+                <div className="min-h-screen flex flex-col md:flex-row bg-black text-white font-sans">
+                    
+                    {/* LEFT SIDE: Form (Mobile: Full width, Desktop: 40-50%) */}
+                    <div className="w-full md:w-[45%] lg:w-[40%] flex flex-col justify-center px-6 sm:px-12 md:px-16 py-12 z-20 bg-black relative">
+                        
+                        {/* Header Branding */}
+                        <div className="mb-10">
+                            <h1 className="text-red-600 text-4xl font-bold tracking-tighter mb-2">MATHFLIX</h1>
+                            <p className="text-gray-400 text-sm tracking-wide uppercase">E-Learning Platform SMKN Pasirian</p>
+                            <div className="h-1 w-12 bg-red-600 mt-4 rounded"></div>
                         </div>
 
-                        {/* DESKTOP HEADER */}
-                        <div className="hidden md:flex justify-between items-center p-6 border-b border-slate-800/50 bg-slate-900/50 backdrop-blur sticky top-0 z-30">
-                            <div><h2 className="text-lg font-bold text-white">Dashboard Belajar</h2></div>
-                            <div className="flex items-center gap-4">
-                                <div className="bg-slate-800 rounded-lg p-1 border border-slate-700 flex">
-                                    <button className="p-2 bg-slate-700 rounded text-white shadow"><LayoutGrid className="w-4 h-4"/> Stream</button>
-                                </div>
+                        <div className="mb-8">
+                            <h2 className="text-3xl font-semibold mb-2">Selamat Datang,</h2>
+                            <p className="text-gray-400">Silakan masuk untuk melanjutkan pembelajaran.</p>
+                        </div>
+                        
+                        <form onSubmit={handleLogin} className="space-y-5">
+                            {/* Langkah 1: Pilih Kelas */}
+                            <div className="space-y-2">
+                                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider ml-1">Kelas</label>
                                 <div className="relative group">
-                                    <div className="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 cursor-pointer">
-                                        <BookOpen className="w-4 h-4 text-indigo-400"/>
-                                        <span className="text-sm font-bold text-white">{selectedTopic}</span>
-                                        <ChevronDown className="w-4 h-4 text-slate-400"/>
-                                    </div>
-                                    <div className="absolute right-0 top-full mt-2 w-64 bg-slate-900 border border-slate-700 rounded-xl shadow-xl hidden group-hover:block z-50 p-2">
-                                        {getTopicsList().map(t => (
-                                            <button key={t} onClick={() => setSelectedTopic(t)} className="w-full text-left px-3 py-2 text-sm text-slate-300 hover:bg-slate-800 rounded-lg">{t}</button>
+                                    <select 
+                                        className="w-full bg-[#1e1e1e] text-white p-4 rounded-lg border border-[#333] focus:border-red-600 focus:ring-1 focus:ring-red-600 outline-none transition-all appearance-none cursor-pointer hover:border-gray-600"
+                                        value={selectedClass}
+                                        onChange={(e) => { setSelectedClass(e.target.value); setSelectedStudentName(""); }}
+                                        required
+                                    >
+                                        <option value="">Pilih Kelas Anda</option>
+                                        {classes.map(cls => (
+                                            <option key={cls} value={cls}>{cls}</option>
                                         ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Langkah 2: Pilih Nama */}
+                            {selectedClass && (
+                                <div className="space-y-2 animate-fadeIn">
+                                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider ml-1">Nama Siswa</label>
+                                    <div className="relative">
+                                        <select 
+                                            className="w-full bg-[#1e1e1e] text-white p-4 rounded-lg border border-[#333] focus:border-red-600 focus:ring-1 focus:ring-red-600 outline-none transition-all cursor-pointer hover:border-gray-600"
+                                            value={selectedStudentName}
+                                            onChange={(e) => setSelectedStudentName(e.target.value)}
+                                            required
+                                        >
+                                            <option value="">Cari Nama Anda</option>
+                                            {filteredStudents.map(s => (
+                                                <option key={s.name} value={s.name}>{s.name}</option>
+                                            ))}
+                                        </select>
+                                        <Icons.User className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" size={18} />
                                     </div>
                                 </div>
-                            </div>
-                        </div>
+                            )}
 
-                        {/* RENDER CONTENT */}
-                        {renderContent()}
+                            {/* Langkah 3: Password */}
+                            {selectedStudentName && (
+                                <div className="space-y-2 animate-fadeIn">
+                                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider ml-1">Password</label>
+                                    <div className="relative">
+                                        <input 
+                                            type="password" 
+                                            className="w-full bg-[#1e1e1e] text-white p-4 pl-4 pr-12 rounded-lg border border-[#333] focus:border-red-600 focus:ring-1 focus:ring-red-600 outline-none transition-all placeholder-gray-600"
+                                            placeholder="Masukkan sandi..."
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            required
+                                        />
+                                        <Icons.Lock className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                                    </div>
+                                </div>
+                            )}
 
-                    </main>
+                            {loginError && (
+                                <div className="p-3 bg-red-900/30 border border-red-800 rounded text-red-400 text-sm flex items-center gap-2 animate-fadeIn">
+                                    <Icons.Info size={16} /> {loginError}
+                                </div>
+                            )}
 
-                    {/* MOBILE NAV BOTTOM */}
-                    <nav className="md:hidden fixed bottom-0 w-full bg-slate-900 border-t border-slate-800 p-2 z-40 flex justify-around">
-                        {['dashboard', 'teacher', 'chat', 'announcements'].map(tab => (
-                            <button key={tab} onClick={tab === 'chat' ? () => callGeminiAPI('concept') : () => setActiveTab(tab)} className={`p-2 flex flex-col items-center ${activeTab === tab && tab !== 'chat' ? 'text-white' : 'text-slate-500'}`}>
-                                {tab === 'dashboard' && <Menu className="w-5 h-5"/>}
-                                {tab === 'teacher' && <GraduationCap className="w-5 h-5"/>}
-                                {tab === 'chat' && <MessageSquare className="w-5 h-5"/>}
-                                {tab === 'announcements' && <Bell className="w-5 h-5"/>}
-                                <span className="text-[9px] mt-1 capitalize">{tab === 'chat' ? 'AI' : tab}</span>
+                            <button 
+                                type="submit" 
+                                className={`w-full bg-red-600 text-white font-bold py-4 rounded-lg mt-4 hover:bg-red-700 transition-all transform active:scale-[0.98] shadow-lg shadow-red-900/20 flex justify-center items-center gap-2 ${(!selectedStudentName || !password) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                disabled={!selectedStudentName || !password}
+                            >
+                                MASUK SEKARANG <Icons.ChevronRight size={20} />
                             </button>
-                        ))}
-                    </nav>
+                        </form>
 
-                    {/* AI MODAL */}
-                    {showAIModal && (
-                        <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-                            <div className="w-full max-w-2xl bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl flex flex-col max-h-[80vh]">
-                                <div className="p-4 border-b border-slate-800 flex justify-between items-center">
-                                    <h3 className="text-white font-bold flex items-center gap-2"><Sparkles className="w-4 h-4 text-yellow-400"/> {aiPromptType === 'concept' ? 'Guru AI' : 'Mentor Proyek'}</h3>
-                                    <button onClick={() => setShowAIModal(false)}><CloseIcon className="w-5 h-5 text-slate-400"/></button>
-                                </div>
-                                <div className="p-6 overflow-y-auto flex-1">
-                                    {aiLoading ? (
-                                        <div className="flex flex-col items-center py-10">
-                                            <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                                            <p className="text-slate-400 text-sm animate-pulse">Sedang berpikir...</p>
-                                        </div>
-                                    ) : (
-                                        <div className="prose prose-invert max-w-none text-slate-300 whitespace-pre-line">{aiResponse}</div>
-                                    )}
-                                </div>
+                        <div className="mt-12 text-center md:text-left text-gray-600 text-xs">
+                            &copy; 2024 Mathflix SMKN Pasirian. By Feri Dwi Hermawan.
+                        </div>
+                    </div>
+
+                    {/* RIGHT SIDE: Visual/Image (Hidden on mobile) */}
+                    <div className="hidden md:flex md:w-[55%] lg:w-[60%] hero-pattern relative items-end p-12 lg:p-16">
+                        {/* Overlay Gradient */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                        <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent"></div>
+                        
+                        {/* Content Overlay */}
+                        <div className="relative z-10 max-w-lg">
+                            <h2 className="text-4xl lg:text-5xl font-bold leading-tight mb-4 drop-shadow-xl">
+                                Mengubah Angka Menjadi <span className="text-red-500">Peluang.</span>
+                            </h2>
+                            <p className="text-gray-300 text-lg leading-relaxed mb-6">
+                                Platform belajar mandiri yang dipersonalisasi untuk siswa RPL, TKJ, dan DPIB.
+                                Kuasai matematika dengan cara yang menyenangkan.
+                            </p>
+                            <div className="flex gap-2">
+                                <div className="h-1.5 w-8 bg-red-600 rounded-full"></div>
+                                <div className="h-1.5 w-2 bg-gray-600 rounded-full"></div>
+                                <div className="h-1.5 w-2 bg-gray-600 rounded-full"></div>
                             </div>
                         </div>
-                    )}
+                    </div>
 
-                    {/* ACTIVITY MODAL */}
-                    {showActivityModal && activityContent && (
-                        <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-                            <div className="w-full max-w-lg bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl relative overflow-hidden">
-                                <div className={`h-24 bg-gradient-to-r from-${currentData.themeColor}-900 to-slate-900 flex items-center justify-center`}>
-                                    {activityContent.icon}
-                                </div>
-                                <div className="p-6">
-                                    <h3 className="text-2xl font-bold text-white mb-4">{activityContent.title}</h3>
-                                    <p className="text-slate-300 text-sm whitespace-pre-line mb-6">{activityContent.body}</p>
-                                    <button onClick={() => setShowActivityModal(false)} className={`w-full py-3 rounded-xl font-bold text-white bg-${currentData.themeColor}-600 hover:bg-${currentData.themeColor}-500`}>
-                                        {activityContent.actionText}
-                                    </button>
-                                </div>
-                                <button onClick={() => setShowActivityModal(false)} className="absolute top-4 right-4 bg-black/20 p-2 rounded-full text-white"><CloseIcon className="w-4 h-4"/></button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* TOUR GUIDE */}
-                    {isTourActive && <TourOverlay />}
                 </div>
             );
         };
 
-        const root = createRoot(document.getElementById('root'));
-        root.render(<App />);
+        // --- COMPONENT: INFO MODAL (Profil Guru / Pengumuman) ---
+        // Updated with Glassmorphism
+        const InfoModal = ({ title, content, isOpen, onClose }) => {
+            if (!isOpen) return null;
+            return (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
+                    <div className="bg-black/60 backdrop-blur-xl p-8 rounded-xl max-w-md w-full border border-white/10 relative shadow-2xl" onClick={e => e.stopPropagation()}>
+                        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"><Icons.X /></button>
+                        <h2 className="text-2xl font-bold mb-6 text-red-600 border-b border-white/10 pb-2">{title}</h2>
+                        <div className="text-gray-300 space-y-3">
+                            {content}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- MAIN APP (DASHBOARD) ---
+        const MathflixApp = () => {
+            const [user, setUser] = useState(null);
+            const [selectedMovie, setSelectedMovie] = useState(null);
+            const [activeTab, setActiveTab] = useState("home"); // home, guru, pengumuman
+            
+            // Modal State
+            const [showGuru, setShowGuru] = useState(false);
+            const [showPengumuman, setShowPengumuman] = useState(false);
+
+            // Tentukan Fase berdasarkan Kelas
+            const userPhase = useMemo(() => {
+                if (!user) return "";
+                const k = user.kelas.toUpperCase();
+                if (k.startsWith("X ") || k === "X") return "E"; // Kelas 10
+                if (k.startsWith("XI") || k.startsWith("XII")) return "F"; // Kelas 11 & 12
+                return "E"; // Default
+            }, [user]);
+
+            // Filter Materi berdasarkan Fase User
+            const myMovies = useMemo(() => {
+                return movies.filter(m => m.phase === userPhase || m.phase === "All");
+            }, [userPhase]);
+
+            const featuredMovie = myMovies.find(m => m.category === 'data') || myMovies[0];
+
+            if (!user) {
+                return <LoginScreen onLogin={setUser} />;
+            }
+
+            return (
+                <div className="bg-[#141414] min-h-screen font-sans overflow-x-hidden pb-20 md:pb-0">
+                    
+                    {/* --- DESKTOP NAVBAR --- */}
+                    <nav className="hidden md:flex fixed top-0 w-full z-50 bg-gradient-to-b from-black/90 to-transparent px-12 py-4 items-center justify-between transition-all duration-300 hover:bg-[#141414]">
+                        <div className="flex items-center gap-8">
+                            <h1 className="text-red-600 text-3xl font-bold tracking-tighter cursor-pointer" onClick={() => setActiveTab('home')}>MATHFLIX</h1>
+                            <ul className="flex gap-6 text-sm text-gray-300 font-medium">
+                                <li className="hover:text-white cursor-pointer transition-colors" onClick={() => setActiveTab('home')}>Home</li>
+                                <li className="hover:text-white cursor-pointer transition-colors" onClick={() => setShowGuru(true)}>Profil Guru</li>
+                                <li className="hover:text-white cursor-pointer transition-colors" onClick={() => setShowPengumuman(true)}>Pengumuman</li>
+                            </ul>
+                        </div>
+                        <div className="flex items-center gap-4 text-white">
+                            <span className="text-sm bg-gray-800 px-3 py-1 rounded-full border border-gray-600">
+                                {user.name} ({user.kelas})
+                            </span>
+                            <button onClick={() => setUser(null)} className="text-gray-400 hover:text-white"><Icons.LogOut size={20}/></button>
+                        </div>
+                    </nav>
+
+                    {/* --- MOBILE TOP BAR --- */}
+                    <div className="md:hidden fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md px-4 py-3 flex justify-between items-center border-b border-gray-800">
+                         <h1 className="text-red-600 text-xl font-bold tracking-tighter">MATHFLIX</h1>
+                         <span className="text-xs text-gray-300 bg-gray-800 px-2 py-0.5 rounded truncate max-w-[150px]">
+                            {user.name.split(' ')[0]} ({user.kelas})
+                         </span>
+                    </div>
+
+                    {/* --- MAIN CONTENT --- */}
+                    {activeTab === 'home' && (
+                        <>
+                            {/* Hero Section */}
+                            <div className="relative h-[60vh] md:h-[80vh] w-full text-white pt-16 md:pt-0">
+                                <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-black">
+                                     <div className="absolute inset-0 opacity-20" style={{backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)', backgroundSize: '40px 40px'}}></div>
+                                </div>
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-transparent to-black/30" />
+                                
+                                <div className="absolute top-[20%] md:top-[30%] left-4 md:left-12 max-w-2xl space-y-4 pr-4 z-10">
+                                    <div className="flex items-center gap-2 text-red-600 font-bold tracking-widest text-xs md:text-sm">
+                                        <span className="bg-red-600 text-white px-2 py-0.5 rounded-sm">FASE {userPhase}</span>
+                                        <span>MATERI PILIHAN KELAS {user.kelas}</span>
+                                    </div>
+                                    <h1 className="text-3xl md:text-6xl font-bold leading-tight drop-shadow-2xl">{featuredMovie?.title}</h1>
+                                    <p className="text-sm md:text-lg text-gray-200 line-clamp-2 drop-shadow-lg shadow-black">
+                                        {featuredMovie?.description}
+                                    </p>
+                                    <div className="flex gap-4 pt-4">
+                                        <button onClick={() => setSelectedMovie(featuredMovie)} className="flex items-center gap-2 bg-white text-black px-4 md:px-8 py-2 rounded font-bold hover:bg-gray-200 transition-colors">
+                                            <Icons.Play fill="currentColor" size={20} /> Mulai
+                                        </button>
+                                        <button className="flex items-center gap-2 bg-gray-600/70 text-white px-4 md:px-8 py-2 rounded font-bold hover:bg-gray-600/50 backdrop-blur-sm">
+                                            <Icons.Info size={20} /> Info
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Content Rows */}
+                            <div className="relative z-10 space-y-8 pb-8 pl-4 md:pl-12">
+                                {/* Baris 1: Materi Wajib */}
+                                <div>
+                                    <h2 className="text-white text-lg md:text-xl font-bold mb-4 drop-shadow-md">Materi Wajib Fase {userPhase}</h2>
+                                    <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide pr-4">
+                                        {myMovies.map(item => (
+                                            <div key={item.id} className="flex-none w-[160px] md:w-[240px] group cursor-pointer" onClick={() => setSelectedMovie(item)}>
+                                                <div className={`h-[100px] md:h-[135px] w-full rounded bg-gradient-to-br ${item.thumbnail} flex flex-col justify-end p-3 transition-transform duration-300 group-hover:scale-105 shadow-lg border border-gray-800`}>
+                                                    <h3 className="text-white font-bold text-sm md:text-base leading-tight drop-shadow-md line-clamp-2">{item.title}</h3>
+                                                </div>
+                                                <div className="mt-2 flex justify-between text-xs text-gray-400">
+                                                    <span className="text-green-500 font-bold">{item.match} match</span>
+                                                    <span>{item.duration}</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Baris 2: Data Science (Untuk Semua Jurusan) */}
+                                <div>
+                                    <h2 className="text-white text-lg md:text-xl font-bold mb-4 drop-shadow-md">Literasi Data & Statistik</h2>
+                                    <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide pr-4">
+                                        {movies.filter(m => m.category === 'data').map(item => (
+                                            <div key={item.id} className="flex-none w-[160px] md:w-[240px] group cursor-pointer" onClick={() => setSelectedMovie(item)}>
+                                                <div className={`h-[100px] md:h-[135px] w-full rounded bg-gradient-to-br ${item.thumbnail} flex flex-col justify-end p-3 transition-transform duration-300 group-hover:scale-105 shadow-lg border border-gray-800`}>
+                                                    <h3 className="text-white font-bold text-sm md:text-base leading-tight drop-shadow-md line-clamp-2">{item.title}</h3>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    )}
+
+                    {/* --- MOBILE BOTTOM NAV --- */}
+                    <nav className="md:hidden fixed bottom-0 w-full bg-[#121212] border-t border-gray-800 flex justify-around py-3 z-50 text-[10px] text-gray-500">
+                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'home' && !showGuru && !showPengumuman ? 'text-white' : ''}`} onClick={() => { setActiveTab('home'); setShowGuru(false); setShowPengumuman(false); }}>
+                            <Icons.Home size={20} />
+                            <span>Home</span>
+                        </div>
+                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${showGuru ? 'text-white' : ''}`} onClick={() => setShowGuru(true)}>
+                            <Icons.User size={20} />
+                            <span>Guru</span>
+                        </div>
+                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${showPengumuman ? 'text-white' : ''}`} onClick={() => setShowPengumuman(true)}>
+                            <Icons.Bell size={20} />
+                            <span>Info</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-1 cursor-pointer text-red-500" onClick={() => setUser(null)}>
+                            <Icons.LogOut size={20} />
+                            <span>Keluar</span>
+                        </div>
+                    </nav>
+
+                    {/* --- MODALS --- */}
+                    
+                    {/* Modal Detail Materi (Learning) */}
+                    {selectedMovie && (
+                        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-fadeIn overflow-y-auto">
+                            <div className="bg-[#181818] w-full max-w-3xl rounded-lg overflow-hidden relative shadow-2xl my-auto">
+                                <button onClick={() => setSelectedMovie(null)} className="absolute top-4 right-4 bg-black/50 p-2 rounded-full text-white z-10 hover:bg-gray-700"><Icons.X /></button>
+                                <div className={`h-48 md:h-64 bg-gradient-to-br ${selectedMovie.thumbnail} relative`}>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-[#181818] to-transparent"></div>
+                                    <div className="absolute bottom-4 left-6">
+                                        <h2 className="text-2xl md:text-4xl font-bold text-white mb-2">{selectedMovie.title}</h2>
+                                        <div className="flex gap-3 text-xs md:text-sm text-gray-300">
+                                            <span className="text-green-500 font-bold">{selectedMovie.match} Match</span>
+                                            <span>{selectedMovie.duration}</span>
+                                            <span className="border border-gray-500 px-1 rounded">HD</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="p-6 md:p-8">
+                                    <p className="text-gray-300 mb-6">{selectedMovie.description}</p>
+                                    <h3 className="text-white font-bold mb-3 border-l-4 border-red-600 pl-3">Alur DELTA</h3>
+                                    <div className="space-y-2">
+                                        {selectedMovie.delta.map((step, i) => (
+                                            <div key={i} className="flex items-center gap-3 p-3 bg-gray-800 rounded hover:bg-gray-700 cursor-pointer transition-colors">
+                                                <div className="bg-gray-600 w-8 h-8 flex items-center justify-center rounded-full text-white font-bold text-xs">{i+1}</div>
+                                                <span className="text-gray-200 text-sm">{step}</span>
+                                                <Icons.Play size={14} className="ml-auto text-gray-500" />
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button className="w-full mt-6 bg-red-600 text-white font-bold py-3 rounded hover:bg-red-700">Mulai Belajar Sekarang</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Modal Profil Guru (UPDATED WITH GLASSMORPHISM AND NO TAGS) */}
+                    <InfoModal 
+                        isOpen={showGuru} 
+                        onClose={() => setShowGuru(false)}
+                        title="Profil Guru Pengampu"
+                        content={
+                            <div className="flex flex-col items-center text-center">
+                                {/* Foto dengan Efek Glowing */}
+                                <div className="relative mb-6">
+                                    <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-purple-600 rounded-full blur opacity-75 animate-pulse"></div>
+                                    <img 
+                                        src="https://i.ibb.co.com/x82PbSjy/IMG-20250927-210909.png" 
+                                        alt="Pak Feri" 
+                                        className="relative w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-[#181818] shadow-2xl"
+                                    />
+                                    <div className="absolute bottom-2 right-2 bg-green-500 w-4 h-4 rounded-full border-2 border-[#181818]" title="Online"></div>
+                                </div>
+                                
+                                {/* Info Utama */}
+                                <h3 className="text-2xl md:text-3xl font-bold text-white mb-1">Feri Dwi Hermawan, S.Pd.</h3>
+                                <p className="text-red-500 font-medium tracking-wide text-sm uppercase mb-4">Guru Matematika SMKN Pasirian</p>
+                                
+                                {/* Quote Card */}
+                                <div className="bg-white/5 p-4 rounded-lg border border-white/10 mb-8 max-w-sm w-full relative group hover:border-red-600/50 transition-colors backdrop-blur-md">
+                                    <Icons.Quote className="absolute top-2 left-2 text-white/20 group-hover:text-red-900 transition-colors" size={24} />
+                                    <p className="text-gray-300 italic text-sm relative z-10 pt-2 px-2">
+                                        "Matematika bukan tentang angka, persamaan, atau algoritma: ini tentang pemahaman."
+                                    </p>
+                                </div>
+
+                                {/* Tombol CTA */}
+                                <div className="w-full grid grid-cols-2 gap-4">
+                                    <a href="https://wa.me/6285174244128" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white py-3 rounded-lg font-bold transition-all transform hover:scale-105 shadow-lg backdrop-blur-sm bg-opacity-90">
+                                        <Icons.WhatsApp size={20} /> WhatsApp
+                                    </a>
+                                    <a href="https://t.me/ferilee" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 bg-[#0088cc] hover:bg-[#0077b5] text-white py-3 rounded-lg font-bold transition-all transform hover:scale-105 shadow-lg backdrop-blur-sm bg-opacity-90">
+                                        <Icons.Telegram size={20} /> Telegram
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    />
+
+                    {/* Modal Pengumuman */}
+                    <InfoModal 
+                        isOpen={showPengumuman} 
+                        onClose={() => setShowPengumuman(false)}
+                        title="Pengumuman Kelas"
+                        content={
+                            <ul className="list-disc pl-5 space-y-2 text-sm">
+                                <li><strong className="text-white">Ujian Tengah Semester:</strong> Akan dilaksanakan tanggal 20 Oktober 2024. Harap selesaikan modul Fase {userPhase}.</li>
+                                <li><strong className="text-white">Tugas Proyek Statistik:</strong> Deadline pengumpulan data untuk jurusan RPL diperpanjang.</li>
+                                <li><strong className="text-white">Klinik Matematika:</strong> Tersedia setiap hari Jumat jam 13.00 di Lab Komputer.</li>
+                            </ul>
+                        }
+                    />
+
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<MathflixApp />);
     </script>
 </body>
 </html>
