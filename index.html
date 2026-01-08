@@ -4,25 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- --- SEO & SOCIAL MEDIA PREVIEW (Open Graph) --- -->
+    <!-- --- SEO & SOCIAL MEDIA PREVIEW --- -->
     <title>Mathflix - E-Learning SMKN Pasirian</title>
-    <meta name="description" content="Platform belajar matematika mandiri gaya Netflix untuk siswa RPL, TKJ, dan DPIB SMKN Pasirian. Belajar jadi lebih seru!">
-    
-    <!-- Facebook / WhatsApp / Telegram -->
+    <meta name="description" content="Platform belajar matematika mandiri gaya Netflix untuk siswa RPL, TKJ, dan DPIB SMKN Pasirian.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://mathflix-smkn-pasirian.netlify.app/">
     <meta property="og:title" content="Mathflix - Belajar Matematika Serasa Nonton Film">
-    <meta property="og:description" content="Akses materi Fase E dan F khusus untuk SMKN Pasirian. Login sekarang untuk mulai belajar!">
+    <meta property="og:description" content="Akses materi Fase E dan F khusus untuk SMKN Pasirian. Login sekarang!">
     <meta property="og:image" content="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=1200&auto=format&fit=crop">
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://mathflix-smkn-pasirian.netlify.app/">
-    <meta property="twitter:title" content="Mathflix SMKN Pasirian">
-    <meta property="twitter:description" content="Platform belajar mandiri Matematika untuk SMK.">
-    <meta property="twitter:image" content="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=1200&auto=format&fit=crop">
-
-    <!-- --- FAVICON (Logo M Merah di Tab Browser) --- -->
+    <!-- --- FAVICON --- -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2210%22 fill=%22black%22/><text x=%2250%22 y=%2280%22 font-size=%2270%22 font-family=%22Arial, sans-serif%22 font-weight=%22bold%22 fill=%22%23E50914%22 text-anchor=%22middle%22>M</text></svg>">
 
     <!-- Tailwind CSS -->
@@ -32,53 +22,22 @@
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
     
-    <!-- Babel untuk compile JSX -->
+    <!-- Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- PapaParse untuk membaca CSV -->
+    <!-- PapaParse -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
-    <!-- Custom Styles -->
     <style>
-        body {
-            background-color: #000000;
-            color: white;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
+        body { background-color: #000000; color: white; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
-        
-        .line-clamp-2 {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        
-        /* Select styling override */
-        select {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 0.75rem center;
-            background-repeat: no-repeat;
-            background-size: 1.2em 1.2em;
-            padding-right: 2.5rem;
-            -webkit-appearance: none;
-            appearance: none;
-        }
-
-        /* Hero Pattern for Login Right Side */
-        .hero-pattern {
-            background-image: url("https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2070&auto=format&fit=crop");
-            background-size: cover;
-            background-position: center;
-        }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        select { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-position: right 0.75rem center; background-repeat: no-repeat; background-size: 1.2em 1.2em; padding-right: 2.5rem; -webkit-appearance: none; appearance: none; }
+        .hero-pattern { background-image: url("https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2070&auto=format&fit=crop"); background-size: cover; background-position: center; }
+        .floating-input:focus ~ label, .floating-input:not(:placeholder-shown) ~ label { transform: translateY(-0.9rem) scale(0.75); top: 0.5rem; color: #dc2626; }
     </style>
 </head>
 <body>
@@ -88,10 +47,7 @@
         const { useState, useEffect, useMemo } = React;
 
         // --- ICONS ---
-        const IconBase = ({ children, size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{children}</svg>
-        );
-
+        const IconBase = ({ children, size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{children}</svg>);
         const Icons = {
             Play: (p) => <IconBase {...p} fill={p.fill || "none"}><polygon points="5 3 19 12 5 21 5 3"></polygon></IconBase>,
             Info: (p) => <IconBase {...p}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></IconBase>,
@@ -106,221 +62,330 @@
             Lock: (p) => <IconBase {...p}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></IconBase>,
             WhatsApp: (p) => <IconBase {...p}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></IconBase>,
             Telegram: (p) => <IconBase {...p}><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></IconBase>,
-            Quote: (p) => <IconBase {...p}><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path></IconBase>
+            Quote: (p) => <IconBase {...p}><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path></IconBase>,
+            Users: (p) => <IconBase {...p}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></IconBase>,
+            Video: (p) => <IconBase {...p}><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></IconBase>,
+            Edit: (p) => <IconBase {...p}><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></IconBase>,
+            Trash: (p) => <IconBase {...p}><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></IconBase>,
+            Plus: (p) => <IconBase {...p}><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></IconBase>,
+            Save: (p) => <IconBase {...p}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></IconBase>
         };
 
-        // --- DATA MATERI (DIPERLUAS UNTUK KONTEN LEBIH LENGKAP) ---
-        const movies = [
-            // --- FASE E (KELAS X) ---
-            { id: 1, title: "Bilangan Berpangkat", description: "Konsep dasar eksponen, sifat perkalian & pembagian pangkat, serta pangkat pecahan.", thumbnail: "from-purple-900 to-blue-900", duration: "45m", match: "98%", phase: "E", tags: ["Bilangan"], category: "fase-e", delta: ["Diagnosa", "Video Eksplorasi", "Latihan Mandiri", "Tes Formatif"] },
-            { id: 2, title: "Sistem Pertidaksamaan", description: "Penyelesaian SPtLDV dan penerapannya dalam memecahkan masalah program linear sederhana.", thumbnail: "from-red-900 to-orange-900", duration: "50m", match: "85%", phase: "E", tags: ["Aljabar"], category: "fase-e", delta: ["Studi Kasus", "Video Materi", "Quiz Interaktif", "Proyek"] },
-            { id: 3, title: "Fungsi Kuadrat", description: "Memahami karakteristik grafik fungsi kuadrat, titik puncak, dan sumbu simetri.", thumbnail: "from-green-900 to-teal-900", duration: "60m", match: "95%", phase: "E", tags: ["Grafik"], category: "fase-e", delta: ["Pre-Test", "Simulasi Grafik", "Drill Soal", "Refleksi"] },
-            { id: 4, title: "Trigonometri Dasar", description: "Pengantar Sinus, Cosinus, dan Tangen pada segitiga siku-siku serta penerapannya.", thumbnail: "from-yellow-800 to-amber-900", duration: "55m", match: "90%", phase: "E", tags: ["Geometri"], category: "fase-e", delta: ["Survey Lapangan", "Teori Dasar", "Hitungan", "Penerapan"] },
-            { id: 9, title: "Analisis Data (Dasar)", description: "Pengenalan jenis data, mean, median, modus, dan penyajian data sederhana.", thumbnail: "from-gray-800 to-gray-600", duration: "1h 10m", match: "99%", phase: "E", tags: ["Data"], category: "data", delta: ["Pengumpulan Data", "Pengolahan", "Interpretasi"] },
-            { id: 10, title: "Barisan Aritmatika", description: "Menentukan suku ke-n dan jumlah n suku pertama barisan aritmatika.", thumbnail: "from-cyan-900 to-blue-800", duration: "40m", match: "92%", phase: "E", tags: ["Bilangan"], category: "fase-e", delta: ["Pola Bilangan", "Rumus Umum", "Latihan", "Quiz"] },
-
-            // --- FASE F (KELAS XI & XII) ---
-            { id: 5, title: "Bunga Majemuk", description: "Penerapan barisan geometri dalam menghitung bunga majemuk dan pertumbuhan investasi.", thumbnail: "from-emerald-900 to-green-800", duration: "1h 10m", match: "99%", phase: "F", tags: ["Keuangan"], category: "financial", delta: ["Simulasi Bank", "Rumus Bunga", "Studi Kasus", "Evaluasi"] },
-            { id: 6, title: "Transformasi Fungsi", description: "Memahami translasi, refleksi, dilatasi, dan rotasi pada berbagai fungsi matematika.", thumbnail: "from-indigo-900 to-purple-800", duration: "55m", match: "88%", phase: "F", tags: ["Aljabar"], category: "fase-f", delta: ["Observasi Pola", "Konsep", "Latihan", "Review"] },
-            { id: 7, title: "Lingkaran Analitik", description: "Persamaan lingkaran pusat (0,0) dan (a,b), serta garis singgung lingkaran.", thumbnail: "from-pink-900 to-rose-800", duration: "50m", match: "92%", phase: "F", tags: ["Geometri"], category: "fase-f", delta: ["Visualisasi", "Bedah Rumus", "Problem Solving", "Analisis"] },
-            { id: 8, title: "Statistika Lanjut", description: "Regresi linear, korelasi, dan analisis data bivariat untuk prediksi tren.", thumbnail: "from-slate-900 to-slate-700", duration: "1h 20m", match: "97%", phase: "F", tags: ["Data"], category: "data", delta: ["Data Mining", "Regresi", "Peluang"] },
-            { id: 11, title: "Peluang Kejadian", description: "Peluang kejadian saling lepas, saling bebas, dan peluang bersyarat.", thumbnail: "from-fuchsia-900 to-pink-900", duration: "1h 05m", match: "94%", phase: "F", tags: ["Peluang"], category: "data", delta: ["Teori Peluang", "Studi Kasus Dadu", "Latihan", "Ujian"] },
-            { id: 12, title: "Anuitas & Pinjaman", description: "Perhitungan angsuran pinjaman dan rencana pelunasan (Financial Literacy).", thumbnail: "from-teal-900 to-emerald-900", duration: "1h 15m", match: "96%", phase: "F", tags: ["Keuangan"], category: "financial", delta: ["Simulasi KPR", "Tabel Anuitas", "Analisis", "Laporan"] }
+        // --- DATA MATERI AWAL (DEFAULT) ---
+        const initialMovies = [
+            { id: 1, title: "Bilangan Berpangkat", description: "Konsep dasar eksponen, sifat perkalian & pembagian pangkat.", thumbnail: "from-purple-900 to-blue-900", duration: "45m", match: "98%", phase: "E", tags: ["Bilangan"], category: "fase-e", delta: ["Diagnosa", "Video Eksplorasi", "Latihan Mandiri", "Tes Formatif"] },
+            { id: 2, title: "Sistem Pertidaksamaan", description: "Penyelesaian SPtLDV dan penerapannya dalam masalah linear.", thumbnail: "from-red-900 to-orange-900", duration: "50m", match: "85%", phase: "E", tags: ["Aljabar"], category: "fase-e", delta: ["Studi Kasus", "Video Materi", "Quiz Interaktif", "Proyek"] },
+            { id: 3, title: "Fungsi Kuadrat", description: "Memahami karakteristik grafik fungsi kuadrat.", thumbnail: "from-green-900 to-teal-900", duration: "60m", match: "95%", phase: "E", tags: ["Grafik"], category: "fase-e", delta: ["Pre-Test", "Simulasi Grafik", "Drill Soal", "Refleksi"] },
+            { id: 4, title: "Trigonometri Dasar", description: "Pengantar Sinus, Cosinus, dan Tangen pada segitiga siku-siku.", thumbnail: "from-yellow-800 to-amber-900", duration: "55m", match: "90%", phase: "E", tags: ["Geometri"], category: "fase-e", delta: ["Survey Lapangan", "Teori Dasar", "Hitungan", "Penerapan"] },
+            { id: 9, title: "Analisis Data (Dasar)", description: "Pengenalan jenis data, mean, median, modus.", thumbnail: "from-gray-800 to-gray-600", duration: "1h 10m", match: "99%", phase: "E", tags: ["Data"], category: "data", delta: ["Pengumpulan Data", "Pengolahan", "Interpretasi"] },
+            { id: 5, title: "Bunga Majemuk", description: "Penerapan barisan geometri dalam menghitung bunga majemuk.", thumbnail: "from-emerald-900 to-green-800", duration: "1h 10m", match: "99%", phase: "F", tags: ["Keuangan"], category: "financial", delta: ["Simulasi Bank", "Rumus Bunga", "Studi Kasus", "Evaluasi"] },
+            { id: 6, title: "Transformasi Fungsi", description: "Translasi, refleksi, dilatasi, dan rotasi fungsi.", thumbnail: "from-indigo-900 to-purple-800", duration: "55m", match: "88%", phase: "F", tags: ["Aljabar"], category: "fase-f", delta: ["Observasi Pola", "Konsep", "Latihan", "Review"] },
+            { id: 7, title: "Lingkaran Analitik", description: "Persamaan lingkaran pusat dan garis singgung.", thumbnail: "from-pink-900 to-rose-800", duration: "50m", match: "92%", phase: "F", tags: ["Geometri"], category: "fase-f", delta: ["Visualisasi", "Bedah Rumus", "Problem Solving", "Analisis"] },
+            { id: 8, title: "Statistika Lanjut", description: "Regresi linear dan korelasi data.", thumbnail: "from-slate-900 to-slate-700", duration: "1h 20m", match: "97%", phase: "F", tags: ["Data"], category: "data", delta: ["Data Mining", "Regresi", "Peluang"] }
         ];
 
-        // --- COMPONENT: LOGIN SCREEN (NEW PREMIUM DESIGN) ---
-        const LoginScreen = ({ onLogin }) => {
-            const [students, setStudents] = useState([]);
-            const [classes, setClasses] = useState([]);
-            const [loading, setLoading] = useState(true);
-            const [error, setError] = useState(null);
+        const initialAnnouncement = [
+            "Ujian Tengah Semester: Akan dilaksanakan tanggal 20 Oktober 2024. Harap selesaikan modul Fase E.",
+            "Tugas Proyek Statistik: Deadline pengumpulan data untuk jurusan RPL diperpanjang.",
+            "Klinik Matematika: Tersedia setiap hari Jumat jam 13.00 di Lab Komputer."
+        ];
 
-            const [selectedClass, setSelectedClass] = useState("");
-            const [selectedStudentName, setSelectedStudentName] = useState("");
-            const [password, setPassword] = useState("");
-            const [loginError, setLoginError] = useState("");
+        // --- COMPONENT: ADMIN DASHBOARD (IMPROVED) ---
+        const AdminDashboard = ({ movies, setMovies, announcement, setAnnouncement, onLogout }) => {
+            const [activeTab, setActiveTab] = useState('stats'); // 'stats', 'content', 'announcement'
+            const [csvData, setCsvData] = useState([]);
+            const [loading, setLoading] = useState(true);
+            
+            // Edit Announcement State
+            const [tempAnnouncement, setTempAnnouncement] = useState(announcement.join('\n'));
+
+            // Edit Movie State
+            const [editingMovie, setEditingMovie] = useState(null); // null = add mode
+            const [movieForm, setMovieForm] = useState({ title: '', description: '', phase: 'E', category: 'fase-e', thumbnail: 'from-gray-900 to-gray-800' });
 
             useEffect(() => {
                 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNxfl64ybd5HEX-Ln3ubR8C-SxModDRkPVuRpShlUDX2UCRgKib2cIqXtsUPT4d0rJY_gkaCQVOTSb/pub?gid=1562678039&single=true&output=csv";
-                
                 Papa.parse(csvUrl, {
                     download: true,
                     header: false,
                     complete: (results) => {
-                        let data = results.data;
-                        if (data.length > 0 && (data[0][0] === "Nama Siswa" || data[0][0] === "Nama")) {
-                            data = data.slice(1);
-                        }
-                        const parsedStudents = data.map(row => ({
-                            name: row[0],
-                            kelas: row[1],
-                            jurusan: row[2],
-                            password: row[3] ? row[3].toString().trim() : ""
-                        })).filter(s => s.name && s.kelas);
-
-                        setStudents(parsedStudents);
-                        const uniqueClasses = [...new Set(parsedStudents.map(s => s.kelas))].sort();
-                        setClasses(uniqueClasses);
-                        setLoading(false);
-                    },
-                    error: (err) => {
-                        setError("Gagal memuat data. Periksa koneksi.");
+                        let data = results.data.slice(1);
+                        setCsvData(data.filter(r => r[0]));
                         setLoading(false);
                     }
                 });
             }, []);
 
-            const filteredStudents = useMemo(() => {
-                return students.filter(s => s.kelas === selectedClass);
-            }, [selectedClass, students]);
+            // Handle Announcement Save
+            const handleSaveAnnouncement = () => {
+                const lines = tempAnnouncement.split('\n').filter(line => line.trim() !== "");
+                setAnnouncement(lines);
+                alert("Pengumuman berhasil diperbarui!");
+            };
 
-            const handleLogin = (e) => {
-                e.preventDefault();
-                setLoginError("");
-                const student = filteredStudents.find(s => s.name === selectedStudentName);
-                if (!student) {
-                    setLoginError("Silakan pilih nama siswa.");
-                    return;
-                }
-                if (student.password === password) {
-                    onLogin(student);
-                } else {
-                    setLoginError("Password salah.");
+            // Handle Movie Delete
+            const handleDeleteMovie = (id) => {
+                if(confirm("Yakin ingin menghapus materi ini?")) {
+                    setMovies(movies.filter(m => m.id !== id));
                 }
             };
 
-            if (loading) return (
-                <div className="min-h-screen flex flex-col items-center justify-center bg-black text-white">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600 mb-4"></div>
-                </div>
-            );
+            // Handle Movie Submit
+            const handleMovieSubmit = (e) => {
+                e.preventDefault();
+                const newMovie = {
+                    id: editingMovie ? editingMovie.id : Date.now(),
+                    ...movieForm,
+                    duration: "45m", // Default
+                    match: "90%",
+                    tags: ["Umum"],
+                    delta: ["Konsep", "Video", "Latihan", "Tes"]
+                };
 
-            // DESAIN BARU: Split Screen Layout
+                if (editingMovie) {
+                    setMovies(movies.map(m => m.id === newMovie.id ? newMovie : m));
+                } else {
+                    setMovies([...movies, newMovie]);
+                }
+                setMovieForm({ title: '', description: '', phase: 'E', category: 'fase-e', thumbnail: 'from-gray-900 to-gray-800' });
+                setEditingMovie(null);
+                alert("Materi berhasil disimpan!");
+            };
+
+            const populateForm = (movie) => {
+                setEditingMovie(movie);
+                setMovieForm({
+                    title: movie.title,
+                    description: movie.description,
+                    phase: movie.phase,
+                    category: movie.category,
+                    thumbnail: movie.thumbnail
+                });
+            };
+
             return (
-                <div className="min-h-screen flex flex-col md:flex-row bg-black text-white font-sans">
-                    
-                    {/* LEFT SIDE: Form (Mobile: Full width, Desktop: 40-50%) */}
-                    <div className="w-full md:w-[45%] lg:w-[40%] flex flex-col justify-center px-6 sm:px-12 md:px-16 py-12 z-20 bg-black relative">
-                        
-                        {/* Header Branding */}
-                        <div className="mb-10">
-                            <h1 className="text-red-600 text-4xl font-bold tracking-tighter mb-2">MATHFLIX</h1>
-                            <p className="text-gray-400 text-sm tracking-wide uppercase">E-Learning Platform SMKN Pasirian</p>
-                            <div className="h-1 w-12 bg-red-600 mt-4 rounded"></div>
-                        </div>
+                <div className="min-h-screen bg-[#000] text-white">
+                    <nav className="bg-[#141414] border-b border-gray-800 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+                        <h1 className="text-red-600 text-2xl font-bold tracking-tighter">MATHFLIX <span className="text-white text-sm font-normal bg-red-800 px-2 py-0.5 rounded ml-2">ADMIN</span></h1>
+                        <button onClick={onLogout} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"><Icons.LogOut size={18} /> Keluar</button>
+                    </nav>
 
-                        <div className="mb-8">
-                            <h2 className="text-3xl font-semibold mb-2">Selamat Datang,</h2>
-                            <p className="text-gray-400">Silakan masuk untuk melanjutkan pembelajaran.</p>
-                        </div>
-                        
-                        <form onSubmit={handleLogin} className="space-y-5">
-                            {/* Langkah 1: Pilih Kelas */}
-                            <div className="space-y-2">
-                                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider ml-1">Kelas</label>
-                                <div className="relative group">
-                                    <select 
-                                        className="w-full bg-[#1e1e1e] text-white p-4 rounded-lg border border-[#333] focus:border-red-600 focus:ring-1 focus:ring-red-600 outline-none transition-all appearance-none cursor-pointer hover:border-gray-600"
-                                        value={selectedClass}
-                                        onChange={(e) => { setSelectedClass(e.target.value); setSelectedStudentName(""); }}
-                                        required
-                                    >
-                                        <option value="">Pilih Kelas Anda</option>
-                                        {classes.map(cls => (
-                                            <option key={cls} value={cls}>{cls}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-
-                            {/* Langkah 2: Pilih Nama */}
-                            {selectedClass && (
-                                <div className="space-y-2 animate-fadeIn">
-                                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider ml-1">Nama Siswa</label>
-                                    <div className="relative">
-                                        <select 
-                                            className="w-full bg-[#1e1e1e] text-white p-4 rounded-lg border border-[#333] focus:border-red-600 focus:ring-1 focus:ring-red-600 outline-none transition-all cursor-pointer hover:border-gray-600"
-                                            value={selectedStudentName}
-                                            onChange={(e) => setSelectedStudentName(e.target.value)}
-                                            required
-                                        >
-                                            <option value="">Cari Nama Anda</option>
-                                            {filteredStudents.map(s => (
-                                                <option key={s.name} value={s.name}>{s.name}</option>
-                                            ))}
-                                        </select>
-                                        <Icons.User className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" size={18} />
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Langkah 3: Password */}
-                            {selectedStudentName && (
-                                <div className="space-y-2 animate-fadeIn">
-                                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider ml-1">Password</label>
-                                    <div className="relative">
-                                        <input 
-                                            type="password" 
-                                            className="w-full bg-[#1e1e1e] text-white p-4 pl-4 pr-12 rounded-lg border border-[#333] focus:border-red-600 focus:ring-1 focus:ring-red-600 outline-none transition-all placeholder-gray-600"
-                                            placeholder="Masukkan sandi..."
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
-                                            required
-                                        />
-                                        <Icons.Lock className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-                                    </div>
-                                </div>
-                            )}
-
-                            {loginError && (
-                                <div className="p-3 bg-red-900/30 border border-red-800 rounded text-red-400 text-sm flex items-center gap-2 animate-fadeIn">
-                                    <Icons.Info size={16} /> {loginError}
-                                </div>
-                            )}
-
-                            <button 
-                                type="submit" 
-                                className={`w-full bg-red-600 text-white font-bold py-4 rounded-lg mt-4 hover:bg-red-700 transition-all transform active:scale-[0.98] shadow-lg shadow-red-900/20 flex justify-center items-center gap-2 ${(!selectedStudentName || !password) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                disabled={!selectedStudentName || !password}
-                            >
-                                MASUK SEKARANG <Icons.ChevronRight size={20} />
+                    <div className="flex flex-col md:flex-row min-h-[calc(100vh-70px)]">
+                        {/* Sidebar Menu */}
+                        <div className="w-full md:w-64 bg-[#141414] border-r border-gray-800 p-4 space-y-2">
+                            <button onClick={() => setActiveTab('stats')} className={`w-full text-left px-4 py-3 rounded flex items-center gap-3 ${activeTab === 'stats' ? 'bg-red-600 text-white' : 'text-gray-400 hover:bg-gray-800'}`}>
+                                <Icons.Users size={20} /> Dashboard
                             </button>
-                        </form>
+                            <button onClick={() => setActiveTab('content')} className={`w-full text-left px-4 py-3 rounded flex items-center gap-3 ${activeTab === 'content' ? 'bg-red-600 text-white' : 'text-gray-400 hover:bg-gray-800'}`}>
+                                <Icons.Video size={20} /> Materi
+                            </button>
+                            <button onClick={() => setActiveTab('announcement')} className={`w-full text-left px-4 py-3 rounded flex items-center gap-3 ${activeTab === 'announcement' ? 'bg-red-600 text-white' : 'text-gray-400 hover:bg-gray-800'}`}>
+                                <Icons.Bell size={20} /> Pengumuman
+                            </button>
+                        </div>
 
-                        <div className="mt-12 text-center md:text-left text-gray-600 text-xs">
-                            &copy; 2024 Mathflix SMKN Pasirian. By Feri Dwi Hermawan.
+                        {/* Content Area */}
+                        <div className="flex-1 p-6 md:p-12 overflow-y-auto">
+                            
+                            {/* --- TAB: STATS --- */}
+                            {activeTab === 'stats' && (
+                                <div className="animate-fadeIn">
+                                    <h2 className="text-3xl font-bold mb-8">Statistik Kelas</h2>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                        <div className="bg-[#1e1e1e] p-6 rounded-lg border border-gray-800">
+                                            <div className="flex items-center gap-4">
+                                                <div className="bg-blue-900/50 p-3 rounded-full text-blue-400"><Icons.Users size={24} /></div>
+                                                <div><p className="text-gray-400 text-sm">Total Siswa</p><h3 className="text-2xl font-bold">{loading ? "..." : csvData.length}</h3></div>
+                                            </div>
+                                        </div>
+                                        <div className="bg-[#1e1e1e] p-6 rounded-lg border border-gray-800">
+                                            <div className="flex items-center gap-4">
+                                                <div className="bg-red-900/50 p-3 rounded-full text-red-400"><Icons.Video size={24} /></div>
+                                                <div><p className="text-gray-400 text-sm">Total Materi</p><h3 className="text-2xl font-bold">{movies.length}</h3></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="bg-[#1e1e1e] rounded-lg border border-gray-800 overflow-hidden">
+                                        <div className="p-4 bg-gray-900 border-b border-gray-800 font-bold">Data Siswa (CSV Live)</div>
+                                        <div className="overflow-x-auto max-h-96">
+                                            <table className="w-full text-left text-sm text-gray-400">
+                                                <thead className="bg-[#141414] text-gray-200 sticky top-0">
+                                                    <tr><th className="px-6 py-3">Nama</th><th className="px-6 py-3">Kelas</th><th className="px-6 py-3">Jurusan</th></tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-gray-800">
+                                                    {loading ? <tr><td colSpan="3" className="p-4 text-center">Loading...</td></tr> : csvData.map((row, i) => (
+                                                        <tr key={i}><td className="px-6 py-2">{row[0]}</td><td className="px-6 py-2">{row[1]}</td><td className="px-6 py-2">{row[2]}</td></tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* --- TAB: CONTENT MANAGER --- */}
+                            {activeTab === 'content' && (
+                                <div className="animate-fadeIn">
+                                    <h2 className="text-3xl font-bold mb-8">Manajemen Materi</h2>
+                                    
+                                    {/* Form Add/Edit */}
+                                    <div className="bg-[#1e1e1e] p-6 rounded-lg border border-gray-800 mb-8">
+                                        <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                                            {editingMovie ? <Icons.Edit size={20}/> : <Icons.Plus size={20}/>} 
+                                            {editingMovie ? "Edit Materi" : "Tambah Materi Baru"}
+                                        </h3>
+                                        <form onSubmit={handleMovieSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <input type="text" placeholder="Judul Materi" className="bg-[#141414] p-3 rounded border border-gray-700 text-white w-full" value={movieForm.title} onChange={e => setMovieForm({...movieForm, title: e.target.value})} required />
+                                            <select className="bg-[#141414] p-3 rounded border border-gray-700 text-white w-full" value={movieForm.phase} onChange={e => setMovieForm({...movieForm, phase: e.target.value})}>
+                                                <option value="E">Fase E (Kelas X)</option>
+                                                <option value="F">Fase F (Kelas XI/XII)</option>
+                                            </select>
+                                            <select className="bg-[#141414] p-3 rounded border border-gray-700 text-white w-full" value={movieForm.category} onChange={e => setMovieForm({...movieForm, category: e.target.value})}>
+                                                <option value="fase-e">Materi Wajib Fase E</option>
+                                                <option value="fase-f">Materi Wajib Fase F</option>
+                                                <option value="data">Data & Statistika</option>
+                                                <option value="financial">Keuangan (Financial)</option>
+                                            </select>
+                                            <select className="bg-[#141414] p-3 rounded border border-gray-700 text-white w-full" value={movieForm.thumbnail} onChange={e => setMovieForm({...movieForm, thumbnail: e.target.value})}>
+                                                <option value="from-gray-900 to-gray-800">Abu-abu (Default)</option>
+                                                <option value="from-purple-900 to-blue-900">Ungu - Biru</option>
+                                                <option value="from-red-900 to-orange-900">Merah - Oranye</option>
+                                                <option value="from-green-900 to-teal-900">Hijau - Teal</option>
+                                                <option value="from-yellow-800 to-amber-900">Kuning - Amber</option>
+                                            </select>
+                                            <textarea placeholder="Deskripsi Singkat" className="bg-[#141414] p-3 rounded border border-gray-700 text-white w-full md:col-span-2" rows="2" value={movieForm.description} onChange={e => setMovieForm({...movieForm, description: e.target.value})} required></textarea>
+                                            
+                                            <div className="md:col-span-2 flex gap-2">
+                                                <button type="submit" className="bg-red-600 text-white px-6 py-2 rounded font-bold hover:bg-red-700 transition">Simpan</button>
+                                                {editingMovie && <button type="button" onClick={() => {setEditingMovie(null); setMovieForm({ title: '', description: '', phase: 'E', category: 'fase-e', thumbnail: 'from-gray-900 to-gray-800' })}} className="bg-gray-700 text-white px-6 py-2 rounded hover:bg-gray-600 transition">Batal</button>}
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                    {/* List Movies */}
+                                    <div className="grid grid-cols-1 gap-4">
+                                        {movies.map(m => (
+                                            <div key={m.id} className="bg-[#1e1e1e] p-4 rounded flex justify-between items-center border border-gray-800 hover:border-gray-600">
+                                                <div className="flex items-center gap-4">
+                                                    <div className={`w-16 h-10 rounded bg-gradient-to-br ${m.thumbnail}`}></div>
+                                                    <div>
+                                                        <h4 className="font-bold">{m.title}</h4>
+                                                        <p className="text-xs text-gray-500">Fase {m.phase} | {m.category}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <button onClick={() => populateForm(m)} className="p-2 bg-blue-900/50 text-blue-400 rounded hover:bg-blue-900"><Icons.Edit size={18}/></button>
+                                                    <button onClick={() => handleDeleteMovie(m.id)} className="p-2 bg-red-900/50 text-red-400 rounded hover:bg-red-900"><Icons.Trash size={18}/></button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* --- TAB: ANNOUNCEMENT --- */}
+                            {activeTab === 'announcement' && (
+                                <div className="animate-fadeIn">
+                                    <h2 className="text-3xl font-bold mb-8">Edit Pengumuman</h2>
+                                    <div className="bg-[#1e1e1e] p-6 rounded-lg border border-gray-800">
+                                        <label className="block text-gray-400 mb-2">Isi Pengumuman (Satu baris per poin)</label>
+                                        <textarea 
+                                            className="w-full h-48 bg-[#141414] text-white p-4 rounded border border-gray-700 focus:border-red-600 outline-none"
+                                            value={tempAnnouncement}
+                                            onChange={(e) => setTempAnnouncement(e.target.value)}
+                                        ></textarea>
+                                        <button onClick={handleSaveAnnouncement} className="mt-4 bg-green-600 text-white px-6 py-3 rounded font-bold hover:bg-green-700 flex items-center gap-2">
+                                            <Icons.Save size={20} /> Simpan Pengumuman
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
                         </div>
                     </div>
-
-                    {/* RIGHT SIDE: Visual/Image (Hidden on mobile) */}
-                    <div className="hidden md:flex md:w-[55%] lg:w-[60%] hero-pattern relative items-end p-12 lg:p-16">
-                        {/* Overlay Gradient */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
-                        <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent"></div>
-                        
-                        {/* Content Overlay */}
-                        <div className="relative z-10 max-w-lg">
-                            <h2 className="text-4xl lg:text-5xl font-bold leading-tight mb-4 drop-shadow-xl">
-                                Mengubah Angka Menjadi <span className="text-red-500">Peluang.</span>
-                            </h2>
-                            <p className="text-gray-300 text-lg leading-relaxed mb-6">
-                                Platform belajar mandiri yang dipersonalisasi untuk siswa RPL, TKJ, dan DPIB.
-                                Kuasai matematika dengan cara yang menyenangkan.
-                            </p>
-                            <div className="flex gap-2">
-                                <div className="h-1.5 w-8 bg-red-600 rounded-full"></div>
-                                <div className="h-1.5 w-2 bg-gray-600 rounded-full"></div>
-                                <div className="h-1.5 w-2 bg-gray-600 rounded-full"></div>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
             );
         };
 
-        // --- COMPONENT: INFO MODAL (Profil Guru / Pengumuman) ---
-        // Updated with Glassmorphism
+        // --- COMPONENT: LOGIN SCREEN ---
+        const LoginScreen = ({ onLogin }) => {
+            const [students, setStudents] = useState([]);
+            const [classes, setClasses] = useState([]);
+            const [loading, setLoading] = useState(true);
+            const [isAdminMode, setIsAdminMode] = useState(false);
+            const [selectedClass, setSelectedClass] = useState("");
+            const [selectedStudentName, setSelectedStudentName] = useState("");
+            const [password, setPassword] = useState("");
+            const [adminUser, setAdminUser] = useState("");
+            const [adminPass, setAdminPass] = useState("");
+            const [loginError, setLoginError] = useState("");
+
+            useEffect(() => {
+                const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNxfl64ybd5HEX-Ln3ubR8C-SxModDRkPVuRpShlUDX2UCRgKib2cIqXtsUPT4d0rJY_gkaCQVOTSb/pub?gid=1562678039&single=true&output=csv";
+                Papa.parse(csvUrl, {
+                    download: true,
+                    header: false,
+                    complete: (results) => {
+                        let data = results.data.slice(1);
+                        const parsedStudents = data.map(row => ({ name: row[0], kelas: row[1], jurusan: row[2], password: row[3] ? row[3].toString().trim() : "" })).filter(s => s.name && s.kelas);
+                        setStudents(parsedStudents);
+                        setClasses([...new Set(parsedStudents.map(s => s.kelas))].sort());
+                        setLoading(false);
+                    }
+                });
+            }, []);
+
+            const filteredStudents = useMemo(() => students.filter(s => s.kelas === selectedClass), [selectedClass, students]);
+
+            const handleLogin = (e) => {
+                e.preventDefault();
+                setLoginError("");
+                if (isAdminMode) {
+                    if (adminUser === "admin" && adminPass === "F3r!-lee") {
+                        onLogin({ role: 'admin', name: 'Pak Feri' });
+                    } else {
+                        setLoginError("Username atau Password Admin salah.");
+                    }
+                } else {
+                    const student = filteredStudents.find(s => s.name === selectedStudentName);
+                    if (!student) { setLoginError("Pilih nama siswa."); return; }
+                    if (student.password === password) { onLogin({ ...student, role: 'student' }); } else { setLoginError("Password salah."); }
+                }
+            };
+
+            if (loading) return <div className="min-h-screen flex flex-col items-center justify-center bg-black text-white"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600 mb-4"></div></div>;
+
+            return (
+                <div className="min-h-screen flex flex-col md:flex-row bg-black text-white font-sans">
+                    <div className="w-full md:w-[45%] lg:w-[40%] flex flex-col justify-center px-6 sm:px-12 md:px-16 py-12 z-20 bg-black relative">
+                        <div className="mb-10"><h1 className="text-red-600 text-4xl font-bold tracking-tighter mb-2">MATHFLIX</h1><p className="text-gray-400 text-sm tracking-wide uppercase">E-Learning Platform SMKN Pasirian</p><div className="h-1 w-12 bg-red-600 mt-4 rounded"></div></div>
+                        <div className="mb-8"><h2 className="text-3xl font-semibold mb-2">{isAdminMode ? "Login Guru" : "Selamat Datang,"}</h2><p className="text-gray-400">{isAdminMode ? "Masuk ke dashboard administrator." : "Silakan masuk untuk melanjutkan pembelajaran."}</p></div>
+                        <form onSubmit={handleLogin} className="space-y-5">
+                            {!isAdminMode ? (
+                                <>
+                                    <div className="space-y-2"><label className="text-xs font-semibold text-gray-500 uppercase tracking-wider ml-1">Kelas</label><div className="relative group"><select className="w-full bg-[#1e1e1e] text-white p-4 rounded-lg border border-[#333] focus:border-red-600 outline-none appearance-none cursor-pointer" value={selectedClass} onChange={(e) => { setSelectedClass(e.target.value); setSelectedStudentName(""); }} required><option value="">Pilih Kelas Anda</option>{classes.map(cls => <option key={cls} value={cls}>{cls}</option>)}</select></div></div>
+                                    {selectedClass && <div className="space-y-2 animate-fadeIn"><label className="text-xs font-semibold text-gray-500 uppercase tracking-wider ml-1">Nama Siswa</label><div className="relative"><select className="w-full bg-[#1e1e1e] text-white p-4 rounded-lg border border-[#333] focus:border-red-600 outline-none appearance-none cursor-pointer" value={selectedStudentName} onChange={(e) => setSelectedStudentName(e.target.value)} required><option value="">Cari Nama Anda</option>{filteredStudents.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}</select><Icons.User className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" size={18} /></div></div>}
+                                    {selectedStudentName && <div className="space-y-2 animate-fadeIn"><label className="text-xs font-semibold text-gray-500 uppercase tracking-wider ml-1">Password</label><div className="relative"><input type="password" className="w-full bg-[#1e1e1e] text-white p-4 pl-4 pr-12 rounded-lg border border-[#333] focus:border-red-600 outline-none" placeholder="Masukkan sandi..." value={password} onChange={(e) => setPassword(e.target.value)} required /><Icons.Lock className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} /></div></div>}
+                                </>
+                            ) : (
+                                <div className="animate-fadeIn space-y-6 pt-2">
+                                    <div className="relative"><input type="text" id="adminUser" className="floating-input block px-4 pb-2.5 pt-5 w-full text-white bg-[#1e1e1e] rounded-lg border border-[#333] appearance-none focus:outline-none focus:ring-0 focus:border-red-600 peer" placeholder=" " value={adminUser} onChange={(e) => setAdminUser(e.target.value)} required /><label htmlFor="adminUser" className="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] left-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4 peer-focus:text-red-500">Username Admin</label></div>
+                                    <div className="relative"><input type="password" id="adminPass" className="floating-input block px-4 pb-2.5 pt-5 w-full text-white bg-[#1e1e1e] rounded-lg border border-[#333] appearance-none focus:outline-none focus:ring-0 focus:border-red-600 peer" placeholder=" " value={adminPass} onChange={(e) => setAdminPass(e.target.value)} required /><label htmlFor="adminPass" className="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] left-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4 peer-focus:text-red-500">Password Admin</label></div>
+                                </div>
+                            )}
+                            {loginError && <div className="p-3 bg-red-900/30 border border-red-800 rounded text-red-400 text-sm flex items-center gap-2 animate-fadeIn"><Icons.Info size={16} /> {loginError}</div>}
+                            <button type="submit" className="w-full bg-red-600 text-white font-bold py-4 rounded-lg mt-4 hover:bg-red-700 transition-all flex justify-center items-center gap-2">MASUK {isAdminMode ? "SEBAGAI ADMIN" : "SEKARANG"} <Icons.ChevronRight size={20} /></button>
+                        </form>
+                        <div className="mt-6 text-center"><button onClick={() => { setIsAdminMode(!isAdminMode); setLoginError(""); }} className="text-sm text-gray-500 hover:text-white transition-colors underline">{isAdminMode ? "Masuk sebagai Siswa" : "Masuk sebagai Guru / Administrator"}</button></div>
+                        <div className="mt-12 text-center md:text-left text-gray-600 text-xs">&copy; 2024 Mathflix SMKN Pasirian. By Feri Dwi Hermawan.</div>
+                    </div>
+                    <div className="hidden md:flex md:w-[55%] lg:w-[60%] hero-pattern relative items-end p-12 lg:p-16"><div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div><div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent"></div><div className="relative z-10 max-w-lg"><h2 className="text-4xl lg:text-5xl font-bold leading-tight mb-4 drop-shadow-xl">Mengubah Angka Menjadi <span className="text-red-500">Peluang.</span></h2><p className="text-gray-300 text-lg leading-relaxed mb-6">Platform belajar mandiri yang dipersonalisasi untuk siswa RPL, TKJ, dan DPIB.</p></div></div>
+                </div>
+            );
+        };
+
+        // --- INFO MODAL ---
         const InfoModal = ({ title, content, isOpen, onClose }) => {
             if (!isOpen) return null;
             return (
@@ -328,48 +393,52 @@
                     <div className="bg-black/60 backdrop-blur-xl p-8 rounded-xl max-w-md w-full border border-white/10 relative shadow-2xl" onClick={e => e.stopPropagation()}>
                         <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"><Icons.X /></button>
                         <h2 className="text-2xl font-bold mb-6 text-red-600 border-b border-white/10 pb-2">{title}</h2>
-                        <div className="text-gray-300 space-y-3">
-                            {content}
-                        </div>
+                        <div className="text-gray-300 space-y-3">{content}</div>
                     </div>
                 </div>
             );
         };
 
-        // --- MAIN APP (DASHBOARD) ---
+        // --- MAIN APP ---
         const MathflixApp = () => {
             const [user, setUser] = useState(null);
-            const [selectedMovie, setSelectedMovie] = useState(null);
-            const [activeTab, setActiveTab] = useState("home"); // home, guru, pengumuman
             
-            // Modal State
+            // Shared State between Admin and Student views
+            const [movies, setMovies] = useState(initialMovies);
+            const [announcement, setAnnouncement] = useState(initialAnnouncement);
+
+            const [selectedMovie, setSelectedMovie] = useState(null);
+            const [activeTab, setActiveTab] = useState("home");
             const [showGuru, setShowGuru] = useState(false);
             const [showPengumuman, setShowPengumuman] = useState(false);
 
-            // Tentukan Fase berdasarkan Kelas
             const userPhase = useMemo(() => {
-                if (!user) return "";
+                if (!user || user.role === 'admin') return "E"; 
                 const k = user.kelas.toUpperCase();
-                if (k.startsWith("X ") || k === "X") return "E"; // Kelas 10
-                if (k.startsWith("XI") || k.startsWith("XII")) return "F"; // Kelas 11 & 12
-                return "E"; // Default
+                if (k.startsWith("X ") || k === "X") return "E";
+                if (k.startsWith("XI") || k.startsWith("XII")) return "F";
+                return "E";
             }, [user]);
 
-            // Filter Materi berdasarkan Fase User
-            const myMovies = useMemo(() => {
-                return movies.filter(m => m.phase === userPhase || m.phase === "All");
-            }, [userPhase]);
-
+            const myMovies = useMemo(() => movies.filter(m => m.phase === userPhase || m.phase === "All"), [userPhase, movies]);
             const featuredMovie = myMovies.find(m => m.category === 'data') || myMovies[0];
 
-            if (!user) {
-                return <LoginScreen onLogin={setUser} />;
+            if (!user) return <LoginScreen onLogin={setUser} />;
+
+            if (user.role === 'admin') {
+                return (
+                    <AdminDashboard 
+                        movies={movies} 
+                        setMovies={setMovies} 
+                        announcement={announcement} 
+                        setAnnouncement={setAnnouncement} 
+                        onLogout={() => setUser(null)} 
+                    />
+                );
             }
 
             return (
                 <div className="bg-[#141414] min-h-screen font-sans overflow-x-hidden pb-20 md:pb-0">
-                    
-                    {/* --- DESKTOP NAVBAR --- */}
                     <nav className="hidden md:flex fixed top-0 w-full z-50 bg-gradient-to-b from-black/90 to-transparent px-12 py-4 items-center justify-between transition-all duration-300 hover:bg-[#141414]">
                         <div className="flex items-center gap-8">
                             <h1 className="text-red-600 text-3xl font-bold tracking-tighter cursor-pointer" onClick={() => setActiveTab('home')}>MATHFLIX</h1>
@@ -379,216 +448,58 @@
                                 <li className="hover:text-white cursor-pointer transition-colors" onClick={() => setShowPengumuman(true)}>Pengumuman</li>
                             </ul>
                         </div>
-                        <div className="flex items-center gap-4 text-white">
-                            <span className="text-sm bg-gray-800 px-3 py-1 rounded-full border border-gray-600">
-                                {user.name} ({user.kelas})
-                            </span>
-                            <button onClick={() => setUser(null)} className="text-gray-400 hover:text-white"><Icons.LogOut size={20}/></button>
-                        </div>
+                        <div className="flex items-center gap-4 text-white"><span className="text-sm bg-gray-800 px-3 py-1 rounded-full border border-gray-600">{user.name} ({user.kelas})</span><button onClick={() => setUser(null)} className="text-gray-400 hover:text-white"><Icons.LogOut size={20}/></button></div>
                     </nav>
+                    <div className="md:hidden fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md px-4 py-3 flex justify-between items-center border-b border-gray-800"><h1 className="text-red-600 text-xl font-bold tracking-tighter">MATHFLIX</h1><span className="text-xs text-gray-300 bg-gray-800 px-2 py-0.5 rounded truncate max-w-[150px]">{user.name.split(' ')[0]} ({user.kelas})</span></div>
 
-                    {/* --- MOBILE TOP BAR --- */}
-                    <div className="md:hidden fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md px-4 py-3 flex justify-between items-center border-b border-gray-800">
-                         <h1 className="text-red-600 text-xl font-bold tracking-tighter">MATHFLIX</h1>
-                         <span className="text-xs text-gray-300 bg-gray-800 px-2 py-0.5 rounded truncate max-w-[150px]">
-                            {user.name.split(' ')[0]} ({user.kelas})
-                         </span>
-                    </div>
-
-                    {/* --- MAIN CONTENT --- */}
                     {activeTab === 'home' && (
                         <>
-                            {/* Hero Section */}
                             <div className="relative h-[60vh] md:h-[80vh] w-full text-white pt-16 md:pt-0">
-                                <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-black">
-                                     <div className="absolute inset-0 opacity-20" style={{backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)', backgroundSize: '40px 40px'}}></div>
-                                </div>
-                                <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-transparent to-black/30" />
-                                
+                                <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-black"><div className="absolute inset-0 opacity-20" style={{backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)', backgroundSize: '40px 40px'}}></div></div>
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-transparent to-black/30"></div>
                                 <div className="absolute top-[20%] md:top-[30%] left-4 md:left-12 max-w-2xl space-y-4 pr-4 z-10">
-                                    <div className="flex items-center gap-2 text-red-600 font-bold tracking-widest text-xs md:text-sm">
-                                        <span className="bg-red-600 text-white px-2 py-0.5 rounded-sm">FASE {userPhase}</span>
-                                        <span>MATERI PILIHAN KELAS {user.kelas}</span>
-                                    </div>
+                                    <div className="flex items-center gap-2 text-red-600 font-bold tracking-widest text-xs md:text-sm"><span className="bg-red-600 text-white px-2 py-0.5 rounded-sm">FASE {userPhase}</span><span>MATERI PILIHAN KELAS {user.kelas}</span></div>
                                     <h1 className="text-3xl md:text-6xl font-bold leading-tight drop-shadow-2xl">{featuredMovie?.title}</h1>
-                                    <p className="text-sm md:text-lg text-gray-200 line-clamp-2 drop-shadow-lg shadow-black">
-                                        {featuredMovie?.description}
-                                    </p>
-                                    <div className="flex gap-4 pt-4">
-                                        <button onClick={() => setSelectedMovie(featuredMovie)} className="flex items-center gap-2 bg-white text-black px-4 md:px-8 py-2 rounded font-bold hover:bg-gray-200 transition-colors">
-                                            <Icons.Play fill="currentColor" size={20} /> Mulai
-                                        </button>
-                                        <button className="flex items-center gap-2 bg-gray-600/70 text-white px-4 md:px-8 py-2 rounded font-bold hover:bg-gray-600/50 backdrop-blur-sm">
-                                            <Icons.Info size={20} /> Info
-                                        </button>
-                                    </div>
+                                    <p className="text-sm md:text-lg text-gray-200 line-clamp-2 drop-shadow-lg shadow-black">{featuredMovie?.description}</p>
+                                    <div className="flex gap-4 pt-4"><button onClick={() => setSelectedMovie(featuredMovie)} className="flex items-center gap-2 bg-white text-black px-4 md:px-8 py-2 rounded font-bold hover:bg-gray-200 transition-colors"><Icons.Play fill="currentColor" size={20} /> Mulai</button><button className="flex items-center gap-2 bg-gray-600/70 text-white px-4 md:px-8 py-2 rounded font-bold hover:bg-gray-600/50 backdrop-blur-sm"><Icons.Info size={20} /> Info</button></div>
                                 </div>
                             </div>
-
-                            {/* Content Rows */}
                             <div className="relative z-10 space-y-8 pb-8 pl-4 md:pl-12">
-                                {/* Baris 1: Materi Wajib */}
                                 <div>
                                     <h2 className="text-white text-lg md:text-xl font-bold mb-4 drop-shadow-md">Materi Wajib Fase {userPhase}</h2>
-                                    <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide pr-4">
-                                        {myMovies.map(item => (
-                                            <div key={item.id} className="flex-none w-[160px] md:w-[240px] group cursor-pointer" onClick={() => setSelectedMovie(item)}>
-                                                <div className={`h-[100px] md:h-[135px] w-full rounded bg-gradient-to-br ${item.thumbnail} flex flex-col justify-end p-3 transition-transform duration-300 group-hover:scale-105 shadow-lg border border-gray-800`}>
-                                                    <h3 className="text-white font-bold text-sm md:text-base leading-tight drop-shadow-md line-clamp-2">{item.title}</h3>
-                                                </div>
-                                                <div className="mt-2 flex justify-between text-xs text-gray-400">
-                                                    <span className="text-green-500 font-bold">{item.match} match</span>
-                                                    <span>{item.duration}</span>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
+                                    <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide pr-4">{myMovies.map(item => (<div key={item.id} className="flex-none w-[160px] md:w-[240px] group cursor-pointer" onClick={() => setSelectedMovie(item)}><div className={`h-[100px] md:h-[135px] w-full rounded bg-gradient-to-br ${item.thumbnail} flex flex-col justify-end p-3 transition-transform duration-300 group-hover:scale-105 shadow-lg border border-gray-800`}><h3 className="text-white font-bold text-sm md:text-base leading-tight drop-shadow-md line-clamp-2">{item.title}</h3></div><div className="mt-2 flex justify-between text-xs text-gray-400"><span className="text-green-500 font-bold">{item.match} match</span><span>{item.duration}</span></div></div>))}</div>
                                 </div>
-
-                                {/* Baris 2: Data Science (Untuk Semua Jurusan) */}
                                 <div>
                                     <h2 className="text-white text-lg md:text-xl font-bold mb-4 drop-shadow-md">Literasi Data & Statistik</h2>
-                                    <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide pr-4">
-                                        {movies.filter(m => m.category === 'data').map(item => (
-                                            <div key={item.id} className="flex-none w-[160px] md:w-[240px] group cursor-pointer" onClick={() => setSelectedMovie(item)}>
-                                                <div className={`h-[100px] md:h-[135px] w-full rounded bg-gradient-to-br ${item.thumbnail} flex flex-col justify-end p-3 transition-transform duration-300 group-hover:scale-105 shadow-lg border border-gray-800`}>
-                                                    <h3 className="text-white font-bold text-sm md:text-base leading-tight drop-shadow-md line-clamp-2">{item.title}</h3>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
+                                    <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide pr-4">{movies.filter(m => m.category === 'data').map(item => (<div key={item.id} className="flex-none w-[160px] md:w-[240px] group cursor-pointer" onClick={() => setSelectedMovie(item)}><div className={`h-[100px] md:h-[135px] w-full rounded bg-gradient-to-br ${item.thumbnail} flex flex-col justify-end p-3 transition-transform duration-300 group-hover:scale-105 shadow-lg border border-gray-800`}><h3 className="text-white font-bold text-sm md:text-base leading-tight drop-shadow-md line-clamp-2">{item.title}</h3></div></div>))}</div>
                                 </div>
-
-                                {/* Baris 3: Literasi Finansial */}
                                 <div>
                                     <h2 className="text-white text-lg md:text-xl font-bold mb-4 drop-shadow-md">Literasi Finansial (Wajib SMK)</h2>
-                                    <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide pr-4">
-                                        {movies.filter(m => m.category === 'financial').map(item => (
-                                            <div key={item.id} className="flex-none w-[160px] md:w-[240px] group cursor-pointer" onClick={() => setSelectedMovie(item)}>
-                                                <div className={`h-[100px] md:h-[135px] w-full rounded bg-gradient-to-br ${item.thumbnail} flex flex-col justify-end p-3 transition-transform duration-300 group-hover:scale-105 shadow-lg border border-gray-800`}>
-                                                    <h3 className="text-white font-bold text-sm md:text-base leading-tight drop-shadow-md line-clamp-2">{item.title}</h3>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
+                                    <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide pr-4">{movies.filter(m => m.category === 'financial').map(item => (<div key={item.id} className="flex-none w-[160px] md:w-[240px] group cursor-pointer" onClick={() => setSelectedMovie(item)}><div className={`h-[100px] md:h-[135px] w-full rounded bg-gradient-to-br ${item.thumbnail} flex flex-col justify-end p-3 transition-transform duration-300 group-hover:scale-105 shadow-lg border border-gray-800`}><h3 className="text-white font-bold text-sm md:text-base leading-tight drop-shadow-md line-clamp-2">{item.title}</h3></div></div>))}</div>
                                 </div>
                             </div>
                         </>
                     )}
 
-                    {/* --- MOBILE BOTTOM NAV --- */}
                     <nav className="md:hidden fixed bottom-0 w-full bg-[#121212] border-t border-gray-800 flex justify-around py-3 z-50 text-[10px] text-gray-500">
-                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'home' && !showGuru && !showPengumuman ? 'text-white' : ''}`} onClick={() => { setActiveTab('home'); setShowGuru(false); setShowPengumuman(false); }}>
-                            <Icons.Home size={20} />
-                            <span>Home</span>
-                        </div>
-                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${showGuru ? 'text-white' : ''}`} onClick={() => setShowGuru(true)}>
-                            <Icons.User size={20} />
-                            <span>Guru</span>
-                        </div>
-                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${showPengumuman ? 'text-white' : ''}`} onClick={() => setShowPengumuman(true)}>
-                            <Icons.Bell size={20} />
-                            <span>Info</span>
-                        </div>
-                        <div className="flex flex-col items-center gap-1 cursor-pointer text-red-500" onClick={() => setUser(null)}>
-                            <Icons.LogOut size={20} />
-                            <span>Keluar</span>
-                        </div>
+                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'home' && !showGuru && !showPengumuman ? 'text-white' : ''}`} onClick={() => { setActiveTab('home'); setShowGuru(false); setShowPengumuman(false); }}><Icons.Home size={20} /><span>Home</span></div>
+                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${showGuru ? 'text-white' : ''}`} onClick={() => setShowGuru(true)}><Icons.User size={20} /><span>Guru</span></div>
+                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${showPengumuman ? 'text-white' : ''}`} onClick={() => setShowPengumuman(true)}><Icons.Bell size={20} /><span>Info</span></div>
+                        <div className="flex flex-col items-center gap-1 cursor-pointer text-red-500" onClick={() => setUser(null)}><Icons.LogOut size={20} /><span>Keluar</span></div>
                     </nav>
 
-                    {/* --- MODALS --- */}
-                    
-                    {/* Modal Detail Materi (Learning) */}
                     {selectedMovie && (
                         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-fadeIn overflow-y-auto">
                             <div className="bg-[#181818] w-full max-w-3xl rounded-lg overflow-hidden relative shadow-2xl my-auto">
                                 <button onClick={() => setSelectedMovie(null)} className="absolute top-4 right-4 bg-black/50 p-2 rounded-full text-white z-10 hover:bg-gray-700"><Icons.X /></button>
-                                <div className={`h-48 md:h-64 bg-gradient-to-br ${selectedMovie.thumbnail} relative`}>
-                                    <div className="absolute inset-0 bg-gradient-to-t from-[#181818] to-transparent"></div>
-                                    <div className="absolute bottom-4 left-6">
-                                        <h2 className="text-2xl md:text-4xl font-bold text-white mb-2">{selectedMovie.title}</h2>
-                                        <div className="flex gap-3 text-xs md:text-sm text-gray-300">
-                                            <span className="text-green-500 font-bold">{selectedMovie.match} Match</span>
-                                            <span>{selectedMovie.duration}</span>
-                                            <span className="border border-gray-500 px-1 rounded">HD</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="p-6 md:p-8">
-                                    <p className="text-gray-300 mb-6">{selectedMovie.description}</p>
-                                    <h3 className="text-white font-bold mb-3 border-l-4 border-red-600 pl-3">Alur DELTA</h3>
-                                    <div className="space-y-2">
-                                        {selectedMovie.delta.map((step, i) => (
-                                            <div key={i} className="flex items-center gap-3 p-3 bg-gray-800 rounded hover:bg-gray-700 cursor-pointer transition-colors">
-                                                <div className="bg-gray-600 w-8 h-8 flex items-center justify-center rounded-full text-white font-bold text-xs">{i+1}</div>
-                                                <span className="text-gray-200 text-sm">{step}</span>
-                                                <Icons.Play size={14} className="ml-auto text-gray-500" />
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <button className="w-full mt-6 bg-red-600 text-white font-bold py-3 rounded hover:bg-red-700">Mulai Belajar Sekarang</button>
-                                </div>
+                                <div className={`h-48 md:h-64 bg-gradient-to-br ${selectedMovie.thumbnail} relative`}><div className="absolute inset-0 bg-gradient-to-t from-[#181818] to-transparent"></div><div className="absolute bottom-4 left-6"><h2 className="text-2xl md:text-4xl font-bold text-white mb-2">{selectedMovie.title}</h2><div className="flex gap-3 text-xs md:text-sm text-gray-300"><span className="text-green-500 font-bold">{selectedMovie.match} Match</span><span>{selectedMovie.duration}</span><span className="border border-gray-500 px-1 rounded">HD</span></div></div></div>
+                                <div className="p-6 md:p-8"><p className="text-gray-300 mb-6">{selectedMovie.description}</p><h3 className="text-white font-bold mb-3 border-l-4 border-red-600 pl-3">Alur DELTA</h3><div className="space-y-2">{selectedMovie.delta.map((step, i) => (<div key={i} className="flex items-center gap-3 p-3 bg-gray-800 rounded hover:bg-gray-700 cursor-pointer transition-colors"><div className="bg-gray-600 w-8 h-8 flex items-center justify-center rounded-full text-white font-bold text-xs">{i+1}</div><span className="text-gray-200 text-sm">{step}</span><Icons.Play size={14} className="ml-auto text-gray-500" /></div>))}</div><button className="w-full mt-6 bg-red-600 text-white font-bold py-3 rounded hover:bg-red-700">Mulai Belajar Sekarang</button></div>
                             </div>
                         </div>
                     )}
 
-                    {/* Modal Profil Guru (UPDATED WITH GLASSMORPHISM AND NO TAGS) */}
-                    <InfoModal 
-                        isOpen={showGuru} 
-                        onClose={() => setShowGuru(false)}
-                        title="Profil Guru Pengampu"
-                        content={
-                            <div className="flex flex-col items-center text-center">
-                                {/* Foto dengan Efek Glowing */}
-                                <div className="relative mb-6">
-                                    <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-purple-600 rounded-full blur opacity-75 animate-pulse"></div>
-                                    <img 
-                                        src="https://i.ibb.co.com/x82PbSjy/IMG-20250927-210909.png" 
-                                        alt="Pak Feri" 
-                                        className="relative w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-[#181818] shadow-2xl"
-                                    />
-                                    <div className="absolute bottom-2 right-2 bg-green-500 w-4 h-4 rounded-full border-2 border-[#181818]" title="Online"></div>
-                                </div>
-                                
-                                {/* Info Utama */}
-                                <h3 className="text-2xl md:text-3xl font-bold text-white mb-1">Feri Dwi Hermawan, S.Pd.</h3>
-                                <p className="text-red-500 font-medium tracking-wide text-sm uppercase mb-4">Guru Matematika SMKN Pasirian</p>
-                                
-                                {/* Quote Card */}
-                                <div className="bg-white/5 p-4 rounded-lg border border-white/10 mb-8 max-w-sm w-full relative group hover:border-red-600/50 transition-colors backdrop-blur-md">
-                                    <Icons.Quote className="absolute top-2 left-2 text-white/20 group-hover:text-red-900 transition-colors" size={24} />
-                                    <p className="text-gray-300 italic text-sm relative z-10 pt-2 px-2">
-                                        "Matematika bukan tentang angka, persamaan, atau algoritma: ini tentang pemahaman."
-                                    </p>
-                                </div>
-
-                                {/* Tombol CTA */}
-                                <div className="w-full grid grid-cols-2 gap-4">
-                                    <a href="https://wa.me/6285174244128" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white py-3 rounded-lg font-bold transition-all transform hover:scale-105 shadow-lg backdrop-blur-sm bg-opacity-90">
-                                        <Icons.WhatsApp size={20} /> WhatsApp
-                                    </a>
-                                    <a href="https://t.me/ferilee" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 bg-[#0088cc] hover:bg-[#0077b5] text-white py-3 rounded-lg font-bold transition-all transform hover:scale-105 shadow-lg backdrop-blur-sm bg-opacity-90">
-                                        <Icons.Telegram size={20} /> Telegram
-                                    </a>
-                                </div>
-                            </div>
-                        }
-                    />
-
-                    {/* Modal Pengumuman */}
-                    <InfoModal 
-                        isOpen={showPengumuman} 
-                        onClose={() => setShowPengumuman(false)}
-                        title="Pengumuman Kelas"
-                        content={
-                            <ul className="list-disc pl-5 space-y-2 text-sm">
-                                <li><strong className="text-white">Ujian Tengah Semester:</strong> Akan dilaksanakan tanggal 20 Oktober 2024. Harap selesaikan modul Fase {userPhase}.</li>
-                                <li><strong className="text-white">Tugas Proyek Statistik:</strong> Deadline pengumpulan data untuk jurusan RPL diperpanjang.</li>
-                                <li><strong className="text-white">Klinik Matematika:</strong> Tersedia setiap hari Jumat jam 13.00 di Lab Komputer.</li>
-                            </ul>
-                        }
-                    />
-
+                    <InfoModal isOpen={showGuru} onClose={() => setShowGuru(false)} title="Profil Guru Pengampu" content={<div className="flex flex-col items-center text-center"><div className="relative mb-6"><div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-purple-600 rounded-full blur opacity-75 animate-pulse"></div><img src="https://i.ibb.co.com/x82PbSjy/IMG-20250927-210909.png" alt="Pak Feri" className="relative w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-[#181818] shadow-2xl" /><div className="absolute bottom-2 right-2 bg-green-500 w-4 h-4 rounded-full border-2 border-[#181818]" title="Online"></div></div><h3 className="text-2xl md:text-3xl font-bold text-white mb-1">Feri Dwi Hermawan, S.Pd.</h3><p className="text-red-500 font-medium tracking-wide text-sm uppercase mb-4">Guru Matematika SMKN Pasirian</p><div className="bg-white/5 p-4 rounded-lg border border-white/10 mb-8 max-w-sm w-full relative group hover:border-red-600/50 transition-colors backdrop-blur-md"><Icons.Quote className="absolute top-2 left-2 text-white/20 group-hover:text-red-900 transition-colors" size={24} /><p className="text-gray-300 italic text-sm relative z-10 pt-2 px-2">"Matematika bukan tentang angka, persamaan, atau algoritma: ini tentang pemahaman."</p></div><div className="w-full grid grid-cols-2 gap-4"><a href="https://wa.me/6285174244128" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white py-3 rounded-lg font-bold transition-all transform hover:scale-105 shadow-lg backdrop-blur-sm bg-opacity-90"><Icons.WhatsApp size={20} /> WhatsApp</a><a href="https://t.me/ferilee" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 bg-[#0088cc] hover:bg-[#0077b5] text-white py-3 rounded-lg font-bold transition-all transform hover:scale-105 shadow-lg backdrop-blur-sm bg-opacity-90"><Icons.Telegram size={20} /> Telegram</a></div></div>} />
+                    <InfoModal isOpen={showPengumuman} onClose={() => setShowPengumuman(false)} title="Pengumuman Kelas" content={<ul className="list-disc pl-5 space-y-2 text-sm">{announcement.map((item, i) => <li key={i}><strong className="text-white">{item}</strong></li>)}</ul>} />
                 </div>
             );
         };
