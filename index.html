@@ -71,7 +71,8 @@
             ChevronRight: (p) => <i className="fa-solid fa-chevron-right" {...p}></i>,
             Lock: (p) => <i className="fa-solid fa-lock" {...p}></i>,
             Alert: (p) => <i className="fa-solid fa-triangle-exclamation" {...p}></i>,
-            Calendar: (p) => <i className="fa-solid fa-calendar-days" {...p}></i>
+            Calendar: (p) => <i className="fa-solid fa-calendar-days" {...p}></i>,
+            History: (p) => <i className="fa-solid fa-clock-rotate-left" {...p}></i>
         };
 
         const formatDelta = (deltaArray) => {
@@ -327,7 +328,6 @@
                                     <div className="grid grid-cols-1 gap-4">{movies.map(m => (<div key={m.id} className="bg-[#1e1e1e] p-4 rounded flex justify-between items-center border border-gray-800 hover:border-gray-600"><div className="flex items-center gap-4"><div className={`w-16 h-10 rounded bg-gradient-to-br ${m.thumbnail}`}></div><div><h4 className="font-bold text-sm md:text-base">{m.title}</h4><p className="text-xs text-gray-500">{m.delta.length} Tahapan</p></div></div><div className="flex gap-2"><button onClick={() => populateForm(m)} className="p-2 bg-blue-900/50 text-blue-400 rounded hover:bg-blue-900"><Icons.Edit className="text-lg"/></button><button onClick={() => handleDeleteMovie(m.id)} className="p-2 bg-red-900/50 text-red-400 rounded hover:bg-red-900"><Icons.Trash className="text-lg"/></button></div></div>))}</div>
                                 </div>
                             )}
-
                             {activeTab === 'announcement' && (
                                 <div className="animate-fadeIn">
                                     <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">Pengumuman</h2>
@@ -450,6 +450,7 @@
             );
         };
 
+        // --- INFO MODAL (ANNOUNCEMENT) ---
         const InfoModal = ({ title, content, isOpen, onClose }) => {
             if (!isOpen) return null;
             return (
@@ -463,7 +464,8 @@
             );
         };
 
-        const TaskSubmissionModal = ({ isOpen, onClose, user }) => {
+        // --- TASK SUBMISSION MODAL (NEW) ---
+        const TaskSubmissionModal = ({ isOpen, onClose, user, myTasks, refreshTasks }) => {
             const [title, setTitle] = useState("");
             const [desc, setDesc] = useState("");
             const [url, setUrl] = useState("");
@@ -485,9 +487,10 @@
 
                 try {
                     await fetch(GOOGLE_FORM_TASK_ACTION_URL, { method: 'POST', mode: 'no-cors', body: formData });
-                    alert("Tugas berhasil dikirim!");
+                    alert("Tugas berhasil dikirim! Silakan tunggu beberapa saat agar data muncul di riwayat.");
                     setTitle(""); setDesc(""); setUrl("");
-                    onClose();
+                    refreshTasks(); // Trigger refresh
+                    // Note: Google Forms might have delay, so list might not update instantly in CSV.
                 } catch (error) {
                     alert("Gagal mengirim tugas. Coba lagi.");
                 } finally {
@@ -497,14 +500,37 @@
 
             return (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
-                    <div className="bg-[#181818] p-8 rounded-xl max-w-md w-full border border-gray-700 relative shadow-2xl" onClick={e => e.stopPropagation()}>
+                    <div className="bg-[#181818] p-8 rounded-xl max-w-md w-full border border-gray-700 relative shadow-2xl flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
                         <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"><i className="fa-solid fa-xmark text-lg"></i></button>
                         <h2 className="text-2xl font-bold mb-6 text-red-600 border-b border-gray-700 pb-2">Unggah Tugas</h2>
-                        <div className="space-y-6">
-                            <div className="relative pt-2"><input type="text" id="taskTitle" className="floating-input block px-4 pb-2.5 pt-5 w-full text-white bg-[#141414] rounded-lg border border-gray-700 appearance-none focus:outline-none focus:ring-0 focus:border-red-600 peer" placeholder=" " value={title} onChange={(e) => setTitle(e.target.value)} /><label htmlFor="taskTitle" className="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] left-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4 peer-focus:text-red-500">Judul Tugas</label></div>
-                            <div className="relative pt-2"><textarea id="taskDesc" className="floating-input block px-4 pb-2.5 pt-5 w-full h-24 text-white bg-[#141414] rounded-lg border border-gray-700 appearance-none focus:outline-none focus:ring-0 focus:border-red-600 peer" placeholder=" " value={desc} onChange={(e) => setDesc(e.target.value)}></textarea><label htmlFor="taskDesc" className="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] left-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4 peer-focus:text-red-500">Deskripsi Singkat</label></div>
-                            <div className="relative pt-2"><input type="text" id="taskUrl" className="floating-input block px-4 pb-2.5 pt-5 w-full text-white bg-[#141414] rounded-lg border border-gray-700 appearance-none focus:outline-none focus:ring-0 focus:border-red-600 peer" placeholder=" " value={url} onChange={(e) => setUrl(e.target.value)} /><label htmlFor="taskUrl" className="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] left-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4 peer-focus:text-red-500">URL Tugas (Drive/Link)</label></div>
-                            <button onClick={handleSubmit} disabled={isSubmitting} className={`w-full bg-red-600 text-white font-bold py-3 rounded-lg hover:bg-red-700 transition-all flex justify-center items-center gap-2 ${isSubmitting ? 'opacity-50' : ''}`}>{isSubmitting ? <span className="animate-spin h-5 w-5 border-2 border-white rounded-full border-t-transparent"></span> : <i className="fa-solid fa-paper-plane"></i>} {isSubmitting ? "Mengirim..." : "Kirim Tugas"}</button>
+                        
+                        <div className="space-y-6 overflow-y-auto pr-2 custom-scrollbar">
+                            {/* Form */}
+                            <div className="space-y-4">
+                                <div className="relative pt-2"><input type="text" id="taskTitle" className="floating-input block px-4 pb-2.5 pt-5 w-full text-white bg-[#141414] rounded-lg border border-gray-700 appearance-none focus:outline-none focus:ring-0 focus:border-red-600 peer" placeholder=" " value={title} onChange={(e) => setTitle(e.target.value)} /><label htmlFor="taskTitle" className="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] left-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4 peer-focus:text-red-500">Judul Tugas</label></div>
+                                <div className="relative pt-2"><textarea id="taskDesc" className="floating-input block px-4 pb-2.5 pt-5 w-full h-24 text-white bg-[#141414] rounded-lg border border-gray-700 appearance-none focus:outline-none focus:ring-0 focus:border-red-600 peer" placeholder=" " value={desc} onChange={(e) => setDesc(e.target.value)}></textarea><label htmlFor="taskDesc" className="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] left-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4 peer-focus:text-red-500">Deskripsi Singkat</label></div>
+                                <div className="relative pt-2"><input type="text" id="taskUrl" className="floating-input block px-4 pb-2.5 pt-5 w-full text-white bg-[#141414] rounded-lg border border-gray-700 appearance-none focus:outline-none focus:ring-0 focus:border-red-600 peer" placeholder=" " value={url} onChange={(e) => setUrl(e.target.value)} /><label htmlFor="taskUrl" className="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] left-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4 peer-focus:text-red-500">URL Tugas (Drive/Link)</label></div>
+                                <button onClick={handleSubmit} disabled={isSubmitting} className={`w-full bg-red-600 text-white font-bold py-3 rounded-lg hover:bg-red-700 transition-all flex justify-center items-center gap-2 ${isSubmitting ? 'opacity-50' : ''}`}>{isSubmitting ? <span className="animate-spin h-5 w-5 border-2 border-white rounded-full border-t-transparent"></span> : <i className="fa-solid fa-paper-plane"></i>} {isSubmitting ? "Mengirim..." : "Kirim Tugas"}</button>
+                            </div>
+
+                            {/* History Section */}
+                            <div className="mt-8 border-t border-gray-700 pt-6">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h3 className="font-bold text-gray-400 text-sm uppercase tracking-wider">Riwayat Pengiriman</h3>
+                                    <button onClick={refreshTasks} className="text-xs text-blue-500 hover:text-blue-400 flex items-center gap-1"><i className="fa-solid fa-rotate-right"></i> Refresh</button>
+                                </div>
+                                <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
+                                    {myTasks && myTasks.length > 0 ? myTasks.map((task, i) => (
+                                        <div key={i} className="bg-gray-800 p-3 rounded flex justify-between items-center border border-gray-700">
+                                            <div className="flex flex-col">
+                                                <p className="text-white font-bold text-sm line-clamp-1">{task[3]}</p> {/* Judul */}
+                                                <span className="text-[10px] text-gray-500">{task[0]}</span> {/* Timestamp */}
+                                            </div>
+                                            <a href={task[5]} target="_blank" className="text-blue-400 text-xs hover:underline flex-shrink-0 ml-2">Lihat Link <i className="fa-solid fa-up-right-from-square text-[10px]"></i></a>
+                                        </div>
+                                    )) : <p className="text-gray-600 text-sm italic text-center py-2">Belum ada riwayat tugas.</p>}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -516,6 +542,7 @@
             const [movies, setMovies] = useState(initialMovies);
             const [announcement, setAnnouncement] = useState(null); 
             const [loadingAnnouncement, setLoadingAnnouncement] = useState(false);
+            const [hasNewNotification, setHasNewNotification] = useState(false);
 
             const [selectedMovie, setSelectedMovie] = useState(null);
             const [playingMovie, setPlayingMovie] = useState(null); 
@@ -523,6 +550,9 @@
             const [showGuru, setShowGuru] = useState(false);
             const [showPengumuman, setShowPengumuman] = useState(false);
             const [showTaskModal, setShowTaskModal] = useState(false); 
+            
+            // State for Student Task History
+            const [myTasks, setMyTasks] = useState([]);
 
             const fetchAnnouncements = () => {
                 setLoadingAnnouncement(true);
@@ -533,11 +563,13 @@
                         if (rows.length > 0) {
                             const lastRow = rows[rows.length - 1];
                             if (lastRow[1] && lastRow[1].trim() !== "") {
-                                setAnnouncement({ timestamp: lastRow[0], title: lastRow[1], desc: lastRow[2], type: lastRow[3] || 'Info' });
+                                const newAnnouncement = { timestamp: lastRow[0], title: lastRow[1], desc: lastRow[2], type: lastRow[3] || 'Info' };
+                                setAnnouncement(newAnnouncement);
                             } else {
                                 const prevRow = rows[rows.length - 2];
                                 if (rows.length > 1 && prevRow[1]) {
-                                     setAnnouncement({ timestamp: prevRow[0], title: prevRow[1], desc: prevRow[2], type: prevRow[3] || 'Info' });
+                                     const newAnnouncement = { timestamp: prevRow[0], title: prevRow[1], desc: prevRow[2], type: prevRow[3] || 'Info' };
+                                     setAnnouncement(newAnnouncement);
                                 } else { setAnnouncement(null); }
                             }
                         } else { setAnnouncement(null); }
@@ -547,7 +579,48 @@
                 });
             };
 
-            useEffect(() => { fetchAnnouncements(); }, []);
+            // NEW: Fetch Tasks for logged-in user
+            const fetchMyTasks = () => {
+                if (!user || user.role === 'admin') return;
+                
+                Papa.parse(TASK_CSV_URL, {
+                    download: true,
+                    header: false,
+                    complete: (results) => {
+                        const data = results.data.slice(1); // Skip header
+                        // Filter by Name AND Class (case-insensitive trim)
+                        const filtered = data.filter(row => 
+                            row[1] && row[1].trim().toLowerCase() === user.name.trim().toLowerCase() && 
+                            row[2] && row[2].trim().toLowerCase() === user.kelas.trim().toLowerCase()
+                        );
+                        setMyTasks(filtered.reverse()); // Show newest first
+                    }
+                });
+            };
+
+            useEffect(() => {
+                fetchAnnouncements();
+            }, []);
+
+            // Fetch tasks when user logs in or modal opens
+            useEffect(() => {
+                if (user && showTaskModal) {
+                    fetchMyTasks();
+                }
+            }, [user, showTaskModal]);
+
+            // Check notification for specific user
+            useEffect(() => {
+                if (user && announcement) {
+                    const userKey = `lastSeen_${user.name}_${user.kelas}`;
+                    const lastSeen = localStorage.getItem(userKey);
+                    if (announcement.timestamp && announcement.timestamp !== lastSeen) {
+                        setHasNewNotification(true);
+                    } else {
+                        setHasNewNotification(false);
+                    }
+                }
+            }, [user, announcement]);
 
             const userPhase = useMemo(() => {
                 if (!user || user.role === 'admin') return "E"; 
@@ -563,6 +636,16 @@
             const handlePlayMovie = (movie) => {
                 setSelectedMovie(null); 
                 setPlayingMovie(movie); 
+            };
+
+            const openAnnouncement = () => {
+                setShowPengumuman(true);
+                fetchAnnouncements(); // Refresh data just in case
+                if (hasNewNotification && announcement && user) {
+                    setHasNewNotification(false);
+                    const userKey = `lastSeen_${user.name}_${user.kelas}`;
+                    localStorage.setItem(userKey, announcement.timestamp);
+                }
             };
 
             if (!user) return <LoginScreen onLogin={setUser} />;
@@ -587,7 +670,10 @@
                             <ul className="flex gap-6 text-sm text-gray-300 font-medium">
                                 <li className="hover:text-white cursor-pointer transition-colors" onClick={() => setActiveTab('home')}>Home</li>
                                 <li className="hover:text-white cursor-pointer transition-colors" onClick={() => setShowGuru(true)}>Profil Guru</li>
-                                <li className="hover:text-white cursor-pointer transition-colors" onClick={() => { setShowPengumuman(true); fetchAnnouncements(); }}>Pengumuman</li>
+                                <li className="hover:text-white cursor-pointer transition-colors relative" onClick={openAnnouncement}>
+                                    Pengumuman
+                                    {hasNewNotification && <span className="absolute -top-1 -right-2 w-2 h-2 bg-red-600 rounded-full animate-pulse"></span>}
+                                </li>
                                 <li className="hover:text-white cursor-pointer transition-colors" onClick={() => setShowTaskModal(true)}>Unggah Tugas</li>
                             </ul>
                         </div>
@@ -632,11 +718,17 @@
                         <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'home' && !showGuru && !showPengumuman && !showTaskModal ? 'text-white' : ''}`} onClick={() => { setActiveTab('home'); setShowGuru(false); setShowPengumuman(false); setShowTaskModal(false); }}><i className="fa-solid fa-house text-xl"></i><span>Home</span></div>
                         <div className={`flex flex-col items-center gap-1 cursor-pointer ${showGuru ? 'text-white' : ''}`} onClick={() => setShowGuru(true)}><i className="fa-solid fa-user text-xl"></i><span>Guru</span></div>
                         <div className={`flex flex-col items-center gap-1 cursor-pointer ${showTaskModal ? 'text-white' : ''}`} onClick={() => setShowTaskModal(true)}><i className="fa-solid fa-pen-to-square text-xl"></i><span>Tugas</span></div>
-                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${showPengumuman ? 'text-white' : ''}`} onClick={() => { setShowPengumuman(true); fetchAnnouncements(); }}><i className="fa-solid fa-bell text-xl"></i><span>Info</span></div>
+                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${showPengumuman ? 'text-white' : ''}`} onClick={openAnnouncement}>
+                            <div className="relative">
+                                <i className="fa-solid fa-bell text-xl"></i>
+                                {hasNewNotification && <span className="absolute top-0 right-0 w-2 h-2 bg-red-600 rounded-full border border-black"></span>}
+                            </div>
+                            <span>Info</span>
+                        </div>
                         <div className="flex flex-col items-center gap-1 cursor-pointer text-red-500" onClick={() => setUser(null)}><i className="fa-solid fa-right-from-bracket text-xl"></i><span>Keluar</span></div>
                     </nav>
 
-                    {/* VIDEO PLAYER SEBAGAI OVERLAY DI BAGIAN BAWAH, TIDAK MERUBAH STRUKTUR UTAMA */}
+                    {/* VIDEO PLAYER SEBAGAI OVERLAY (FIXED) */}
                     {playingMovie && <VideoPlayer movie={playingMovie} onClose={() => setPlayingMovie(null)} />}
 
                     {selectedMovie && (
@@ -715,7 +807,13 @@
                         } 
                     />
                     
-                    <TaskSubmissionModal isOpen={showTaskModal} onClose={() => setShowTaskModal(false)} user={user} />
+                    <TaskSubmissionModal 
+                        isOpen={showTaskModal} 
+                        onClose={() => setShowTaskModal(false)} 
+                        user={user} 
+                        myTasks={myTasks} // Pass myTasks
+                        refreshTasks={fetchMyTasks} // Pass refresh function
+                    />
                 </div>
             );
         };
