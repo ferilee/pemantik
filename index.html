@@ -3,34 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- --- SEO & SOCIAL MEDIA PREVIEW --- -->
     <title>Mathflix - E-Learning SMKN Pasirian</title>
     <meta name="description" content="Platform belajar matematika mandiri gaya Netflix untuk siswa RPL, TKJ, dan DPIB SMKN Pasirian.">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Mathflix - Belajar Matematika Serasa Nonton Film">
     <meta property="og:description" content="Akses materi Fase E dan F khusus untuk SMKN Pasirian. Login sekarang!">
     <meta property="og:image" content="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=1200&auto=format&fit=crop">
-
-    <!-- --- FAVICON --- -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2210%22 fill=%22black%22/><text x=%2250%22 y=%2280%22 font-size=%2270%22 font-family=%22Arial, sans-serif%22 font-weight=%22bold%22 fill=%22%23E50914%22 text-anchor=%22middle%22>M</text></svg>">
-
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Font Awesome (IKON) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <!-- React & ReactDOM -->
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-    
-    <!-- Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-    <!-- PapaParse -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-
     <style>
         body { background-color: #000000; color: white; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
@@ -41,6 +26,7 @@
         select { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-position: right 0.75rem center; background-repeat: no-repeat; background-size: 1.2em 1.2em; padding-right: 2.5rem; -webkit-appearance: none; appearance: none; }
         .hero-pattern { background-image: url("https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2070&auto=format&fit=crop"); background-size: cover; background-position: center; }
         .floating-input:focus ~ label, .floating-input:not(:placeholder-shown) ~ label { transform: translateY(-0.9rem) scale(0.75); top: 0.5rem; color: #dc2626; }
+        .embed-container iframe { width: 100%; height: 100%; border: none; }
     </style>
 </head>
 <body>
@@ -49,78 +35,148 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
 
-        // --- KONFIGURASI GOOGLE SHEETS & FORMS ---
         const STUDENT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNxfl64ybd5HEX-Ln3ubR8C-SxModDRkPVuRpShlUDX2UCRgKib2cIqXtsUPT4d0rJY_gkaCQVOTSb/pub?gid=1562678039&single=true&output=csv";
         const ANNOUNCEMENT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS76u8cTDBeMcD42AsmWficWDijhIhTIFVm7dtBg6kF6vI7fK2f7nTnkhlXvhx7s3qVFp1K-_P3oGA9/pub?gid=1164662512&single=true&output=csv"; 
-        
-        // Form Pengumuman (Admin)
+        const TASK_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWdsuBbHjQIcvBNrH45d2IsJMwJTpjgo_1XtkIuisfsZeKOXeJSbwLNPrAkil3lQBQuEqoUPHd4E3r/pub?gid=721569362&single=true&output=csv";
+
         const GOOGLE_FORM_ACTION_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeK8LjLNZXIMYi6D207NUVhM3crQuLZb4rpYaVv4VuyqYrFog/formResponse";
         const ENTRY_ID_TITLE = "entry.773023469"; 
         const ENTRY_ID_DESC  = "entry.1733481626"; 
         const ENTRY_ID_TYPE  = "entry.1213369060";
 
-        // Form Unggah Tugas (Siswa) - DIPERBARUI
         const GOOGLE_FORM_TASK_ACTION_URL = "https://docs.google.com/forms/d/e/1FAIpQLSd7KuF8Xy7uXmj_wGZVJK6lqcm9-r-AcuGcaBoDjBFD8S7MMg/formResponse"; 
-        const ENTRY_ID_TASK_NAME  = "entry.966437601"; // NAMA
-        const ENTRY_ID_TASK_CLASS = "entry.66506335";  // KELAS
-        const ENTRY_ID_TASK_TITLE = "entry.1713104987"; // JUDUL
-        const ENTRY_ID_TASK_DESC  = "entry.314125124";  // DESKRIPSI
-        const ENTRY_ID_TASK_URL   = "entry.900381196";  // URL
+        const ENTRY_ID_TASK_NAME  = "entry.966437601"; 
+        const ENTRY_ID_TASK_CLASS = "entry.66506335";  
+        const ENTRY_ID_TASK_TITLE = "entry.1713104987"; 
+        const ENTRY_ID_TASK_DESC  = "entry.314125124";  
+        const ENTRY_ID_TASK_URL   = "entry.900381196";  
 
-        // --- ICONS ---
-        const IconBase = ({ children, size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{children}</svg>);
         const Icons = {
-            Play: (p) => <IconBase {...p} fill={p.fill || "none"}><polygon points="5 3 19 12 5 21 5 3"></polygon></IconBase>,
-            Info: (p) => <IconBase {...p}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></IconBase>,
-            Search: (p) => <IconBase {...p}><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></IconBase>,
-            Bell: (p) => <IconBase {...p}><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></IconBase>,
-            User: (p) => <IconBase {...p}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></IconBase>,
-            Home: (p) => <IconBase {...p}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></IconBase>,
-            LogOut: (p) => <IconBase {...p}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></IconBase>,
-            X: (p) => <IconBase {...p}><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></IconBase>,
-            Menu: (p) => <IconBase {...p}><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></IconBase>,
-            ChevronRight: (p) => <IconBase {...p}><polyline points="9 18 15 12 9 6"></polyline></IconBase>,
-            Lock: (p) => <IconBase {...p}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></IconBase>,
-            WhatsApp: (p) => <IconBase {...p}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></IconBase>,
-            Telegram: (p) => <IconBase {...p}><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></IconBase>,
-            Quote: (p) => <IconBase {...p}><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path></IconBase>,
-            Users: (p) => <IconBase {...p}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></IconBase>,
-            Video: (p) => <IconBase {...p}><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></IconBase>,
-            Edit: (p) => <IconBase {...p}><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></IconBase>,
-            Trash: (p) => <IconBase {...p}><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></IconBase>,
-            Plus: (p) => <IconBase {...p}><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></IconBase>,
-            Save: (p) => <IconBase {...p}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></IconBase>,
-            Refresh: (p) => <IconBase {...p}><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></IconBase>,
-            ExternalLink: (p) => <IconBase {...p}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></IconBase>,
-            CloudUpload: (p) => <IconBase {...p}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></IconBase>,
-            Alert: (p) => <IconBase {...p}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></IconBase>,
-            Star: (p) => <IconBase {...p} fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></IconBase>,
-            Calendar: (p) => <IconBase {...p}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></IconBase>
+            Video: (p) => <i className="fa-solid fa-video" {...p}></i>,
+            Edit: (p) => <i className="fa-solid fa-pen-to-square" {...p}></i>,
+            Trash: (p) => <i className="fa-solid fa-trash" {...p}></i>,
+            Plus: (p) => <i className="fa-solid fa-plus" {...p}></i>,
+            Refresh: (p) => <i className="fa-solid fa-rotate-right" {...p}></i>,
+            ExternalLink: (p) => <i className="fa-solid fa-up-right-from-square" {...p}></i>,
+            CloudUpload: (p) => <i className="fa-solid fa-cloud-arrow-up" {...p}></i>,
+            ClipboardList: (p) => <i className="fa-solid fa-clipboard-list" {...p}></i>,
+            Users: (p) => <i className="fa-solid fa-users" {...p}></i>,
+            Bell: (p) => <i className="fa-solid fa-bell" {...p}></i>,
+            LogOut: (p) => <i className="fa-solid fa-right-from-bracket" {...p}></i>,
+            X: (p) => <i className="fa-solid fa-xmark" {...p}></i>,
+            Home: (p) => <i className="fa-solid fa-house" {...p}></i>,
+            User: (p) => <i className="fa-solid fa-user" {...p}></i>,
+            Play: (p) => <i className="fa-solid fa-play" {...p}></i>,
+            Info: (p) => <i className="fa-solid fa-circle-info" {...p}></i>,
+            ChevronRight: (p) => <i className="fa-solid fa-chevron-right" {...p}></i>,
+            Lock: (p) => <i className="fa-solid fa-lock" {...p}></i>,
+            Alert: (p) => <i className="fa-solid fa-triangle-exclamation" {...p}></i>,
+            Calendar: (p) => <i className="fa-solid fa-calendar-days" {...p}></i>
         };
 
-        // --- DATA MATERI AWAL (DEFAULT) ---
+        const formatDelta = (deltaArray) => {
+            return deltaArray.map((item, index) => {
+                if (typeof item === 'string') return { id: Date.now() + index, title: item, embed: '' };
+                return { ...item, id: item.id || Date.now() + index };
+            });
+        };
+
         const initialMovies = [
-            { id: 1, title: "Bilangan Berpangkat", description: "Konsep dasar eksponen, sifat perkalian & pembagian pangkat, serta pangkat pecahan.", thumbnail: "from-purple-900 to-blue-900", duration: "45m", match: "98%", phase: "E", tags: ["Bilangan"], category: "fase-e", delta: ["Diagnosa", "Video Eksplorasi", "Latihan Mandiri", "Tes Formatif"] },
-            { id: 2, title: "Sistem Pertidaksamaan", description: "Penyelesaian SPtLDV dan penerapannya dalam memecahkan masalah program linear sederhana.", thumbnail: "from-red-900 to-orange-900", duration: "50m", match: "85%", phase: "E", tags: ["Aljabar"], category: "fase-e", delta: ["Studi Kasus", "Video Materi", "Quiz Interaktif", "Proyek"] },
-            { id: 3, title: "Fungsi Kuadrat", description: "Memahami karakteristik grafik fungsi kuadrat, titik puncak, dan sumbu simetri.", thumbnail: "from-green-900 to-teal-900", duration: "60m", match: "95%", phase: "E", tags: ["Grafik"], category: "fase-e", delta: ["Pre-Test", "Simulasi Grafik", "Drill Soal", "Refleksi"] },
-            { id: 4, title: "Trigonometri Dasar", description: "Pengantar Sinus, Cosinus, dan Tangen pada segitiga siku-siku serta penerapannya.", thumbnail: "from-yellow-800 to-amber-900", duration: "55m", match: "90%", phase: "E", tags: ["Geometri"], category: "fase-e", delta: ["Survey Lapangan", "Teori Dasar", "Hitungan", "Penerapan"] },
-            { id: 9, title: "Analisis Data (Dasar)", description: "Pengenalan jenis data, mean, median, modus.", thumbnail: "from-gray-800 to-gray-600", duration: "1h 10m", match: "99%", phase: "E", tags: ["Data"], category: "data", delta: ["Pengumpulan Data", "Pengolahan", "Interpretasi"] },
-            { id: 5, title: "Bunga Majemuk", description: "Penerapan barisan geometri dalam menghitung bunga majemuk.", thumbnail: "from-emerald-900 to-green-800", duration: "1h 10m", match: "99%", phase: "F", tags: ["Keuangan"], category: "financial", delta: ["Simulasi Bank", "Rumus Bunga", "Studi Kasus", "Evaluasi"] },
-            { id: 6, title: "Transformasi Fungsi", description: "Translasi, refleksi, dilatasi, dan rotasi fungsi.", thumbnail: "from-indigo-900 to-purple-800", duration: "55m", match: "88%", phase: "F", tags: ["Aljabar"], category: "fase-f", delta: ["Observasi Pola", "Konsep", "Latihan", "Review"] },
-            { id: 7, title: "Lingkaran Analitik", description: "Persamaan lingkaran pusat dan garis singgung.", thumbnail: "from-pink-900 to-rose-800", duration: "50m", match: "92%", phase: "F", tags: ["Geometri"], category: "fase-f", delta: ["Visualisasi", "Bedah Rumus", "Problem Solving", "Analisis"] },
-            { id: 8, title: "Statistika Lanjut", description: "Regresi linear dan korelasi data.", thumbnail: "from-slate-900 to-slate-700", duration: "1h 20m", match: "97%", phase: "F", tags: ["Data"], category: "data", delta: ["Data Mining", "Regresi", "Peluang"] }
+            { id: 1, title: "Bilangan Berpangkat", description: "Konsep dasar eksponen, sifat perkalian & pembagian pangkat, serta pangkat pecahan.", thumbnail: "from-purple-900 to-blue-900", duration: "45m", match: "98%", phase: "E", tags: ["Bilangan"], category: "fase-e", delta: formatDelta(["Diagnosa", "Video Eksplorasi", "Latihan Mandiri", "Tes Formatif"]) },
+            { id: 2, title: "Sistem Pertidaksamaan", description: "Penyelesaian SPtLDV dan penerapannya dalam memecahkan masalah program linear sederhana.", thumbnail: "from-red-900 to-orange-900", duration: "50m", match: "85%", phase: "E", tags: ["Aljabar"], category: "fase-e", delta: formatDelta(["Studi Kasus", "Video Materi", "Quiz Interaktif", "Proyek"]) },
+            { id: 3, title: "Fungsi Kuadrat", description: "Memahami karakteristik grafik fungsi kuadrat, titik puncak, dan sumbu simetri.", thumbnail: "from-green-900 to-teal-900", duration: "60m", match: "95%", phase: "E", tags: ["Grafik"], category: "fase-e", delta: formatDelta(["Pre-Test", "Simulasi Grafik", "Drill Soal", "Refleksi"]) },
+            { id: 4, title: "Trigonometri Dasar", description: "Pengantar Sinus, Cosinus, dan Tangen pada segitiga siku-siku serta penerapannya.", thumbnail: "from-yellow-800 to-amber-900", duration: "55m", match: "90%", phase: "E", tags: ["Geometri"], category: "fase-e", delta: formatDelta(["Survey Lapangan", "Teori Dasar", "Hitungan", "Penerapan"]) },
+            { id: 9, title: "Analisis Data (Dasar)", description: "Pengenalan jenis data, mean, median, modus.", thumbnail: "from-gray-800 to-gray-600", duration: "1h 10m", match: "99%", phase: "E", tags: ["Data"], category: "data", delta: formatDelta(["Pengumpulan Data", "Pengolahan", "Interpretasi"]) },
+            { 
+                id: 5, 
+                title: "Bunga Majemuk & Investasi IT", 
+                description: "Menghitung pertumbuhan investasi alat jaringan, penyusutan harga server, dan bunga pinjaman modal usaha RTRW Net.", 
+                thumbnail: "from-emerald-900 to-green-800", 
+                duration: "1h 10m", 
+                match: "99%", 
+                phase: "F", 
+                tags: ["Keuangan", "TKJ"], 
+                category: "financial", 
+                delta: formatDelta(["Kuis: Tech Inflation", "Studi Kasus: RTRW Net", "LK: Investasi & Penyusutan", "Tantangan: Juragan Server", "Asesmen Akhir"])
+            },
+            { id: 6, title: "Transformasi Fungsi", description: "Translasi, refleksi, dilatasi, dan rotasi fungsi.", thumbnail: "from-indigo-900 to-purple-800", duration: "55m", match: "88%", phase: "F", tags: ["Aljabar"], category: "fase-f", delta: formatDelta(["Observasi Pola", "Konsep", "Latihan", "Review"]) },
+            { id: 7, title: "Lingkaran Analitik", description: "Persamaan lingkaran pusat dan garis singgung.", thumbnail: "from-pink-900 to-rose-800", duration: "50m", match: "92%", phase: "F", tags: ["Geometri"], category: "fase-f", delta: formatDelta(["Visualisasi", "Bedah Rumus", "Problem Solving", "Analisis"]) },
+            { id: 8, title: "Statistika Lanjut", description: "Regresi linear dan korelasi data.", thumbnail: "from-slate-900 to-slate-700", duration: "1h 20m", match: "97%", phase: "F", tags: ["Data"], category: "data", delta: formatDelta(["Data Mining", "Regresi", "Peluang"]) }
         ];
 
-        // --- COMPONENT: ADMIN DASHBOARD ---
+        const VideoPlayer = ({ movie, onClose }) => {
+            const [activeStepIndex, setActiveStepIndex] = useState(0);
+            const activeStep = movie.delta && movie.delta.length > 0 ? movie.delta[activeStepIndex] : null;
+
+            const renderContent = () => {
+                if (activeStep && activeStep.embed && activeStep.embed.trim() !== "") {
+                    return <div className="w-full h-full" dangerouslySetInnerHTML={{ __html: activeStep.embed }} />;
+                }
+                return (
+                    <div className="flex flex-col items-center justify-center h-full text-center p-8">
+                        <div className="w-20 h-20 rounded-full bg-red-600/20 flex items-center justify-center mb-4">
+                            <i className="fa-solid fa-code text-3xl text-red-500"></i>
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-2">Belum ada konten</h3>
+                        <p className="text-gray-500">Tahapan ini belum memiliki kode embed.</p>
+                        <p className="text-xs text-gray-600 mt-4">Guru dapat menambahkan embed (YouTube/Form) di menu Admin.</p>
+                    </div>
+                );
+            };
+
+            return (
+                <div className="fixed inset-0 z-[70] bg-black flex flex-col animate-fadeIn">
+                    <div className="h-16 bg-[#141414] border-b border-gray-800 flex items-center px-4 justify-between shrink-0">
+                        <div className="flex items-center gap-4">
+                            <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors"><i className="fa-solid fa-arrow-left text-xl"></i></button>
+                            <div>
+                                <h2 className="text-sm md:text-base font-bold text-white leading-tight line-clamp-1">{movie.title}</h2>
+                                <span className="text-[10px] md:text-xs text-red-500 uppercase font-bold tracking-wider">
+                                    Tahap {activeStepIndex + 1}: {activeStep ? activeStep.title : 'Loading...'}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="text-xs text-gray-500 hidden md:block">SMKN Pasirian Learning Mode</div>
+                    </div>
+                    <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+                        <div className="flex-1 bg-[#0a0a0a] relative embed-container overflow-y-auto">
+                            {renderContent()}
+                        </div>
+                        <div className="bg-[#141414] w-full md:w-80 border-t md:border-t-0 md:border-l border-gray-800 flex flex-col h-1/3 md:h-auto shrink-0">
+                            <div className="p-3 border-b border-gray-800 bg-[#1a1a1a] flex justify-between items-center sticky top-0">
+                                <h3 className="text-xs font-bold text-gray-400 tracking-wider">ALUR BELAJAR (DELTA)</h3>
+                                <span className="text-[10px] bg-red-900 text-red-200 px-2 py-0.5 rounded">{movie.delta ? movie.delta.length : 0} Tahap</span>
+                            </div>
+                            <div className="overflow-y-auto p-2 space-y-1 flex-1">
+                                {movie.delta && movie.delta.map((step, i) => (
+                                    <div key={step.id || i} onClick={() => setActiveStepIndex(i)} className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${i === activeStepIndex ? 'bg-red-900/20 border-l-2 border-red-600' : 'hover:bg-gray-800 border-l-2 border-transparent'}`}>
+                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${i === activeStepIndex ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-400'}`}>
+                                            {i === activeStepIndex ? <i className="fa-solid fa-play"></i> : i + 1}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className={`text-sm font-medium truncate ${i === activeStepIndex ? 'text-white' : 'text-gray-400'}`}>{step.title}</h4>
+                                            {step.embed && <p className="text-[10px] text-green-500 flex items-center gap-1"><i className="fa-solid fa-link"></i> Terhubung</p>}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )
+        };
+
         const AdminDashboard = ({ movies, setMovies, announcement, refreshData, onLogout }) => {
             const [activeTab, setActiveTab] = useState('stats'); 
             const [csvData, setCsvData] = useState([]);
+            const [taskData, setTaskData] = useState([]); 
             const [loading, setLoading] = useState(true);
+            const [loadingTasks, setLoadingTasks] = useState(false);
             const [isSubmitting, setIsSubmitting] = useState(false);
             
             const [announcementForm, setAnnouncementForm] = useState({ title: '', desc: '', type: 'Info' });
             const [editingMovie, setEditingMovie] = useState(null); 
-            const [movieForm, setMovieForm] = useState({ title: '', description: '', phase: 'E', category: 'fase-e', thumbnail: 'from-gray-900 to-gray-800' });
+            const [movieForm, setMovieForm] = useState({ title: '', description: '', phase: 'E', category: 'fase-e', thumbnail: 'from-gray-900 to-gray-800', delta: [] });
 
             useEffect(() => {
                 Papa.parse(STUDENT_CSV_URL, {
@@ -133,6 +189,22 @@
                     }
                 });
             }, []);
+
+            useEffect(() => {
+                if (activeTab === 'tasks') {
+                    setLoadingTasks(true);
+                    Papa.parse(TASK_CSV_URL, {
+                        download: true,
+                        header: false,
+                        complete: (results) => {
+                            let data = results.data.slice(1); 
+                            setTaskData(data.filter(r => r[0])); 
+                            setLoadingTasks(false);
+                        },
+                        error: () => setLoadingTasks(false)
+                    });
+                }
+            }, [activeTab]);
 
             const handleSaveAnnouncement = async () => {
                 if (!GOOGLE_FORM_ACTION_URL.includes("formResponse")) { alert("URL Google Form belum dikonfigurasi!"); return; }
@@ -156,45 +228,60 @@
                 }
             };
 
+            const addDeltaStep = () => {
+                setMovieForm({...movieForm, delta: [...movieForm.delta, { id: Date.now(), title: "", embed: "" }]});
+            };
+            const removeDeltaStep = (index) => {
+                const newDelta = [...movieForm.delta];
+                newDelta.splice(index, 1);
+                setMovieForm({...movieForm, delta: newDelta});
+            };
+            const handleDeltaChange = (index, field, value) => {
+                const newDelta = [...movieForm.delta];
+                newDelta[index][field] = value;
+                setMovieForm({...movieForm, delta: newDelta});
+            };
+
             const handleMovieSubmit = (e) => {
                 e.preventDefault();
                 const newMovie = {
                     id: editingMovie ? editingMovie.id : Date.now(),
                     ...movieForm,
-                    duration: "45m", match: "90%", tags: ["Umum"], delta: ["Konsep", "Video", "Latihan", "Tes"]
+                    duration: "45m", match: "90%", tags: ["Umum"]
                 };
                 if (editingMovie) { setMovies(movies.map(m => m.id === newMovie.id ? newMovie : m)); } else { setMovies([...movies, newMovie]); }
-                setMovieForm({ title: '', description: '', phase: 'E', category: 'fase-e', thumbnail: 'from-gray-900 to-gray-800' });
+                setMovieForm({ title: '', description: '', phase: 'E', category: 'fase-e', thumbnail: 'from-gray-900 to-gray-800', delta: [] });
                 setEditingMovie(null);
                 alert("Materi berhasil disimpan (Lokal).");
             };
 
             const populateForm = (movie) => {
                 setEditingMovie(movie);
-                setMovieForm({ title: movie.title, description: movie.description, phase: movie.phase, category: movie.category, thumbnail: movie.thumbnail });
+                const formattedDelta = movie.delta.map((d, i) => typeof d === 'string' ? { id: Date.now()+i, title: d, embed: '' } : d);
+                setMovieForm({ title: movie.title, description: movie.description, phase: movie.phase, category: movie.category, thumbnail: movie.thumbnail, delta: formattedDelta });
             };
 
             const handleDeleteMovie = (id) => { if(confirm("Hapus materi ini?")) setMovies(movies.filter(m => m.id !== id)); };
 
             return (
-                <div className="min-h-screen bg-[#000] text-white">
-                    <nav className="bg-[#141414] border-b border-gray-800 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+                <div className="min-h-screen bg-[#000] text-white pb-20 md:pb-0">
+                    <nav className="bg-[#141414] border-b border-gray-800 px-6 py-4 hidden md:flex justify-between items-center sticky top-0 z-50">
                         <h1 className="text-red-600 text-2xl font-bold tracking-tighter">MATHFLIX <span className="text-white text-sm font-normal bg-red-800 px-2 py-0.5 rounded ml-2">ADMIN</span></h1>
-                        <button onClick={onLogout} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"><i className="fa-solid fa-right-from-bracket text-lg"></i> Keluar</button>
+                        <button onClick={onLogout} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"><Icons.LogOut className="text-lg" /> Keluar</button>
                     </nav>
-
+                    <div className="md:hidden bg-[#141414] border-b border-gray-800 px-4 py-3 flex justify-between items-center sticky top-0 z-50"><h1 className="text-red-600 text-xl font-bold tracking-tighter">MATHFLIX ADMIN</h1><button onClick={onLogout} className="text-gray-400"><i className="fa-solid fa-right-from-bracket text-lg"></i></button></div>
                     <div className="flex flex-col md:flex-row min-h-[calc(100vh-70px)]">
-                        <div className="w-full md:w-64 bg-[#141414] border-r border-gray-800 p-4 space-y-2">
-                            <button onClick={() => setActiveTab('stats')} className={`w-full text-left px-4 py-3 rounded flex items-center gap-3 ${activeTab === 'stats' ? 'bg-red-600 text-white' : 'text-gray-400 hover:bg-gray-800'}`}><i className="fa-solid fa-users text-lg"></i> Dashboard</button>
-                            <button onClick={() => setActiveTab('content')} className={`w-full text-left px-4 py-3 rounded flex items-center gap-3 ${activeTab === 'content' ? 'bg-red-600 text-white' : 'text-gray-400 hover:bg-gray-800'}`}><i className="fa-solid fa-video text-lg"></i> Materi</button>
-                            <button onClick={() => setActiveTab('announcement')} className={`w-full text-left px-4 py-3 rounded flex items-center gap-3 ${activeTab === 'announcement' ? 'bg-red-600 text-white' : 'text-gray-400 hover:bg-gray-800'}`}><i className="fa-solid fa-bell text-lg"></i> Pengumuman</button>
+                        <div className="hidden md:block w-64 bg-[#141414] border-r border-gray-800 p-4 space-y-2 h-screen sticky top-[73px]">
+                            <button onClick={() => setActiveTab('stats')} className={`w-full text-left px-4 py-3 rounded flex items-center gap-3 ${activeTab === 'stats' ? 'bg-red-600 text-white' : 'text-gray-400 hover:bg-gray-800'}`}><Icons.Users className="text-lg" /> Dashboard</button>
+                            <button onClick={() => setActiveTab('content')} className={`w-full text-left px-4 py-3 rounded flex items-center gap-3 ${activeTab === 'content' ? 'bg-red-600 text-white' : 'text-gray-400 hover:bg-gray-800'}`}><Icons.Video className="text-lg" /> Materi</button>
+                            <button onClick={() => setActiveTab('announcement')} className={`w-full text-left px-4 py-3 rounded flex items-center gap-3 ${activeTab === 'announcement' ? 'bg-red-600 text-white' : 'text-gray-400 hover:bg-gray-800'}`}><Icons.Bell className="text-lg" /> Pengumuman</button>
+                            <button onClick={() => setActiveTab('tasks')} className={`w-full text-left px-4 py-3 rounded flex items-center gap-3 ${activeTab === 'tasks' ? 'bg-red-600 text-white' : 'text-gray-400 hover:bg-gray-800'}`}><Icons.ClipboardList className="text-lg" /> Tugas Siswa</button>
                         </div>
-
-                        <div className="flex-1 p-6 md:p-12 overflow-y-auto">
+                        <div className="flex-1 p-4 md:p-12 overflow-y-auto">
                             {activeTab === 'stats' && (
                                 <div className="animate-fadeIn">
-                                    <h2 className="text-3xl font-bold mb-8">Statistik Kelas</h2>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                    <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">Statistik Kelas</h2>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
                                         <div className="bg-[#1e1e1e] p-6 rounded-lg border border-gray-800"><div className="flex items-center gap-4"><div className="bg-blue-900/50 p-3 rounded-full text-blue-400 w-12 h-12 flex items-center justify-center"><i className="fa-solid fa-users text-xl"></i></div><div><p className="text-gray-400 text-sm">Total Siswa</p><h3 className="text-2xl font-bold">{loading ? "..." : csvData.length}</h3></div></div></div>
                                         <div className="bg-[#1e1e1e] p-6 rounded-lg border border-gray-800"><div className="flex items-center gap-4"><div className="bg-red-900/50 p-3 rounded-full text-red-400 w-12 h-12 flex items-center justify-center"><i className="fa-solid fa-video text-xl"></i></div><div><p className="text-gray-400 text-sm">Total Materi</p><h3 className="text-2xl font-bold">{movies.length}</h3></div></div></div>
                                     </div>
@@ -209,30 +296,41 @@
                                     </div>
                                 </div>
                             )}
-
                             {activeTab === 'content' && (
                                 <div className="animate-fadeIn">
-                                    <h2 className="text-3xl font-bold mb-8">Manajemen Materi</h2>
-                                    <div className="bg-[#1e1e1e] p-6 rounded-lg border border-gray-800 mb-8">
-                                        <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                                            <i className={`fa-solid ${editingMovie ? 'fa-pen-to-square' : 'fa-plus'} text-lg`}></i> {editingMovie ? "Edit Materi" : "Tambah Materi Baru"}
-                                        </h3>
+                                    <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">Manajemen Materi</h2>
+                                    <div className="bg-[#1e1e1e] p-4 md:p-6 rounded-lg border border-gray-800 mb-8">
+                                        <h3 className="text-xl font-bold mb-4 flex items-center gap-2">{editingMovie ? <Icons.Edit className="text-lg"/> : <Icons.Plus className="text-lg"/>} {editingMovie ? "Edit Materi" : "Tambah Materi Baru"}</h3>
                                         <form onSubmit={handleMovieSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <input type="text" placeholder="Judul Materi" className="bg-[#141414] p-3 rounded border border-gray-700 text-white w-full" value={movieForm.title} onChange={e => setMovieForm({...movieForm, title: e.target.value})} required />
                                             <select className="bg-[#141414] p-3 rounded border border-gray-700 text-white w-full" value={movieForm.phase} onChange={e => setMovieForm({...movieForm, phase: e.target.value})}><option value="E">Fase E</option><option value="F">Fase F</option></select>
                                             <select className="bg-[#141414] p-3 rounded border border-gray-700 text-white w-full" value={movieForm.category} onChange={e => setMovieForm({...movieForm, category: e.target.value})}><option value="fase-e">Materi Wajib Fase E</option><option value="fase-f">Materi Wajib Fase F</option><option value="data">Data & Statistika</option><option value="financial">Keuangan (Financial)</option></select>
                                             <select className="bg-[#141414] p-3 rounded border border-gray-700 text-white w-full" value={movieForm.thumbnail} onChange={e => setMovieForm({...movieForm, thumbnail: e.target.value})}><option value="from-gray-900 to-gray-800">Abu-abu</option><option value="from-purple-900 to-blue-900">Ungu - Biru</option><option value="from-red-900 to-orange-900">Merah - Oranye</option><option value="from-green-900 to-teal-900">Hijau - Teal</option></select>
                                             <textarea placeholder="Deskripsi Singkat" className="bg-[#141414] p-3 rounded border border-gray-700 text-white w-full md:col-span-2" rows="2" value={movieForm.description} onChange={e => setMovieForm({...movieForm, description: e.target.value})} required></textarea>
-                                            <div className="md:col-span-2 flex gap-2"><button type="submit" className="bg-red-600 text-white px-6 py-2 rounded font-bold hover:bg-red-700 transition">Simpan</button>{editingMovie && <button type="button" onClick={() => {setEditingMovie(null); setMovieForm({ title: '', description: '', phase: 'E', category: 'fase-e', thumbnail: 'from-gray-900 to-gray-800' })}} className="bg-gray-700 text-white px-6 py-2 rounded hover:bg-gray-600 transition">Batal</button>}</div>
+                                            <div className="md:col-span-2 border-t border-gray-800 pt-4 mt-2">
+                                                <label className="block text-gray-400 mb-3 font-bold text-sm uppercase tracking-wider">Tahapan DELTA & Embed Code</label>
+                                                {movieForm.delta && movieForm.delta.map((step, index) => (
+                                                    <div key={step.id || index} className="bg-[#0f0f0f] p-3 rounded mb-3 border border-gray-800">
+                                                        <div className="flex gap-2 mb-2 items-center">
+                                                            <span className="bg-gray-800 text-gray-400 w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold">{index + 1}</span>
+                                                            <input type="text" placeholder="Judul Tahapan (Misal: D - Diagnosa)" className="bg-[#1a1a1a] p-2 rounded border border-gray-700 text-white flex-1 text-sm focus:border-red-600 outline-none" value={step.title} onChange={(e) => handleDeltaChange(index, 'title', e.target.value)} />
+                                                            <button type="button" onClick={() => removeDeltaStep(index)} className="text-red-500 hover:text-red-400 p-2"><i className="fa-solid fa-trash"></i></button>
+                                                        </div>
+                                                        <textarea placeholder="Tempel Kode Embed (<iframe>) atau Link di sini..." className="bg-[#1a1a1a] p-2 rounded border border-gray-700 text-gray-300 w-full h-16 text-xs font-mono focus:border-red-600 outline-none" value={step.embed} onChange={(e) => handleDeltaChange(index, 'embed', e.target.value)}></textarea>
+                                                    </div>
+                                                ))}
+                                                <button type="button" onClick={addDeltaStep} className="text-xs font-bold text-blue-400 hover:text-blue-300 flex items-center gap-1 mt-2 border border-blue-900 bg-blue-900/10 px-3 py-2 rounded"><i className="fa-solid fa-plus"></i> TAMBAH TAHAPAN</button>
+                                            </div>
+                                            <div className="md:col-span-2 flex gap-2 mt-4"><button type="submit" className="bg-red-600 text-white px-6 py-2 rounded font-bold hover:bg-red-700 transition">Simpan</button>{editingMovie && <button type="button" onClick={() => {setEditingMovie(null); setMovieForm({ title: '', description: '', phase: 'E', category: 'fase-e', thumbnail: 'from-gray-900 to-gray-800', delta: [] })}} className="bg-gray-700 text-white px-6 py-2 rounded hover:bg-gray-600 transition">Batal</button>}</div>
                                         </form>
                                     </div>
-                                    <div className="grid grid-cols-1 gap-4">{movies.map(m => (<div key={m.id} className="bg-[#1e1e1e] p-4 rounded flex justify-between items-center border border-gray-800 hover:border-gray-600"><div className="flex items-center gap-4"><div className={`w-16 h-10 rounded bg-gradient-to-br ${m.thumbnail}`}></div><div><h4 className="font-bold">{m.title}</h4><p className="text-xs text-gray-500">Fase {m.phase} | {m.category}</p></div></div><div className="flex gap-2"><button onClick={() => populateForm(m)} className="p-2 bg-blue-900/50 text-blue-400 rounded hover:bg-blue-900"><i className="fa-solid fa-pen-to-square text-lg"></i></button><button onClick={() => handleDeleteMovie(m.id)} className="p-2 bg-red-900/50 text-red-400 rounded hover:bg-red-900"><i className="fa-solid fa-trash text-lg"></i></button></div></div>))}</div>
+                                    <div className="grid grid-cols-1 gap-4">{movies.map(m => (<div key={m.id} className="bg-[#1e1e1e] p-4 rounded flex justify-between items-center border border-gray-800 hover:border-gray-600"><div className="flex items-center gap-4"><div className={`w-16 h-10 rounded bg-gradient-to-br ${m.thumbnail}`}></div><div><h4 className="font-bold text-sm md:text-base">{m.title}</h4><p className="text-xs text-gray-500">{m.delta.length} Tahapan</p></div></div><div className="flex gap-2"><button onClick={() => populateForm(m)} className="p-2 bg-blue-900/50 text-blue-400 rounded hover:bg-blue-900"><Icons.Edit className="text-lg"/></button><button onClick={() => handleDeleteMovie(m.id)} className="p-2 bg-red-900/50 text-red-400 rounded hover:bg-red-900"><Icons.Trash className="text-lg"/></button></div></div>))}</div>
                                 </div>
                             )}
 
                             {activeTab === 'announcement' && (
                                 <div className="animate-fadeIn">
-                                    <h2 className="text-3xl font-bold mb-4">Pengumuman (Sync Google Sheets)</h2>
+                                    <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">Pengumuman</h2>
                                     <div className="bg-[#1e1e1e] p-6 rounded-lg border border-gray-800">
                                         <div className="grid gap-6">
                                             <div className="relative pt-2"><input type="text" id="annTitle" className="floating-input block px-4 pb-2.5 pt-5 w-full text-white bg-[#141414] rounded-lg border border-gray-700 appearance-none focus:outline-none focus:ring-0 focus:border-red-600 peer" placeholder=" " value={announcementForm.title} onChange={(e) => setAnnouncementForm({...announcementForm, title: e.target.value})} /><label htmlFor="annTitle" className="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] left-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4 peer-focus:text-red-500">Judul Pengumuman</label></div>
@@ -244,24 +342,39 @@
                                             <a href="https://docs.google.com/spreadsheets/d/1ER8nIcB9RxXLyacEBVmyEF1AEetuYq3ncuBnv-W8D0E/edit?usp=sharing" target="_blank" rel="noreferrer" className="flex-1 border border-gray-600 text-gray-300 hover:text-white hover:border-white py-3 rounded flex justify-center items-center gap-2 transition-colors"><i className="fa-solid fa-up-right-from-square text-lg"></i> Buka Database</a>
                                         </div>
                                         <div className="mt-6 pt-6 border-t border-gray-800">
-                                            <h4 className="text-sm font-bold text-gray-500 mb-3">PREVIEW SAAT INI (Dari Baris Terakhir Sheets)</h4>
-                                            {announcement ? (
-                                                <div className={`p-4 rounded-lg border-l-4 ${announcement.type === 'Penting' ? 'bg-red-900/20 border-red-600' : announcement.type === 'Agenda' ? 'bg-yellow-900/20 border-yellow-500' : 'bg-blue-900/20 border-blue-500'}`}>
-                                                    <div className="flex items-center gap-2 mb-1">
-                                                        {announcement.type === 'Penting' && <i className="fa-solid fa-triangle-exclamation text-red-500 text-lg"></i>}
-                                                        {announcement.type === 'Agenda' && <i className="fa-solid fa-calendar-days text-yellow-500 text-lg"></i>}
-                                                        {(!announcement.type || announcement.type === 'Info') && <i className="fa-solid fa-circle-info text-blue-500 text-lg"></i>}
-                                                        <h5 className="font-bold text-white">{announcement.title || "Judul Pengumuman"}</h5>
-                                                    </div>
-                                                    <p className="text-gray-300 text-sm whitespace-pre-line pl-7">{announcement.desc || "Belum ada data."}</p>
-                                                </div>
-                                            ) : <p className="text-gray-600 text-sm italic">Belum ada data.</p>}
+                                            <h4 className="text-sm font-bold text-gray-500 mb-3">PREVIEW SAAT INI</h4>
+                                            {announcement ? (<div className={`p-4 rounded-lg border-l-4 ${announcement.type === 'Penting' ? 'bg-red-900/20 border-red-600' : announcement.type === 'Agenda' ? 'bg-yellow-900/20 border-yellow-500' : 'bg-blue-900/20 border-blue-500'}`}><div className="flex items-center gap-2 mb-1">{announcement.type === 'Penting' && <i className="fa-solid fa-triangle-exclamation text-red-500 text-lg"></i>}{announcement.type === 'Agenda' && <i className="fa-solid fa-calendar-days text-yellow-500 text-lg"></i>}{(!announcement.type || announcement.type === 'Info') && <i className="fa-solid fa-circle-info text-blue-500 text-lg"></i>}<h5 className="font-bold text-white">{announcement.title}</h5></div><p className="text-gray-300 text-sm whitespace-pre-line pl-7">{announcement.desc}</p></div>) : <p className="text-gray-600 text-sm italic">Belum ada data.</p>}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeTab === 'tasks' && (
+                                <div className="animate-fadeIn">
+                                    <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">Tugas Siswa Masuk</h2>
+                                    <div className="bg-[#1e1e1e] rounded-lg border border-gray-800 overflow-hidden">
+                                        <div className="p-4 bg-gray-900 border-b border-gray-800 flex justify-between items-center">
+                                            <span className="font-bold text-white">Data dari Google Sheets</span>
+                                            <a href={TASK_CSV_URL.replace("output=csv", "")} target="_blank" className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1"><i className="fa-solid fa-up-right-from-square"></i> Buka Sheet</a>
+                                        </div>
+                                        <div className="overflow-x-auto max-h-[70vh]">
+                                            <table className="w-full text-left text-sm text-gray-400">
+                                                <thead className="bg-[#141414] text-gray-200 sticky top-0 uppercase text-xs"><tr><th className="px-4 md:px-6 py-3">Waktu</th><th className="px-4 md:px-6 py-3">Nama Siswa</th><th className="px-4 md:px-6 py-3">Kelas</th><th className="px-4 md:px-6 py-3">Judul Tugas</th><th className="px-4 md:px-6 py-3">Link</th></tr></thead>
+                                                <tbody className="divide-y divide-gray-800">{loadingTasks ? <tr><td colSpan="5" className="p-8 text-center"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-red-600 mx-auto"></div></td></tr> : taskData.length === 0 ? <tr><td colSpan="5" className="p-8 text-center text-gray-500">Belum ada tugas yang dikumpulkan.</td></tr> : taskData.slice().reverse().map((row, i) => (<tr key={i} className="hover:bg-gray-800/50 transition-colors"><td className="px-4 md:px-6 py-3 whitespace-nowrap text-xs">{row[0]}</td><td className="px-4 md:px-6 py-3 font-medium text-white">{row[1]}</td><td className="px-4 md:px-6 py-3"><span className="bg-gray-700 px-2 py-0.5 rounded text-xs">{row[2]}</span></td><td className="px-4 md:px-6 py-3">{row[3]}</td><td className="px-4 md:px-6 py-3"><a href={row[5]} target="_blank" className="text-blue-400 hover:text-blue-300 flex items-center gap-1">Buka <i className="fa-solid fa-up-right-from-square text-xs"></i></a></td></tr>))}</tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
                             )}
                         </div>
                     </div>
+
+                    <nav className="md:hidden fixed bottom-0 w-full bg-[#121212] border-t border-gray-800 flex justify-around py-3 z-50 text-[10px] text-gray-500">
+                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'stats' ? 'text-red-500' : ''}`} onClick={() => setActiveTab('stats')}><Icons.Users className="text-xl" /><span>Dash</span></div>
+                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'content' ? 'text-red-500' : ''}`} onClick={() => setActiveTab('content')}><Icons.Video className="text-xl" /><span>Materi</span></div>
+                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'announcement' ? 'text-red-500' : ''}`} onClick={() => setActiveTab('announcement')}><Icons.Bell className="text-xl" /><span>Info</span></div>
+                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'tasks' ? 'text-red-500' : ''}`} onClick={() => setActiveTab('tasks')}><Icons.ClipboardList className="text-xl" /><span>Tugas</span></div>
+                    </nav>
                 </div>
             );
         };
@@ -337,7 +450,6 @@
             );
         };
 
-        // --- INFO MODAL (ANNOUNCEMENT) ---
         const InfoModal = ({ title, content, isOpen, onClose }) => {
             if (!isOpen) return null;
             return (
@@ -351,7 +463,6 @@
             );
         };
 
-        // --- TASK SUBMISSION MODAL (NEW) ---
         const TaskSubmissionModal = ({ isOpen, onClose, user }) => {
             const [title, setTitle] = useState("");
             const [desc, setDesc] = useState("");
@@ -400,7 +511,6 @@
             );
         };
 
-        // --- MAIN APP ---
         const MathflixApp = () => {
             const [user, setUser] = useState(null);
             const [movies, setMovies] = useState(initialMovies);
@@ -408,10 +518,11 @@
             const [loadingAnnouncement, setLoadingAnnouncement] = useState(false);
 
             const [selectedMovie, setSelectedMovie] = useState(null);
+            const [playingMovie, setPlayingMovie] = useState(null); 
             const [activeTab, setActiveTab] = useState("home");
             const [showGuru, setShowGuru] = useState(false);
             const [showPengumuman, setShowPengumuman] = useState(false);
-            const [showTaskModal, setShowTaskModal] = useState(false); // New State
+            const [showTaskModal, setShowTaskModal] = useState(false); 
 
             const fetchAnnouncements = () => {
                 setLoadingAnnouncement(true);
@@ -448,6 +559,11 @@
 
             const myMovies = useMemo(() => movies.filter(m => m.phase === userPhase || m.phase === "All"), [userPhase, movies]);
             const featuredMovie = myMovies.find(m => m.category === 'data') || myMovies[0];
+
+            const handlePlayMovie = (movie) => {
+                setSelectedMovie(null); 
+                setPlayingMovie(movie); 
+            };
 
             if (!user) return <LoginScreen onLogin={setUser} />;
 
@@ -488,7 +604,11 @@
                                     <div className="flex items-center gap-2 text-red-600 font-bold tracking-widest text-xs md:text-sm"><span className="bg-red-600 text-white px-2 py-0.5 rounded-sm">FASE {userPhase}</span><span>MATERI PILIHAN KELAS {user.kelas}</span></div>
                                     <h1 className="text-3xl md:text-6xl font-bold leading-tight drop-shadow-2xl">{featuredMovie?.title}</h1>
                                     <p className="text-sm md:text-lg text-gray-200 line-clamp-2 drop-shadow-lg shadow-black">{featuredMovie?.description}</p>
-                                    <div className="flex gap-4 pt-4"><button onClick={() => setSelectedMovie(featuredMovie)} className="flex items-center gap-2 bg-white text-black px-4 md:px-8 py-2 rounded font-bold hover:bg-gray-200 transition-colors"><i className="fa-solid fa-play text-xl"></i> Mulai</button><button className="flex items-center gap-2 bg-gray-600/70 text-white px-4 md:px-8 py-2 rounded font-bold hover:bg-gray-600/50 backdrop-blur-sm"><i className="fa-solid fa-circle-info text-xl"></i> Info</button></div>
+                                    <div className="flex gap-4 pt-4">
+                                        {/* TOMBOL MULAI DI HERO (LANGSUNG PLAY) */}
+                                        <button onClick={() => handlePlayMovie(featuredMovie)} className="flex items-center gap-2 bg-white text-black px-4 md:px-8 py-2 rounded font-bold hover:bg-gray-200 transition-colors"><i className="fa-solid fa-play text-xl"></i> Mulai</button>
+                                        <button onClick={() => setSelectedMovie(featuredMovie)} className="flex items-center gap-2 bg-gray-600/70 text-white px-4 md:px-8 py-2 rounded font-bold hover:bg-gray-600/50 backdrop-blur-sm"><i className="fa-solid fa-circle-info text-xl"></i> Info</button>
+                                    </div>
                                 </div>
                             </div>
                             <div className="relative z-10 space-y-8 pb-8 pl-4 md:pl-12">
@@ -509,19 +629,27 @@
                     )}
 
                     <nav className="md:hidden fixed bottom-0 w-full bg-[#121212] border-t border-gray-800 flex justify-around py-3 z-50 text-[10px] text-gray-500">
-                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'home' && !showGuru && !showPengumuman ? 'text-white' : ''}`} onClick={() => { setActiveTab('home'); setShowGuru(false); setShowPengumuman(false); }}><i className="fa-solid fa-house text-xl"></i><span>Home</span></div>
+                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'home' && !showGuru && !showPengumuman && !showTaskModal ? 'text-white' : ''}`} onClick={() => { setActiveTab('home'); setShowGuru(false); setShowPengumuman(false); setShowTaskModal(false); }}><i className="fa-solid fa-house text-xl"></i><span>Home</span></div>
                         <div className={`flex flex-col items-center gap-1 cursor-pointer ${showGuru ? 'text-white' : ''}`} onClick={() => setShowGuru(true)}><i className="fa-solid fa-user text-xl"></i><span>Guru</span></div>
                         <div className={`flex flex-col items-center gap-1 cursor-pointer ${showTaskModal ? 'text-white' : ''}`} onClick={() => setShowTaskModal(true)}><i className="fa-solid fa-pen-to-square text-xl"></i><span>Tugas</span></div>
                         <div className={`flex flex-col items-center gap-1 cursor-pointer ${showPengumuman ? 'text-white' : ''}`} onClick={() => { setShowPengumuman(true); fetchAnnouncements(); }}><i className="fa-solid fa-bell text-xl"></i><span>Info</span></div>
                         <div className="flex flex-col items-center gap-1 cursor-pointer text-red-500" onClick={() => setUser(null)}><i className="fa-solid fa-right-from-bracket text-xl"></i><span>Keluar</span></div>
                     </nav>
 
+                    {/* VIDEO PLAYER SEBAGAI OVERLAY DI BAGIAN BAWAH, TIDAK MERUBAH STRUKTUR UTAMA */}
+                    {playingMovie && <VideoPlayer movie={playingMovie} onClose={() => setPlayingMovie(null)} />}
+
                     {selectedMovie && (
                         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-fadeIn overflow-y-auto">
                             <div className="bg-[#181818] w-full max-w-3xl rounded-lg overflow-hidden relative shadow-2xl my-auto">
                                 <button onClick={() => setSelectedMovie(null)} className="absolute top-4 right-4 bg-black/50 p-2 rounded-full text-white z-10 hover:bg-gray-700"><i className="fa-solid fa-xmark text-lg"></i></button>
                                 <div className={`h-48 md:h-64 bg-gradient-to-br ${selectedMovie.thumbnail} relative`}><div className="absolute inset-0 bg-gradient-to-t from-[#181818] to-transparent"></div><div className="absolute bottom-4 left-6"><h2 className="text-2xl md:text-4xl font-bold text-white mb-2">{selectedMovie.title}</h2><div className="flex gap-3 text-xs md:text-sm text-gray-300"><span className="text-green-500 font-bold">{selectedMovie.match} Match</span><span>{selectedMovie.duration}</span><span className="border border-gray-500 px-1 rounded">HD</span></div></div></div>
-                                <div className="p-6 md:p-8"><p className="text-gray-300 mb-6">{selectedMovie.description}</p><h3 className="text-white font-bold mb-3 border-l-4 border-red-600 pl-3">Alur DELTA</h3><div className="space-y-2">{selectedMovie.delta.map((step, i) => (<div key={i} className="flex items-center gap-3 p-3 bg-gray-800 rounded hover:bg-gray-700 cursor-pointer transition-colors"><div className="bg-gray-600 w-8 h-8 flex items-center justify-center rounded-full text-white font-bold text-xs">{i+1}</div><span className="text-gray-200 text-sm">{step}</span><i className="fa-solid fa-play text-sm ml-auto text-gray-500"></i></div>))}</div><button className="w-full mt-6 bg-red-600 text-white font-bold py-3 rounded hover:bg-red-700">Mulai Belajar Sekarang</button></div>
+                                <div className="p-6 md:p-8">
+                                    <p className="text-gray-300 mb-6">{selectedMovie.description}</p>
+                                    <h3 className="text-white font-bold mb-3 border-l-4 border-red-600 pl-3">Alur DELTA</h3>
+                                    <div className="space-y-2">{selectedMovie.delta.map((step, i) => (<div key={step.id || i} className="flex items-center gap-3 p-3 bg-gray-800 rounded hover:bg-gray-700 cursor-pointer transition-colors"><div className="bg-gray-600 w-8 h-8 flex items-center justify-center rounded-full text-white font-bold text-xs">{i+1}</div><span className="text-gray-200 text-sm">{step.title}</span><i className="fa-solid fa-play text-sm ml-auto text-gray-500"></i></div>))}</div>
+                                    <button onClick={() => handlePlayMovie(selectedMovie)} className="w-full mt-6 bg-red-600 text-white font-bold py-3 rounded hover:bg-red-700">Mulai Belajar Sekarang</button>
+                                </div>
                             </div>
                         </div>
                     )}
