@@ -50,11 +50,12 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
 
+        // --- KONFIGURASI GOOGLE SHEETS & FORMS ---
         const STUDENT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNxfl64ybd5HEX-Ln3ubR8C-SxModDRkPVuRpShlUDX2UCRgKib2cIqXtsUPT4d0rJY_gkaCQVOTSb/pub?gid=1562678039&single=true&output=csv";
         const ANNOUNCEMENT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS76u8cTDBeMcD42AsmWficWDijhIhTIFVm7dtBg6kF6vI7fK2f7nTnkhlXvhx7s3qVFp1K-_P3oGA9/pub?gid=1164662512&single=true&output=csv"; 
         const TASK_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWdsuBbHjQIcvBNrH45d2IsJMwJTpjgo_1XtkIuisfsZeKOXeJSbwLNPrAkil3lQBQuEqoUPHd4E3r/pub?gid=721569362&single=true&output=csv";
         
-        // URL DATABASE MATERI (Google Sheet)
+        // URL DATABASE MATERI
         const CONTENT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTzIEFj52idv-_6ulCw0ozvJ_tmTL9KYFLs826ong8JfJZYlrg9ATikrmUZQgCGII7ef5ccWMM3c3PX/pub?gid=0&single=true&output=csv"; 
 
         const GOOGLE_FORM_ACTION_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeK8LjLNZXIMYi6D207NUVhM3crQuLZb4rpYaVv4VuyqYrFog/formResponse";
@@ -69,6 +70,7 @@
         const ENTRY_ID_TASK_DESC  = "entry.314125124";  
         const ENTRY_ID_TASK_URL   = "entry.900381196";  
 
+        // --- ICONS ---
         const Icons = {
             Video: (p) => <i className="fa-solid fa-video" {...p}></i>,
             Edit: (p) => <i className="fa-solid fa-pen-to-square" {...p}></i>,
@@ -100,7 +102,27 @@
             });
         };
 
-        // --- DATA DEFAULT (FALLBACK) ---
+        // --- HELPER UNTUK THUMBNAIL (CSS CLASS ATAU IMAGE URL) ---
+        const getThumbnailStyle = (thumbnail) => {
+            if (!thumbnail) return { className: "bg-gray-800" };
+            
+            // Cek apakah thumbnail adalah URL gambar
+            if (thumbnail.startsWith('http') || thumbnail.startsWith('data:image')) {
+                return {
+                    style: { 
+                        backgroundImage: `url('${thumbnail}')`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center'
+                    },
+                    className: "bg-gray-800" // Fallback color
+                };
+            }
+            
+            // Jika bukan URL, anggap sebagai class Tailwind gradient
+            return { className: `bg-gradient-to-br ${thumbnail}` };
+        };
+
+        // --- DATA DEFAULT ---
         const initialMovies = [
             { id: 1, title: "Bilangan Berpangkat", description: "Konsep dasar eksponen, sifat perkalian & pembagian pangkat, serta pangkat pecahan.", thumbnail: "from-purple-900 to-blue-900", duration: "45m", match: "98%", phase: "E", tags: ["Bilangan"], category: "fase-e", delta: formatDelta(["Diagnosa", "Video Eksplorasi", "Latihan Mandiri", "Tes Formatif"]) },
             { id: 2, title: "Sistem Pertidaksamaan", description: "Penyelesaian SPtLDV dan penerapannya dalam memecahkan masalah program linear sederhana.", thumbnail: "from-red-900 to-orange-900", duration: "50m", match: "85%", phase: "E", tags: ["Aljabar"], category: "fase-e", delta: formatDelta(["Studi Kasus", "Video Materi", "Quiz Interaktif", "Proyek"]) },
@@ -262,7 +284,6 @@
                 setMovieForm({...movieForm, delta: newDelta});
             };
 
-            // GENERATE JSON UNTUK DISALIN KE GOOGLE SHEET
             const handleGenerateJSON = (movie) => {
                 const jsonString = JSON.stringify(movie.delta);
                 const textArea = document.createElement("textarea");
@@ -309,10 +330,10 @@
                     <div className="md:hidden bg-[#141414] border-b border-gray-800 px-4 py-3 flex justify-between items-center sticky top-0 z-50"><h1 className="text-red-600 text-xl font-bold tracking-tighter">MATHFLIX ADMIN</h1><button onClick={onLogout} className="text-gray-400"><i className="fa-solid fa-right-from-bracket text-lg"></i></button></div>
                     <div className="flex flex-col md:flex-row min-h-[calc(100vh-70px)]">
                         <div className="hidden md:block w-64 bg-[#141414] border-r border-gray-800 p-4 space-y-2 h-screen sticky top-[73px]">
-                            <button onClick={() => setActiveTab('stats')} className={`w-full text-left px-4 py-3 rounded flex items-center gap-3 ${activeTab === 'stats' ? 'bg-red-600 text-white' : 'text-gray-400 hover:bg-gray-800'}`}><i className="fa-solid fa-chart-line text-lg"></i> Dashboard</button>
-                            <button onClick={() => setActiveTab('content')} className={`w-full text-left px-4 py-3 rounded flex items-center gap-3 ${activeTab === 'content' ? 'bg-red-600 text-white' : 'text-gray-400 hover:bg-gray-800'}`}><i className="fa-solid fa-layer-group text-lg"></i> Materi</button>
-                            <button onClick={() => setActiveTab('announcement')} className={`w-full text-left px-4 py-3 rounded flex items-center gap-3 ${activeTab === 'announcement' ? 'bg-red-600 text-white' : 'text-gray-400 hover:bg-gray-800'}`}><i className="fa-solid fa-bullhorn text-lg"></i> Pengumuman</button>
-                            <button onClick={() => setActiveTab('tasks')} className={`w-full text-left px-4 py-3 rounded flex items-center gap-3 ${activeTab === 'tasks' ? 'bg-red-600 text-white' : 'text-gray-400 hover:bg-gray-800'}`}><i className="fa-solid fa-file-signature text-lg"></i> Tugas Siswa</button>
+                            <button onClick={() => setActiveTab('stats')} className={`w-full text-left px-4 py-3 rounded flex items-center gap-3 ${activeTab === 'stats' ? 'bg-red-600 text-white' : 'text-gray-400 hover:bg-gray-800'}`}><Icons.Users className="text-lg" /> Dashboard</button>
+                            <button onClick={() => setActiveTab('content')} className={`w-full text-left px-4 py-3 rounded flex items-center gap-3 ${activeTab === 'content' ? 'bg-red-600 text-white' : 'text-gray-400 hover:bg-gray-800'}`}><Icons.Video className="text-lg" /> Materi</button>
+                            <button onClick={() => setActiveTab('announcement')} className={`w-full text-left px-4 py-3 rounded flex items-center gap-3 ${activeTab === 'announcement' ? 'bg-red-600 text-white' : 'text-gray-400 hover:bg-gray-800'}`}><Icons.Bell className="text-lg" /> Pengumuman</button>
+                            <button onClick={() => setActiveTab('tasks')} className={`w-full text-left px-4 py-3 rounded flex items-center gap-3 ${activeTab === 'tasks' ? 'bg-red-600 text-white' : 'text-gray-400 hover:bg-gray-800'}`}><Icons.ClipboardList className="text-lg" /> Tugas Siswa</button>
                         </div>
 
                         <div className="flex-1 p-4 md:p-12 overflow-y-auto">
@@ -353,7 +374,26 @@
                                             <input type="text" placeholder="Judul Materi" className="bg-[#141414] p-3 rounded border border-gray-700 text-white w-full" value={movieForm.title} onChange={e => setMovieForm({...movieForm, title: e.target.value})} required />
                                             <select className="bg-[#141414] p-3 rounded border border-gray-700 text-white w-full" value={movieForm.phase} onChange={e => setMovieForm({...movieForm, phase: e.target.value})}><option value="E">Fase E</option><option value="F">Fase F</option></select>
                                             <select className="bg-[#141414] p-3 rounded border border-gray-700 text-white w-full" value={movieForm.category} onChange={e => setMovieForm({...movieForm, category: e.target.value})}><option value="fase-e">Materi Wajib Fase E</option><option value="fase-f">Materi Wajib Fase F</option><option value="data">Data & Statistika</option><option value="financial">Keuangan (Financial)</option></select>
-                                            <select className="bg-[#141414] p-3 rounded border border-gray-700 text-white w-full" value={movieForm.thumbnail} onChange={e => setMovieForm({...movieForm, thumbnail: e.target.value})}><option value="from-gray-900 to-gray-800">Abu-abu</option><option value="from-purple-900 to-blue-900">Ungu - Biru</option><option value="from-red-900 to-orange-900">Merah - Oranye</option><option value="from-green-900 to-teal-900">Hijau - Teal</option></select>
+                                            
+                                            {/* UPDATED THUMBNAIL INPUT: Can be Class or URL */}
+                                            <div className="relative">
+                                                <input 
+                                                    type="text" 
+                                                    list="thumbnailOptions"
+                                                    placeholder="Thumbnail (Pilih atau Paste URL Gambar)" 
+                                                    className="bg-[#141414] p-3 rounded border border-gray-700 text-white w-full" 
+                                                    value={movieForm.thumbnail} 
+                                                    onChange={e => setMovieForm({...movieForm, thumbnail: e.target.value})}
+                                                />
+                                                <datalist id="thumbnailOptions">
+                                                    <option value="from-gray-900 to-gray-800">Abu-abu</option>
+                                                    <option value="from-purple-900 to-blue-900">Ungu - Biru</option>
+                                                    <option value="from-red-900 to-orange-900">Merah - Oranye</option>
+                                                    <option value="from-green-900 to-teal-900">Hijau - Teal</option>
+                                                </datalist>
+                                                <p className="text-[10px] text-gray-500 mt-1">Gunakan kode warna di atas atau tempel link gambar (https://...)</p>
+                                            </div>
+
                                             <textarea placeholder="Deskripsi Singkat" className="bg-[#141414] p-3 rounded border border-gray-700 text-white w-full md:col-span-2" rows="2" value={movieForm.description} onChange={e => setMovieForm({...movieForm, description: e.target.value})} required></textarea>
                                             
                                             <div className="md:col-span-2 border-t border-gray-800 pt-4 mt-2">
@@ -376,12 +416,18 @@
 
                                     {/* List Movies */}
                                     <div className="space-y-4">
-                                        {movies.map(m => (
+                                        {movies.map(m => {
+                                            const thumbStyle = getThumbnailStyle(m.thumbnail);
+                                            return (
                                             <div key={m.id} className="bg-[#1e1e1e] p-4 rounded border border-gray-800">
                                                 <div className="flex justify-between items-start mb-4">
-                                                    <div>
-                                                        <h3 className="font-bold text-lg text-white">{m.title}</h3>
-                                                        <p className="text-gray-500 text-xs">ID: {m.id} | Fase {m.phase}</p>
+                                                    <div className="flex items-center gap-4">
+                                                        {/* THUMBNAIL PREVIEW ADMIN */}
+                                                        <div className={`w-16 h-10 rounded ${thumbStyle.className}`} style={thumbStyle.style}></div>
+                                                        <div>
+                                                            <h3 className="font-bold text-lg text-white">{m.title}</h3>
+                                                            <p className="text-gray-500 text-xs">ID: {m.id} | Fase {m.phase}</p>
+                                                        </div>
                                                     </div>
                                                     <div className="flex items-center gap-2">
                                                         <span className="text-xs bg-gray-800 px-2 py-1 rounded text-gray-400">{m.delta ? m.delta.length : 0} Tahap</span>
@@ -396,7 +442,8 @@
                                                     <code className="block text-[10px] text-gray-400 font-mono break-all line-clamp-2">{JSON.stringify(m.delta)}</code>
                                                 </div>
                                             </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             )}
@@ -442,17 +489,16 @@
                         </div>
                     </div>
 
-                    <nav className="md:hidden fixed bottom-0 w-full bg-black/95 backdrop-blur-lg border-t border-red-900/30 flex justify-around py-3 z-50 text-[10px] text-gray-500">
-                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'stats' ? 'text-red-500' : ''}`} onClick={() => setActiveTab('stats')}><i className="fa-solid fa-chart-line text-xl"></i><span>Dash</span></div>
-                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'content' ? 'text-red-500' : ''}`} onClick={() => setActiveTab('content')}><i className="fa-solid fa-layer-group text-xl"></i><span>Materi</span></div>
-                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'announcement' ? 'text-red-500' : ''}`} onClick={() => setActiveTab('announcement')}><i className="fa-solid fa-bullhorn text-xl"></i><span>Info</span></div>
-                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'tasks' ? 'text-red-500' : ''}`} onClick={() => setActiveTab('tasks')}><i className="fa-solid fa-file-signature text-xl"></i><span>Tugas</span></div>
+                    <nav className="md:hidden fixed bottom-0 w-full bg-black/95 backdrop-blur-lg border-t border-red-900/30 flex justify-around py-3 z-50 text-[10px] text-gray-500 pb-safe">
+                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'stats' ? 'text-red-500' : ''}`} onClick={() => setActiveTab('stats')}><Icons.Users className="text-xl" /><span>Dash</span></div>
+                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'content' ? 'text-red-500' : ''}`} onClick={() => setActiveTab('content')}><Icons.Video className="text-xl" /><span>Materi</span></div>
+                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'announcement' ? 'text-red-500' : ''}`} onClick={() => setActiveTab('announcement')}><Icons.Bell className="text-xl" /><span>Info</span></div>
+                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'tasks' ? 'text-red-500' : ''}`} onClick={() => setActiveTab('tasks')}><Icons.ClipboardList className="text-xl" /><span>Tugas</span></div>
                     </nav>
                 </div>
             );
         };
 
-        // --- COMPONENT: LOGIN SCREEN ---
         const LoginScreen = ({ onLogin }) => {
             const [students, setStudents] = useState([]);
             const [classes, setClasses] = useState([]);
@@ -798,23 +844,23 @@
                                 </div>
                             </div>
                             <div className="relative z-10 space-y-8 pb-8 pl-4 md:pl-12">
-                                <div><h2 className="text-white text-lg md:text-xl font-bold mb-4 drop-shadow-md">Materi Wajib Fase {userPhase}</h2><div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide pr-4">{myMovies.map(item => (<div key={item.id} className="flex-none w-[160px] md:w-[240px] group cursor-pointer" onClick={() => setSelectedMovie(item)}><div className={`h-[100px] md:h-[135px] w-full rounded bg-gradient-to-br ${item.thumbnail} flex flex-col justify-end p-3 transition-transform duration-300 group-hover:scale-105 shadow-lg border border-gray-800`}><h3 className="text-white font-bold text-sm md:text-base leading-tight drop-shadow-md line-clamp-2">{item.title}</h3></div><div className="mt-2 flex justify-between text-xs text-gray-400"><span className="text-green-500 font-bold">{item.match} match</span><span>{item.duration}</span></div></div>))}</div></div>
-                                <div><h2 className="text-white text-lg md:text-xl font-bold mb-4 drop-shadow-md">Literasi Data & Statistik</h2><div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide pr-4">{movies.filter(m => m.category === 'data').map(item => (<div key={item.id} className="flex-none w-[160px] md:w-[240px] group cursor-pointer" onClick={() => setSelectedMovie(item)}><div className={`h-[100px] md:h-[135px] w-full rounded bg-gradient-to-br ${item.thumbnail} flex flex-col justify-end p-3 transition-transform duration-300 group-hover:scale-105 shadow-lg border border-gray-800`}><h3 className="text-white font-bold text-sm md:text-base leading-tight drop-shadow-md line-clamp-2">{item.title}</h3></div></div>))}</div></div>
-                                <div><h2 className="text-white text-lg md:text-xl font-bold mb-4 drop-shadow-md">Literasi Finansial (Wajib SMK)</h2><div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide pr-4">{movies.filter(m => m.category === 'financial').map(item => (<div key={item.id} className="flex-none w-[160px] md:w-[240px] group cursor-pointer" onClick={() => setSelectedMovie(item)}><div className={`h-[100px] md:h-[135px] w-full rounded bg-gradient-to-br ${item.thumbnail} flex flex-col justify-end p-3 transition-transform duration-300 group-hover:scale-105 shadow-lg border border-gray-800`}><h3 className="text-white font-bold text-sm md:text-base leading-tight drop-shadow-md line-clamp-2">{item.title}</h3></div></div>))}</div></div>
+                                <div><h2 className="text-white text-lg md:text-xl font-bold mb-4 drop-shadow-md">Materi Wajib Fase {userPhase}</h2><div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide pr-4">{myMovies.map(item => {const thumbStyle = getThumbnailStyle(item.thumbnail); return (<div key={item.id} className="flex-none w-[160px] md:w-[240px] group cursor-pointer" onClick={() => setSelectedMovie(item)}><div className={`h-[100px] md:h-[135px] w-full rounded bg-gradient-to-br flex flex-col justify-end p-3 transition-transform duration-300 group-hover:scale-105 shadow-lg border border-gray-800 ${thumbStyle.className}`} style={thumbStyle.style}><h3 className="text-white font-bold text-sm md:text-base leading-tight drop-shadow-md line-clamp-2">{item.title}</h3></div><div className="mt-2 flex justify-between text-xs text-gray-400"><span className="text-green-500 font-bold">{item.match} match</span><span>{item.duration}</span></div></div>)})}</div></div>
+                                <div><h2 className="text-white text-lg md:text-xl font-bold mb-4 drop-shadow-md">Literasi Data & Statistik</h2><div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide pr-4">{movies.filter(m => m.category === 'data').map(item => {const thumbStyle = getThumbnailStyle(item.thumbnail); return (<div key={item.id} className="flex-none w-[160px] md:w-[240px] group cursor-pointer" onClick={() => setSelectedMovie(item)}><div className={`h-[100px] md:h-[135px] w-full rounded bg-gradient-to-br flex flex-col justify-end p-3 transition-transform duration-300 group-hover:scale-105 shadow-lg border border-gray-800 ${thumbStyle.className}`} style={thumbStyle.style}><h3 className="text-white font-bold text-sm md:text-base leading-tight drop-shadow-md line-clamp-2">{item.title}</h3></div></div>)})}</div></div>
+                                <div><h2 className="text-white text-lg md:text-xl font-bold mb-4 drop-shadow-md">Literasi Finansial (Wajib SMK)</h2><div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide pr-4">{movies.filter(m => m.category === 'financial').map(item => {const thumbStyle = getThumbnailStyle(item.thumbnail); return (<div key={item.id} className="flex-none w-[160px] md:w-[240px] group cursor-pointer" onClick={() => setSelectedMovie(item)}><div className={`h-[100px] md:h-[135px] w-full rounded bg-gradient-to-br flex flex-col justify-end p-3 transition-transform duration-300 group-hover:scale-105 shadow-lg border border-gray-800 ${thumbStyle.className}`} style={thumbStyle.style}><h3 className="text-white font-bold text-sm md:text-base leading-tight drop-shadow-md line-clamp-2">{item.title}</h3></div></div>)})}</div></div>
                             </div>
                         </>
                     )}
 
-                    <nav className="md:hidden fixed bottom-0 w-full bg-black/95 backdrop-blur-lg border-t border-red-900/30 flex justify-around py-3 z-50 text-[10px] text-gray-500 pb-safe">
-                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'home' && !showGuru && !showPengumuman && !showTaskModal ? 'text-red-500' : ''}`} onClick={() => { setActiveTab('home'); setShowGuru(false); setShowPengumuman(false); setShowTaskModal(false); }}><i className="fa-solid fa-house text-xl"></i><span>Home</span></div>
-                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${showGuru ? 'text-red-500' : ''}`} onClick={() => setShowGuru(true)}><i className="fa-solid fa-chalkboard-user text-xl"></i><span>Guru</span></div>
-                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${showTaskModal ? 'text-red-500' : ''}`} onClick={() => setShowTaskModal(true)}><i className="fa-solid fa-list-check text-xl"></i><span>Tugas</span></div>
-                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${showPengumuman ? 'text-red-500' : ''}`} onClick={openAnnouncement}><div className="relative"><i className="fa-solid fa-bell text-xl"></i>{hasNewNotification && <span className="absolute top-0 right-0 w-2 h-2 bg-red-600 rounded-full border border-black"></span>}</div><span>Info</span></div>
-                        <div className="flex flex-col items-center gap-1 cursor-pointer text-gray-400" onClick={() => setUser(null)}><i className="fa-solid fa-right-from-bracket text-xl"></i><span>Keluar</span></div>
+                    <nav className="md:hidden fixed bottom-0 w-full bg-[#121212] border-t border-gray-800 flex justify-around py-3 z-50 text-[10px] text-gray-500">
+                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'home' && !showGuru && !showPengumuman && !showTaskModal ? 'text-white' : ''}`} onClick={() => { setActiveTab('home'); setShowGuru(false); setShowPengumuman(false); setShowTaskModal(false); }}><i className="fa-solid fa-house text-xl"></i><span>Home</span></div>
+                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${showGuru ? 'text-white' : ''}`} onClick={() => setShowGuru(true)}><i className="fa-solid fa-user text-xl"></i><span>Guru</span></div>
+                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${showTaskModal ? 'text-white' : ''}`} onClick={() => setShowTaskModal(true)}><i className="fa-solid fa-pen-to-square text-xl"></i><span>Tugas</span></div>
+                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${showPengumuman ? 'text-white' : ''}`} onClick={openAnnouncement}><div className="relative"><i className="fa-solid fa-bell text-xl"></i>{hasNewNotification && <span className="absolute top-0 right-0 w-2 h-2 bg-red-600 rounded-full border border-black"></span>}</div><span>Info</span></div>
+                        <div className="flex flex-col items-center gap-1 cursor-pointer text-red-500" onClick={() => setUser(null)}><i className="fa-solid fa-right-from-bracket text-xl"></i><span>Keluar</span></div>
                     </nav>
 
                     {playingMovie && <VideoPlayer movie={playingMovie} onClose={() => setPlayingMovie(null)} />}
-                    {selectedMovie && (<div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-fadeIn overflow-y-auto"><div className="bg-[#181818] w-full max-w-3xl rounded-lg overflow-hidden relative shadow-2xl my-auto"><button onClick={() => setSelectedMovie(null)} className="absolute top-4 right-4 bg-black/50 p-2 rounded-full text-white z-10 hover:bg-gray-700"><i className="fa-solid fa-xmark text-lg"></i></button><div className={`h-48 md:h-64 bg-gradient-to-br ${selectedMovie.thumbnail} relative`}><div className="absolute inset-0 bg-gradient-to-t from-[#181818] to-transparent"></div><div className="absolute bottom-4 left-6"><h2 className="text-2xl md:text-4xl font-bold text-white mb-2">{selectedMovie.title}</h2><div className="flex gap-3 text-xs md:text-sm text-gray-300"><span className="text-green-500 font-bold">{selectedMovie.match} Match</span><span>{selectedMovie.duration}</span><span className="border border-gray-500 px-1 rounded">HD</span></div></div></div><div className="p-6 md:p-8"><p className="text-gray-300 mb-6">{selectedMovie.description}</p><h3 className="text-white font-bold mb-3 border-l-4 border-red-600 pl-3">Alur DELTA</h3><div className="space-y-2">{selectedMovie.delta.map((step, i) => (<div key={step.id || i} className="flex items-center gap-3 p-3 bg-gray-800 rounded hover:bg-gray-700 cursor-pointer transition-colors"><div className="bg-gray-600 w-8 h-8 flex items-center justify-center rounded-full text-white font-bold text-xs">{i+1}</div><span className="text-gray-200 text-sm">{step.title}</span><i className="fa-solid fa-play text-sm ml-auto text-gray-500"></i></div>))}</div><button onClick={() => handlePlayMovie(selectedMovie)} className="w-full mt-6 bg-red-600 text-white font-bold py-3 rounded hover:bg-red-700">Mulai Belajar Sekarang</button></div></div></div>)}
+                    {selectedMovie && (<div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-fadeIn overflow-y-auto"><div className="bg-[#181818] w-full max-w-3xl rounded-lg overflow-hidden relative shadow-2xl my-auto"><button onClick={() => setSelectedMovie(null)} className="absolute top-4 right-4 bg-black/50 p-2 rounded-full text-white z-10 hover:bg-gray-700"><i className="fa-solid fa-xmark text-lg"></i></button><div className={`h-48 md:h-64 bg-gradient-to-br ${getThumbnailStyle(selectedMovie.thumbnail).className} relative`} style={getThumbnailStyle(selectedMovie.thumbnail).style}><div className="absolute inset-0 bg-gradient-to-t from-[#181818] to-transparent"></div><div className="absolute bottom-4 left-6"><h2 className="text-2xl md:text-4xl font-bold text-white mb-2">{selectedMovie.title}</h2><div className="flex gap-3 text-xs md:text-sm text-gray-300"><span className="text-green-500 font-bold">{selectedMovie.match} Match</span><span>{selectedMovie.duration}</span><span className="border border-gray-500 px-1 rounded">HD</span></div></div></div><div className="p-6 md:p-8"><p className="text-gray-300 mb-6">{selectedMovie.description}</p><h3 className="text-white font-bold mb-3 border-l-4 border-red-600 pl-3">Alur DELTA</h3><div className="space-y-2">{selectedMovie.delta.map((step, i) => (<div key={step.id || i} className="flex items-center gap-3 p-3 bg-gray-800 rounded hover:bg-gray-700 cursor-pointer transition-colors"><div className="bg-gray-600 w-8 h-8 flex items-center justify-center rounded-full text-white font-bold text-xs">{i+1}</div><span className="text-gray-200 text-sm">{step.title}</span><i className="fa-solid fa-play text-sm ml-auto text-gray-500"></i></div>))}</div><button onClick={() => handlePlayMovie(selectedMovie)} className="w-full mt-6 bg-red-600 text-white font-bold py-3 rounded hover:bg-red-700">Mulai Belajar Sekarang</button></div></div></div>)}
 
                     <InfoModal isOpen={showGuru} onClose={() => setShowGuru(false)} title="Profil Guru Pengampu" content={<div className="flex flex-col items-center text-center"><div className="relative mb-6"><div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-purple-600 rounded-full blur opacity-75 animate-pulse"></div><img src="https://i.ibb.co.com/x82PbSjy/IMG-20250927-210909.png" alt="Pak Feri" className="relative w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-[#181818] shadow-2xl" /><div className="absolute bottom-2 right-2 bg-green-500 w-4 h-4 rounded-full border-2 border-[#181818]" title="Online"></div></div><h3 className="text-2xl md:text-3xl font-bold text-white mb-1">Feri Dwi Hermawan, S.Pd.</h3><p className="text-red-500 font-medium tracking-wide text-sm uppercase mb-4">Guru Matematika SMKN Pasirian</p><div className="bg-white/5 p-4 rounded-lg border border-white/10 mb-8 max-w-sm w-full relative group hover:border-red-600/50 transition-colors backdrop-blur-md"><i className="fa-solid fa-quote-left absolute top-2 left-2 text-white/20 group-hover:text-red-900 transition-colors text-2xl"></i><p className="text-gray-300 italic text-sm relative z-10 pt-2 px-2">"Matematika bukan tentang angka, persamaan, atau algoritma: ini tentang pemahaman."</p></div><div className="w-full grid grid-cols-2 gap-4"><a href="https://wa.me/6285174244128" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white py-3 rounded-lg font-bold transition-all transform hover:scale-105 shadow-lg backdrop-blur-sm bg-opacity-90"><i className="fa-brands fa-whatsapp text-xl"></i> WhatsApp</a><a href="https://t.me/ferilee" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 bg-[#0088cc] hover:bg-[#0077b5] text-white py-3 rounded-lg font-bold transition-all transform hover:scale-105 shadow-lg backdrop-blur-sm bg-opacity-90"><i className="fa-brands fa-telegram text-xl"></i> Telegram</a></div></div>} />
                     <InfoModal 
