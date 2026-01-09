@@ -38,9 +38,7 @@
         const STUDENT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNxfl64ybd5HEX-Ln3ubR8C-SxModDRkPVuRpShlUDX2UCRgKib2cIqXtsUPT4d0rJY_gkaCQVOTSb/pub?gid=1562678039&single=true&output=csv";
         const ANNOUNCEMENT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS76u8cTDBeMcD42AsmWficWDijhIhTIFVm7dtBg6kF6vI7fK2f7nTnkhlXvhx7s3qVFp1K-_P3oGA9/pub?gid=1164662512&single=true&output=csv"; 
         const TASK_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWdsuBbHjQIcvBNrH45d2IsJMwJTpjgo_1XtkIuisfsZeKOXeJSbwLNPrAkil3lQBQuEqoUPHd4E3r/pub?gid=721569362&single=true&output=csv";
-        
-        // URL DATABASE MATERI (Google Sheet - DIPERBARUI)
-        const CONTENT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ4YUlEeIOpXL_pGKjhaHZSltISjqIFLRecG1EbbML39i-twG9jw96kqIf9nkUZQzMgRlQl1ntyVv7/pub?gid=1859070577&single=true&output=csv"; 
+        const CONTENT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTzIEFj52idv-_6ulCw0ozvJ_tmTL9KYFLs826ong8JfJZYlrg9ATikrmUZQgCGII7ef5ccWMM3c3PX/pub?gid=0&single=true&output=csv"; 
 
         const GOOGLE_FORM_ACTION_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeK8LjLNZXIMYi6D207NUVhM3crQuLZb4rpYaVv4VuyqYrFog/formResponse";
         const ENTRY_ID_TITLE = "entry.773023469"; 
@@ -80,7 +78,9 @@
             Alert: (p) => <i className="fa-solid fa-triangle-exclamation" {...p}></i>,
             Calendar: (p) => <i className="fa-solid fa-calendar-days" {...p}></i>,
             Database: (p) => <i className="fa-solid fa-database" {...p}></i>,
-            Copy: (p) => <i className="fa-regular fa-copy" {...p}></i>
+            Copy: (p) => <i className="fa-regular fa-copy" {...p}></i>,
+            ChalkboardUser: (p) => <i className="fa-solid fa-chalkboard-user" {...p}></i>,
+            ListCheck: (p) => <i className="fa-solid fa-list-check" {...p}></i>
         };
 
         const formatDelta = (deltaArray) => {
@@ -106,7 +106,7 @@
             { id: 2, title: "Sistem Pertidaksamaan", description: "Penyelesaian SPtLDV dan penerapannya dalam memecahkan masalah program linear sederhana.", thumbnail: "from-red-900 to-orange-900", duration: "50m", match: "85%", phase: "E", tags: ["Aljabar"], category: "fase-e", delta: formatDelta(["Studi Kasus", "Video Materi", "Quiz Interaktif", "Proyek"]) },
             { id: 3, title: "Fungsi Kuadrat", description: "Memahami karakteristik grafik fungsi kuadrat, titik puncak, dan sumbu simetri.", thumbnail: "from-green-900 to-teal-900", duration: "60m", match: "95%", phase: "E", tags: ["Grafik"], category: "fase-e", delta: formatDelta(["Pre-Test", "Simulasi Grafik", "Drill Soal", "Refleksi"]) },
             { id: 4, title: "Trigonometri Dasar", description: "Pengantar Sinus, Cosinus, dan Tangen pada segitiga siku-siku serta penerapannya.", thumbnail: "from-yellow-800 to-amber-900", duration: "55m", match: "90%", phase: "E", tags: ["Geometri"], category: "fase-e", delta: formatDelta(["Survey Lapangan", "Teori Dasar", "Hitungan", "Penerapan"]) },
-            { id: 9, title: "Analisis Data (Dasar)", description: "Pengenalan jenis data, mean, median, modus.", thumbnail: "from-gray-800 to-gray-600", duration: "1h 10m", match: "99%", phase: "E", tags: ["Data"], category: "data", delta: formatDelta(["Pengumpulan Data", "Pengolahan", "Interpretasi"]) },
+            { id: 9, title: "Analisis Data (Dasar)", description: "Pengenalan jenis data, mean, median, modus.", thumbnail: "from-gray-800 to-gray-600", duration: "1h 10m", match: "99%", phase: "E", tags: ["Data", "Featured"], category: "data", delta: formatDelta(["Pengumpulan Data", "Pengolahan", "Interpretasi"]) },
             { 
                 id: 5, 
                 title: "Bunga Majemuk & Investasi IT", 
@@ -193,11 +193,11 @@
             const [loading, setLoading] = useState(true);
             const [loadingTasks, setLoadingTasks] = useState(false);
             const [isSubmitting, setIsSubmitting] = useState(false);
-            const [uploadStatus, setUploadStatus] = useState(null); // success, error, null
+            const [uploadStatus, setUploadStatus] = useState(null);
             
             const [announcementForm, setAnnouncementForm] = useState({ title: '', desc: '', type: 'Info' });
             const [editingMovie, setEditingMovie] = useState(null); 
-            const [movieForm, setMovieForm] = useState({ title: '', description: '', phase: 'E', category: 'fase-e', thumbnail: 'from-gray-900 to-gray-800', delta: [] });
+            const [movieForm, setMovieForm] = useState({ title: '', description: '', phase: 'E', category: 'fase-e', thumbnail: 'from-gray-900 to-gray-800', delta: [], isFeatured: false });
 
             useEffect(() => {
                 Papa.parse(STUDENT_CSV_URL, {
@@ -257,17 +257,22 @@
                  }
 
                  if (!GOOGLE_FORM_MATERIAL_ACTION_URL.includes("formResponse")) { 
-                     alert("URL Google Form Materi belum dikonfigurasi di kode (Baris 82)!"); 
+                     alert("URL Google Form Materi belum dikonfigurasi di kode!"); 
                      return; 
                  }
                  
+                 const tags = ["Umum"];
+                 if (movieForm.isFeatured) tags.push("Featured");
+
                  const newMaterial = {
                     id: editingMovie ? editingMovie.id : Date.now(),
                     ...movieForm,
                     duration: "45m",
                     match: "95%",
-                    tags: ["Umum"]
+                    tags: tags 
                  };
+
+                 delete newMaterial.isFeatured;
 
                  const jsonString = JSON.stringify(newMaterial);
                  
@@ -309,7 +314,8 @@
                     thumbnail: movie.thumbnail,
                     phase: movie.phase,
                     category: movie.category,
-                    delta: movie.delta
+                    delta: movie.delta,
+                    tags: movie.tags || []
                 };
                 const jsonString = JSON.stringify(fullData);
                 const textArea = document.createElement("textarea");
@@ -318,9 +324,8 @@
                 textArea.select();
                 try {
                     document.execCommand('copy');
-                    alert("FULL JSON Materi berhasil disalin! Anda bisa menempelkannya manual jika fitur 'Kirim ke Database' bermasalah.");
+                    alert("FULL JSON Materi berhasil disalin!");
                 } catch (err) {
-                    console.error('Unable to copy', err);
                     alert("Gagal menyalin otomatis.");
                 }
                 document.body.removeChild(textArea);
@@ -328,19 +333,34 @@
 
             const handleMovieSubmit = (e) => {
                 e.preventDefault();
+                const tags = ["Umum"];
+                if (movieForm.isFeatured) tags.push("Featured");
+
                 const newMovie = {
                     id: editingMovie ? editingMovie.id : Date.now(),
                     ...movieForm,
-                    duration: "45m", match: "90%", tags: ["Umum"]
+                    duration: "45m", match: "90%", 
+                    tags: tags
                 };
+                delete newMovie.isFeatured;
+
                 if (editingMovie) { setMovies(movies.map(m => m.id === newMovie.id ? newMovie : m)); } else { setMovies([...movies, newMovie]); }
-                alert("Materi disimpan SEMENTARA di tampilan Admin. Klik 'Kirim ke Database' untuk menyimpan permanen ke Google Sheets.");
+                alert("Materi disimpan SEMENTARA di tampilan Admin. Klik 'Kirim ke Database' untuk menyimpan permanen.");
             };
 
             const populateForm = (movie) => {
                 setEditingMovie(movie);
                 const formattedDelta = movie.delta.map((d, i) => typeof d === 'string' ? { id: Date.now()+i, title: d, embed: '' } : d);
-                setMovieForm({ title: movie.title, description: movie.description, phase: movie.phase, category: movie.category, thumbnail: movie.thumbnail, delta: formattedDelta });
+                const isFeatured = movie.tags && movie.tags.includes("Featured");
+                setMovieForm({ 
+                    title: movie.title, 
+                    description: movie.description, 
+                    phase: movie.phase, 
+                    category: movie.category, 
+                    thumbnail: movie.thumbnail, 
+                    delta: formattedDelta,
+                    isFeatured: isFeatured
+                });
             };
 
             const handleDeleteMovie = (id) => { if(confirm("Hapus materi ini?")) setMovies(movies.filter(m => m.id !== id)); };
@@ -395,6 +415,20 @@
                                     <div className="bg-[#1e1e1e] p-4 md:p-6 rounded-lg border border-gray-800 mb-8">
                                         <h3 className="text-xl font-bold mb-4 flex items-center gap-2">{editingMovie ? <Icons.Edit className="text-lg"/> : <Icons.Plus className="text-lg"/>} {editingMovie ? "Edit Lokal" : "Buat Materi (JSON Generator)"}</h3>
                                         <form onSubmit={handleMovieSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {/* CHECKBOX FEATURED */}
+                                            <div className="md:col-span-2 mb-2 bg-gray-900/50 p-3 rounded border border-gray-700 flex items-center gap-3">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="isFeatured" 
+                                                    className="w-5 h-5 accent-red-600 cursor-pointer"
+                                                    checked={movieForm.isFeatured}
+                                                    onChange={e => setMovieForm({...movieForm, isFeatured: e.target.checked})}
+                                                />
+                                                <label htmlFor="isFeatured" className="cursor-pointer text-sm font-bold text-gray-300 select-none flex items-center gap-2">
+                                                    <i className="fa-solid fa-star text-yellow-500"></i> Jadikan Materi Unggulan (Banner Utama)
+                                                </label>
+                                            </div>
+
                                             <input type="text" placeholder="Judul Materi" className="bg-[#141414] p-3 rounded border border-gray-700 text-white w-full" value={movieForm.title} onChange={e => setMovieForm({...movieForm, title: e.target.value})} required />
                                             <select className="bg-[#141414] p-3 rounded border border-gray-700 text-white w-full" value={movieForm.phase} onChange={e => setMovieForm({...movieForm, phase: e.target.value})}><option value="E">Fase E</option><option value="F">Fase F</option></select>
                                             <select className="bg-[#141414] p-3 rounded border border-gray-700 text-white w-full" value={movieForm.category} onChange={e => setMovieForm({...movieForm, category: e.target.value})}><option value="fase-e">Materi Wajib Fase E</option><option value="fase-f">Materi Wajib Fase F</option><option value="data">Data & Statistika</option><option value="financial">Keuangan (Financial)</option></select>
@@ -440,8 +474,8 @@
                                                         {isSubmitting ? <span className="animate-spin h-4 w-4 border-2 border-white rounded-full border-t-transparent"></span> : <Icons.CloudUpload />} Kirim ke Database
                                                     </button>
                                                 </div>
-                                                {uploadStatus === 'success' && <div className="text-green-500 text-sm text-center font-bold mt-2 animate-fadeIn"><i className="fa-solid fa-check-circle"></i> Berhasil terkirim! Silakan cek Google Sheet beberapa saat lagi.</div>}
-                                                {uploadStatus === 'error' && <div className="text-red-500 text-sm text-center font-bold mt-2 animate-fadeIn"><i className="fa-solid fa-circle-xmark"></i> Gagal mengirim. Pastikan koneksi lancar.</div>}
+                                                {uploadStatus === 'success' && <div className="text-green-500 text-sm text-center font-bold mt-2 animate-fadeIn"><i className="fa-solid fa-check-circle"></i> Berhasil terkirim!</div>}
+                                                {uploadStatus === 'error' && <div className="text-red-500 text-sm text-center font-bold mt-2 animate-fadeIn"><i className="fa-solid fa-circle-xmark"></i> Gagal mengirim.</div>}
                                             </div>
                                         </form>
                                     </div>
@@ -450,14 +484,21 @@
                                     <div className="space-y-4">
                                         {movies.map(m => {
                                             const thumbStyle = getThumbnailStyle(m.thumbnail);
+                                            const isFeaturedItem = m.tags && m.tags.includes("Featured");
+                                            
                                             return (
-                                            <div key={m.id} className="bg-[#1e1e1e] p-4 rounded border border-gray-800">
+                                            <div key={m.id} className={`bg-[#1e1e1e] p-4 rounded border ${isFeaturedItem ? 'border-yellow-600/50' : 'border-gray-800'}`}>
                                                 <div className="flex justify-between items-start mb-4">
                                                     <div className="flex items-center gap-4">
-                                                        <div className={`w-16 h-10 rounded ${thumbStyle.className}`} style={thumbStyle.style}></div>
+                                                        <div className={`w-16 h-10 rounded relative ${thumbStyle.className}`} style={thumbStyle.style}>
+                                                            {isFeaturedItem && <div className="absolute -top-2 -right-2 bg-yellow-500 text-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center shadow-lg"><i className="fa-solid fa-star"></i></div>}
+                                                        </div>
                                                         <div>
-                                                            <h3 className="font-bold text-lg text-white">{m.title}</h3>
-                                                            <p className="text-gray-500 text-xs">ID: {m.id} | Fase {m.phase}</p>
+                                                            <h3 className="font-bold text-lg text-white flex items-center gap-2">
+                                                                {m.title}
+                                                                {isFeaturedItem && <span className="text-[10px] bg-yellow-900/50 text-yellow-400 border border-yellow-700 px-2 py-0.5 rounded">Featured</span>}
+                                                            </h3>
+                                                            <p className="text-gray-500 text-xs">ID: {m.id} | Fase {m.phase} | {m.category}</p>
                                                         </div>
                                                     </div>
                                                     <div className="flex items-center gap-2">
@@ -520,7 +561,7 @@
                         </div>
                     </div>
 
-                    <nav className="md:hidden fixed bottom-0 w-full bg-[#121212] border-t border-gray-800 flex justify-around py-3 z-50 text-[10px] text-gray-500">
+                    <nav className="md:hidden fixed bottom-0 w-full bg-[#121212] border-t border-gray-800 flex justify-around py-3 z-50 text-[10px] text-gray-500 pb-safe">
                         <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'stats' ? 'text-red-500' : ''}`} onClick={() => setActiveTab('stats')}><Icons.Users className="text-xl" /><span>Dash</span></div>
                         <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'content' ? 'text-red-500' : ''}`} onClick={() => setActiveTab('content')}><Icons.Video className="text-xl" /><span>Materi</span></div>
                         <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'announcement' ? 'text-red-500' : ''}`} onClick={() => setActiveTab('announcement')}><Icons.Bell className="text-xl" /><span>Info</span></div>
@@ -544,6 +585,11 @@
             const [loginError, setLoginError] = useState("");
 
             useEffect(() => {
+                const savedUser = localStorage.getItem('mathflix_user');
+                if (savedUser) {
+                    onLogin(JSON.parse(savedUser));
+                }
+
                 Papa.parse(STUDENT_CSV_URL, {
                     download: true,
                     header: false,
@@ -602,6 +648,7 @@
             );
         };
 
+        // --- INFO MODAL (ANNOUNCEMENT) ---
         const InfoModal = ({ title, content, isOpen, onClose }) => {
             if (!isOpen) return null;
             return (
@@ -615,6 +662,7 @@
             );
         };
 
+        // --- TASK SUBMISSION MODAL (NEW) ---
         const TaskSubmissionModal = ({ isOpen, onClose, user, myTasks, refreshTasks }) => {
             const [title, setTitle] = useState("");
             const [desc, setDesc] = useState("");
@@ -688,7 +736,16 @@
         };
 
         const MathflixApp = () => {
-            const [user, setUser] = useState(null);
+            // PERBAIKAN 1: Cek LocalStorage saat inisialisasi awal
+            const [user, setUser] = useState(() => {
+                try {
+                    const savedUser = localStorage.getItem('mathflix_user');
+                    return savedUser ? JSON.parse(savedUser) : null;
+                } catch (e) {
+                    return null;
+                }
+            });
+
             const [movies, setMovies] = useState(initialMovies);
             const [announcement, setAnnouncement] = useState(null); 
             const [loadingAnnouncement, setLoadingAnnouncement] = useState(false);
@@ -703,9 +760,21 @@
             
             const [myTasks, setMyTasks] = useState([]);
 
+            // PERBAIKAN 2: Wrapper untuk Login (Simpan ke Storage)
+            const handleLogin = (userData) => {
+                localStorage.setItem('mathflix_user', JSON.stringify(userData));
+                setUser(userData);
+            };
+
+            // PERBAIKAN 3: Wrapper untuk Logout (Hapus dari Storage)
+            const handleLogout = () => {
+                localStorage.removeItem('mathflix_user');
+                setUser(null);
+                setMyTasks([]); // Reset tasks state
+            };
+
             const fetchMovies = () => {
                 if (!CONTENT_CSV_URL) return;
-                
                 Papa.parse(CONTENT_CSV_URL, {
                     download: true,
                     header: true,
@@ -724,7 +793,6 @@
                                     if(rawDelta && rawDelta.trim().startsWith("[")) {
                                         delta = JSON.parse(rawDelta);
                                     } else if(rawDelta) {
-                                         // If plain string, assume comma separated titles
                                          delta = rawDelta.split(',').map(title => ({title: title.trim(), embed: ""}));
                                     } else {
                                          delta = [{ title: "Materi Utama", embed: "" }];
@@ -743,7 +811,8 @@
                                     category: item.category || item.kategori || "fase-e",
                                     duration: "45m",
                                     match: "95%",
-                                    delta: delta
+                                    delta: delta,
+                                    tags: item.tags ? item.tags.split(',') : (item.tags || "Umum")
                                 };
                             }).filter(m => m.title !== "Tanpa Judul");
                             
@@ -795,7 +864,7 @@
 
             useEffect(() => {
                 fetchAnnouncements();
-                fetchMovies(); // Load content from CSV
+                fetchMovies(); 
             }, []);
 
             useEffect(() => { if (user && showTaskModal) fetchMyTasks(); }, [user, showTaskModal]);
@@ -817,7 +886,14 @@
             }, [user]);
 
             const myMovies = useMemo(() => movies.filter(m => m.phase === userPhase || m.phase === "All"), [userPhase, movies]);
-            const featuredMovie = myMovies.find(m => m.category === 'data') || myMovies[0];
+            
+            // Prioritaskan movie yang memiliki tag "Featured"
+            const featuredMovie = useMemo(() => {
+                // Cari yang punya tag Featured DAN sesuai fase user
+                const featured = myMovies.find(m => m.tags && (Array.isArray(m.tags) ? m.tags.includes("Featured") : m.tags.includes("Featured")));
+                // Jika tidak ada, fallback ke kategori 'data' (seperti sebelumnya), lalu fallback ke item pertama
+                return featured || myMovies.find(m => m.category === 'data') || myMovies[0];
+            }, [myMovies]);
 
             const handlePlayMovie = (movie) => { setSelectedMovie(null); setPlayingMovie(movie); };
             const openAnnouncement = () => {
@@ -829,7 +905,8 @@
                 }
             };
 
-            if (!user) return <LoginScreen onLogin={setUser} />;
+            // Gunakan handleLogin sebagai pengganti setUser langsung
+            if (!user) return <LoginScreen onLogin={handleLogin} />;
 
             if (user.role === 'admin') {
                 return (
@@ -838,7 +915,7 @@
                         setMovies={setMovies} 
                         announcement={announcement} 
                         refreshData={fetchAnnouncements}
-                        onLogout={() => setUser(null)} 
+                        onLogout={handleLogout} // Gunakan handleLogout
                         sourceStatus={CONTENT_CSV_URL ? "CSV Database" : "Local Default"}
                     />
                 );
@@ -856,7 +933,7 @@
                                 <li className="hover:text-white cursor-pointer transition-colors" onClick={() => setShowTaskModal(true)}>Unggah Tugas</li>
                             </ul>
                         </div>
-                        <div className="flex items-center gap-4 text-white"><span className="text-sm bg-gray-800 px-3 py-1 rounded-full border border-gray-600">{user.name} ({user.kelas})</span><button onClick={() => setUser(null)} className="text-gray-400 hover:text-white"><i className="fa-solid fa-right-from-bracket text-xl"></i></button></div>
+                        <div className="flex items-center gap-4 text-white"><span className="text-sm bg-gray-800 px-3 py-1 rounded-full border border-gray-600">{user.name} ({user.kelas})</span><button onClick={handleLogout} className="text-gray-400 hover:text-white"><Icons.LogOut className="text-xl" /></button></div>
                     </nav>
                     <div className="md:hidden fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md px-4 py-3 flex justify-between items-center border-b border-gray-800"><h1 className="text-red-600 text-xl font-bold tracking-tighter">MATHFLIX</h1><span className="text-xs text-gray-300 bg-gray-800 px-2 py-0.5 rounded truncate max-w-[150px]">{user.name.split(' ')[0]} ({user.kelas})</span></div>
 
@@ -871,7 +948,7 @@
                                     <p className="text-sm md:text-lg text-gray-200 line-clamp-2 drop-shadow-lg shadow-black">{featuredMovie?.description}</p>
                                     <div className="flex gap-4 pt-4">
                                         {/* TOMBOL MULAI DI HERO (LANGSUNG PLAY) */}
-                                        <button onClick={() => handlePlayMovie(featuredMovie)} className="flex items-center gap-2 bg-white text-black px-4 md:px-8 py-2 rounded font-bold hover:bg-gray-200 transition-colors"><i className="fa-solid fa-play text-xl"></i> Mulai</button>
+                                        <button onClick={() => handlePlayMovie(featuredMovie)} className="flex items-center gap-2 bg-white text-black px-4 md:px-8 py-2 rounded font-bold hover:bg-gray-200 transition-colors"><Icons.Play className="text-xl"/> Mulai</button>
                                         <button onClick={() => setSelectedMovie(featuredMovie)} className="flex items-center gap-2 bg-gray-600/70 text-white px-4 md:px-8 py-2 rounded font-bold hover:bg-gray-600/50 backdrop-blur-sm"><i className="fa-solid fa-circle-info text-xl"></i> Info</button>
                                     </div>
                                 </div>
@@ -889,7 +966,7 @@
                         <div className={`flex flex-col items-center gap-1 cursor-pointer ${showGuru ? 'text-red-500' : ''}`} onClick={() => setShowGuru(true)}><i className="fa-solid fa-chalkboard-user text-xl"></i><span>Guru</span></div>
                         <div className={`flex flex-col items-center gap-1 cursor-pointer ${showTaskModal ? 'text-red-500' : ''}`} onClick={() => setShowTaskModal(true)}><i className="fa-solid fa-list-check text-xl"></i><span>Tugas</span></div>
                         <div className={`flex flex-col items-center gap-1 cursor-pointer ${showPengumuman ? 'text-red-500' : ''}`} onClick={openAnnouncement}><div className="relative"><i className="fa-solid fa-bell text-xl"></i>{hasNewNotification && <span className="absolute top-0 right-0 w-2 h-2 bg-red-600 rounded-full border border-black"></span>}</div><span>Info</span></div>
-                        <div className="flex flex-col items-center gap-1 cursor-pointer text-gray-400" onClick={() => setUser(null)}><i className="fa-solid fa-right-from-bracket text-xl"></i><span>Keluar</span></div>
+                        <div className="flex flex-col items-center gap-1 cursor-pointer text-gray-400" onClick={handleLogout}><i className="fa-solid fa-right-from-bracket text-xl"></i><span>Keluar</span></div>
                     </nav>
 
                     {playingMovie && <VideoPlayer movie={playingMovie} onClose={() => setPlayingMovie(null)} />}
