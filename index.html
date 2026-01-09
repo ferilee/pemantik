@@ -3,34 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- --- SEO & SOCIAL MEDIA PREVIEW --- -->
     <title>Mathflix - E-Learning SMKN Pasirian</title>
     <meta name="description" content="Platform belajar matematika mandiri gaya Netflix untuk siswa RPL, TKJ, dan DPIB SMKN Pasirian.">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Mathflix - Belajar Matematika Serasa Nonton Film">
     <meta property="og:description" content="Akses materi Fase E dan F khusus untuk SMKN Pasirian. Login sekarang!">
     <meta property="og:image" content="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=1200&auto=format&fit=crop">
-
-    <!-- --- FAVICON --- -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2210%22 fill=%22black%22/><text x=%2250%22 y=%2280%22 font-size=%2270%22 font-family=%22Arial, sans-serif%22 font-weight=%22bold%22 fill=%22%23E50914%22 text-anchor=%22middle%22>M</text></svg>">
-
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Font Awesome (IKON) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <!-- React & ReactDOM -->
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-    
-    <!-- Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-    <!-- PapaParse -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-
     <style>
         body { background-color: #000000; color: white; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
@@ -50,13 +35,12 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
 
-        // --- KONFIGURASI GOOGLE SHEETS & FORMS ---
         const STUDENT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNxfl64ybd5HEX-Ln3ubR8C-SxModDRkPVuRpShlUDX2UCRgKib2cIqXtsUPT4d0rJY_gkaCQVOTSb/pub?gid=1562678039&single=true&output=csv";
         const ANNOUNCEMENT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS76u8cTDBeMcD42AsmWficWDijhIhTIFVm7dtBg6kF6vI7fK2f7nTnkhlXvhx7s3qVFp1K-_P3oGA9/pub?gid=1164662512&single=true&output=csv"; 
         const TASK_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWdsuBbHjQIcvBNrH45d2IsJMwJTpjgo_1XtkIuisfsZeKOXeJSbwLNPrAkil3lQBQuEqoUPHd4E3r/pub?gid=721569362&single=true&output=csv";
         
-        // URL DATABASE MATERI
-        const CONTENT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTzIEFj52idv-_6ulCw0ozvJ_tmTL9KYFLs826ong8JfJZYlrg9ATikrmUZQgCGII7ef5ccWMM3c3PX/pub?gid=0&single=true&output=csv"; 
+        // URL DATABASE MATERI (Google Sheet - DIPERBARUI)
+        const CONTENT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZ4YUlEeIOpXL_pGKjhaHZSltISjqIFLRecG1EbbML39i-twG9jw96kqIf9nkUZQzMgRlQl1ntyVv7/pub?gid=1859070577&single=true&output=csv"; 
 
         const GOOGLE_FORM_ACTION_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeK8LjLNZXIMYi6D207NUVhM3crQuLZb4rpYaVv4VuyqYrFog/formResponse";
         const ENTRY_ID_TITLE = "entry.773023469"; 
@@ -68,9 +52,12 @@
         const ENTRY_ID_TASK_CLASS = "entry.66506335";  
         const ENTRY_ID_TASK_TITLE = "entry.1713104987"; 
         const ENTRY_ID_TASK_DESC  = "entry.314125124";  
-        const ENTRY_ID_TASK_URL   = "entry.900381196";  
+        const ENTRY_ID_TASK_URL   = "entry.900381196";
+        
+        // --- Form Materi (Admin - JSON Injection) ---
+        const GOOGLE_FORM_MATERIAL_ACTION_URL = "https://docs.google.com/forms/d/e/1FAIpQLSetYCtnHkRh3r4sgyMYrJBoqt9ypP2SpRxBe5uoyHq1RP3Q4A/formResponse"; 
+        const ENTRY_ID_MATERIAL_JSON = "entry.67659988"; 
 
-        // --- ICONS ---
         const Icons = {
             Video: (p) => <i className="fa-solid fa-video" {...p}></i>,
             Edit: (p) => <i className="fa-solid fa-pen-to-square" {...p}></i>,
@@ -92,7 +79,8 @@
             Lock: (p) => <i className="fa-solid fa-lock" {...p}></i>,
             Alert: (p) => <i className="fa-solid fa-triangle-exclamation" {...p}></i>,
             Calendar: (p) => <i className="fa-solid fa-calendar-days" {...p}></i>,
-            Database: (p) => <i className="fa-solid fa-database" {...p}></i>
+            Database: (p) => <i className="fa-solid fa-database" {...p}></i>,
+            Copy: (p) => <i className="fa-regular fa-copy" {...p}></i>
         };
 
         const formatDelta = (deltaArray) => {
@@ -102,27 +90,17 @@
             });
         };
 
-        // --- HELPER UNTUK THUMBNAIL (CSS CLASS ATAU IMAGE URL) ---
         const getThumbnailStyle = (thumbnail) => {
             if (!thumbnail) return { className: "bg-gray-800" };
-            
-            // Cek apakah thumbnail adalah URL gambar
             if (thumbnail.startsWith('http') || thumbnail.startsWith('data:image')) {
                 return {
-                    style: { 
-                        backgroundImage: `url('${thumbnail}')`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center'
-                    },
-                    className: "bg-gray-800" // Fallback color
+                    style: { backgroundImage: `url('${thumbnail}')`, backgroundSize: 'cover', backgroundPosition: 'center' },
+                    className: "bg-gray-800"
                 };
             }
-            
-            // Jika bukan URL, anggap sebagai class Tailwind gradient
             return { className: `bg-gradient-to-br ${thumbnail}` };
         };
 
-        // --- DATA DEFAULT ---
         const initialMovies = [
             { id: 1, title: "Bilangan Berpangkat", description: "Konsep dasar eksponen, sifat perkalian & pembagian pangkat, serta pangkat pecahan.", thumbnail: "from-purple-900 to-blue-900", duration: "45m", match: "98%", phase: "E", tags: ["Bilangan"], category: "fase-e", delta: formatDelta(["Diagnosa", "Video Eksplorasi", "Latihan Mandiri", "Tes Formatif"]) },
             { id: 2, title: "Sistem Pertidaksamaan", description: "Penyelesaian SPtLDV dan penerapannya dalam memecahkan masalah program linear sederhana.", thumbnail: "from-red-900 to-orange-900", duration: "50m", match: "85%", phase: "E", tags: ["Aljabar"], category: "fase-e", delta: formatDelta(["Studi Kasus", "Video Materi", "Quiz Interaktif", "Proyek"]) },
@@ -215,6 +193,7 @@
             const [loading, setLoading] = useState(true);
             const [loadingTasks, setLoadingTasks] = useState(false);
             const [isSubmitting, setIsSubmitting] = useState(false);
+            const [uploadStatus, setUploadStatus] = useState(null); // success, error, null
             
             const [announcementForm, setAnnouncementForm] = useState({ title: '', desc: '', type: 'Info' });
             const [editingMovie, setEditingMovie] = useState(null); 
@@ -270,6 +249,44 @@
                 }
             };
 
+            const handleUploadMaterial = async () => {
+                 setUploadStatus(null);
+                 if (!movieForm.title) {
+                     alert("Judul materi harus diisi!");
+                     return;
+                 }
+
+                 if (!GOOGLE_FORM_MATERIAL_ACTION_URL.includes("formResponse")) { 
+                     alert("URL Google Form Materi belum dikonfigurasi di kode (Baris 82)!"); 
+                     return; 
+                 }
+                 
+                 const newMaterial = {
+                    id: editingMovie ? editingMovie.id : Date.now(),
+                    ...movieForm,
+                    duration: "45m",
+                    match: "95%",
+                    tags: ["Umum"]
+                 };
+
+                 const jsonString = JSON.stringify(newMaterial);
+                 
+                 setIsSubmitting(true);
+                 const formData = new FormData();
+                 formData.append(ENTRY_ID_MATERIAL_JSON, jsonString);
+
+                 try {
+                    await fetch(GOOGLE_FORM_MATERIAL_ACTION_URL, { method: 'POST', mode: 'no-cors', body: formData });
+                    setUploadStatus('success');
+                 } catch (error) {
+                    console.error(error);
+                    setUploadStatus('error');
+                 } finally {
+                    setIsSubmitting(false);
+                    setTimeout(() => setUploadStatus(null), 5000);
+                 }
+            };
+
             const addDeltaStep = () => {
                 setMovieForm({...movieForm, delta: [...movieForm.delta, { id: Date.now(), title: "", embed: "" }]});
             };
@@ -285,17 +302,26 @@
             };
 
             const handleGenerateJSON = (movie) => {
-                const jsonString = JSON.stringify(movie.delta);
+                const fullData = {
+                    id: movie.id,
+                    title: movie.title,
+                    description: movie.description,
+                    thumbnail: movie.thumbnail,
+                    phase: movie.phase,
+                    category: movie.category,
+                    delta: movie.delta
+                };
+                const jsonString = JSON.stringify(fullData);
                 const textArea = document.createElement("textarea");
                 textArea.value = jsonString;
                 document.body.appendChild(textArea);
                 textArea.select();
                 try {
                     document.execCommand('copy');
-                    alert("JSON Tahapan DELTA berhasil disalin! Silakan paste ke kolom 'delta_json' di Google Sheets.");
+                    alert("FULL JSON Materi berhasil disalin! Anda bisa menempelkannya manual jika fitur 'Kirim ke Database' bermasalah.");
                 } catch (err) {
                     console.error('Unable to copy', err);
-                    alert("Gagal menyalin otomatis. Silakan salin manual dari console atau text area.");
+                    alert("Gagal menyalin otomatis.");
                 }
                 document.body.removeChild(textArea);
             };
@@ -308,9 +334,7 @@
                     duration: "45m", match: "90%", tags: ["Umum"]
                 };
                 if (editingMovie) { setMovies(movies.map(m => m.id === newMovie.id ? newMovie : m)); } else { setMovies([...movies, newMovie]); }
-                setMovieForm({ title: '', description: '', phase: 'E', category: 'fase-e', thumbnail: 'from-gray-900 to-gray-800', delta: [] });
-                setEditingMovie(null);
-                alert("Materi berhasil disimpan (Lokal). Untuk permanen, salin JSON Delta ke Google Sheet.");
+                alert("Materi disimpan SEMENTARA di tampilan Admin. Klik 'Kirim ke Database' untuk menyimpan permanen ke Google Sheets.");
             };
 
             const populateForm = (movie) => {
@@ -364,7 +388,7 @@
                                     <h2 className="text-2xl md:text-3xl font-bold mb-6">Manajemen Materi (Database)</h2>
                                     <div className="bg-blue-900/20 border border-blue-800 p-4 rounded-lg mb-8 text-sm text-gray-300">
                                         <p className="font-bold text-blue-500 mb-1"><Icons.Info /> INFO SUMBER DATA: {sourceStatus}</p>
-                                        <p>Data materi diambil dari Google Sheets. Gunakan form di bawah untuk membuat materi baru, lalu klik "Copy JSON" dan tempel ke kolom <strong>delta_json</strong> di Google Sheet Anda agar muncul di perangkat siswa.</p>
+                                        <p>Data materi diambil dari Google Sheets. Gunakan form di bawah untuk membuat materi baru, lalu klik <strong>"Kirim ke Database"</strong> untuk menyimpan permanen (via Google Forms + Apps Script).</p>
                                     </div>
 
                                     {/* Add/Edit Form */}
@@ -375,7 +399,7 @@
                                             <select className="bg-[#141414] p-3 rounded border border-gray-700 text-white w-full" value={movieForm.phase} onChange={e => setMovieForm({...movieForm, phase: e.target.value})}><option value="E">Fase E</option><option value="F">Fase F</option></select>
                                             <select className="bg-[#141414] p-3 rounded border border-gray-700 text-white w-full" value={movieForm.category} onChange={e => setMovieForm({...movieForm, category: e.target.value})}><option value="fase-e">Materi Wajib Fase E</option><option value="fase-f">Materi Wajib Fase F</option><option value="data">Data & Statistika</option><option value="financial">Keuangan (Financial)</option></select>
                                             
-                                            {/* UPDATED THUMBNAIL INPUT: Can be Class or URL */}
+                                            {/* UPDATED THUMBNAIL INPUT */}
                                             <div className="relative">
                                                 <input 
                                                     type="text" 
@@ -391,7 +415,6 @@
                                                     <option value="from-red-900 to-orange-900">Merah - Oranye</option>
                                                     <option value="from-green-900 to-teal-900">Hijau - Teal</option>
                                                 </datalist>
-                                                <p className="text-[10px] text-gray-500 mt-1">Gunakan kode warna di atas atau tempel link gambar (https://...)</p>
                                             </div>
 
                                             <textarea placeholder="Deskripsi Singkat" className="bg-[#141414] p-3 rounded border border-gray-700 text-white w-full md:col-span-2" rows="2" value={movieForm.description} onChange={e => setMovieForm({...movieForm, description: e.target.value})} required></textarea>
@@ -410,7 +433,16 @@
                                                 ))}
                                                 <button type="button" onClick={addDeltaStep} className="text-xs font-bold text-blue-400 hover:text-blue-300 flex items-center gap-1 mt-2 border border-blue-900 bg-blue-900/10 px-3 py-2 rounded"><i className="fa-solid fa-plus"></i> TAMBAH TAHAPAN</button>
                                             </div>
-                                            <div className="md:col-span-2 flex gap-2 mt-4"><button type="submit" className="bg-red-600 text-white px-6 py-2 rounded font-bold hover:bg-red-700 transition">Update Tampilan Lokal</button>{editingMovie && <button type="button" onClick={() => {setEditingMovie(null); setMovieForm({ title: '', description: '', phase: 'E', category: 'fase-e', thumbnail: 'from-gray-900 to-gray-800', delta: [] })}} className="bg-gray-700 text-white px-6 py-2 rounded hover:bg-gray-600 transition">Batal</button>}</div>
+                                            <div className="md:col-span-2 flex flex-col gap-2 mt-4">
+                                                <div className="flex gap-2">
+                                                    <button type="submit" className="bg-gray-700 text-white px-6 py-2 rounded font-bold hover:bg-gray-600 transition flex-1">Update Preview Lokal</button>
+                                                    <button type="button" onClick={handleUploadMaterial} disabled={isSubmitting} className="bg-green-600 text-white px-6 py-2 rounded font-bold hover:bg-green-700 transition flex-1 flex justify-center items-center gap-2">
+                                                        {isSubmitting ? <span className="animate-spin h-4 w-4 border-2 border-white rounded-full border-t-transparent"></span> : <Icons.CloudUpload />} Kirim ke Database
+                                                    </button>
+                                                </div>
+                                                {uploadStatus === 'success' && <div className="text-green-500 text-sm text-center font-bold mt-2 animate-fadeIn"><i className="fa-solid fa-check-circle"></i> Berhasil terkirim! Silakan cek Google Sheet beberapa saat lagi.</div>}
+                                                {uploadStatus === 'error' && <div className="text-red-500 text-sm text-center font-bold mt-2 animate-fadeIn"><i className="fa-solid fa-circle-xmark"></i> Gagal mengirim. Pastikan koneksi lancar.</div>}
+                                            </div>
                                         </form>
                                     </div>
 
@@ -422,7 +454,6 @@
                                             <div key={m.id} className="bg-[#1e1e1e] p-4 rounded border border-gray-800">
                                                 <div className="flex justify-between items-start mb-4">
                                                     <div className="flex items-center gap-4">
-                                                        {/* THUMBNAIL PREVIEW ADMIN */}
                                                         <div className={`w-16 h-10 rounded ${thumbStyle.className}`} style={thumbStyle.style}></div>
                                                         <div>
                                                             <h3 className="font-bold text-lg text-white">{m.title}</h3>
@@ -437,9 +468,9 @@
                                                 <div className="bg-black p-3 rounded border border-gray-700">
                                                     <div className="flex justify-between items-center mb-2">
                                                         <span className="text-xs text-gray-500 font-mono">DELTA JSON (Copy untuk Google Sheet)</span>
-                                                        <button onClick={() => handleGenerateJSON(m)} className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded transition-colors"><i className="fa-regular fa-copy"></i> Copy JSON</button>
+                                                        <button onClick={() => handleGenerateJSON(m)} className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded transition-colors"><Icons.Copy /> Copy Full JSON</button>
                                                     </div>
-                                                    <code className="block text-[10px] text-gray-400 font-mono break-all line-clamp-2">{JSON.stringify(m.delta)}</code>
+                                                    <code className="block text-[10px] text-gray-400 font-mono break-all line-clamp-2">{JSON.stringify(m)}</code>
                                                 </div>
                                             </div>
                                             );
@@ -489,7 +520,7 @@
                         </div>
                     </div>
 
-                    <nav className="md:hidden fixed bottom-0 w-full bg-black/95 backdrop-blur-lg border-t border-red-900/30 flex justify-around py-3 z-50 text-[10px] text-gray-500 pb-safe">
+                    <nav className="md:hidden fixed bottom-0 w-full bg-[#121212] border-t border-gray-800 flex justify-around py-3 z-50 text-[10px] text-gray-500">
                         <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'stats' ? 'text-red-500' : ''}`} onClick={() => setActiveTab('stats')}><Icons.Users className="text-xl" /><span>Dash</span></div>
                         <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'content' ? 'text-red-500' : ''}`} onClick={() => setActiveTab('content')}><Icons.Video className="text-xl" /><span>Materi</span></div>
                         <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'announcement' ? 'text-red-500' : ''}`} onClick={() => setActiveTab('announcement')}><Icons.Bell className="text-xl" /><span>Info</span></div>
@@ -499,6 +530,7 @@
             );
         };
 
+        // --- COMPONENT: LOGIN SCREEN ---
         const LoginScreen = ({ onLogin }) => {
             const [students, setStudents] = useState([]);
             const [classes, setClasses] = useState([]);
@@ -513,7 +545,8 @@
 
             useEffect(() => {
                 Papa.parse(STUDENT_CSV_URL, {
-                    download: true, header: false,
+                    download: true,
+                    header: false,
                     complete: (results) => {
                         let data = results.data.slice(1);
                         const parsedStudents = data.map(row => ({ name: row[0], kelas: row[1], jurusan: row[2], password: row[3] ? row[3].toString().trim() : "" })).filter(s => s.name && s.kelas);
@@ -851,12 +884,12 @@
                         </>
                     )}
 
-                    <nav className="md:hidden fixed bottom-0 w-full bg-[#121212] border-t border-gray-800 flex justify-around py-3 z-50 text-[10px] text-gray-500">
-                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'home' && !showGuru && !showPengumuman && !showTaskModal ? 'text-white' : ''}`} onClick={() => { setActiveTab('home'); setShowGuru(false); setShowPengumuman(false); setShowTaskModal(false); }}><i className="fa-solid fa-house text-xl"></i><span>Home</span></div>
-                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${showGuru ? 'text-white' : ''}`} onClick={() => setShowGuru(true)}><i className="fa-solid fa-user text-xl"></i><span>Guru</span></div>
-                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${showTaskModal ? 'text-white' : ''}`} onClick={() => setShowTaskModal(true)}><i className="fa-solid fa-pen-to-square text-xl"></i><span>Tugas</span></div>
-                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${showPengumuman ? 'text-white' : ''}`} onClick={openAnnouncement}><div className="relative"><i className="fa-solid fa-bell text-xl"></i>{hasNewNotification && <span className="absolute top-0 right-0 w-2 h-2 bg-red-600 rounded-full border border-black"></span>}</div><span>Info</span></div>
-                        <div className="flex flex-col items-center gap-1 cursor-pointer text-red-500" onClick={() => setUser(null)}><i className="fa-solid fa-right-from-bracket text-xl"></i><span>Keluar</span></div>
+                    <nav className="md:hidden fixed bottom-0 w-full bg-black/95 backdrop-blur-lg border-t border-red-900/30 flex justify-around py-3 z-50 text-[10px] text-gray-500 pb-safe">
+                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${activeTab === 'home' && !showGuru && !showPengumuman && !showTaskModal ? 'text-red-500' : ''}`} onClick={() => { setActiveTab('home'); setShowGuru(false); setShowPengumuman(false); setShowTaskModal(false); }}><i className="fa-solid fa-house text-xl"></i><span>Home</span></div>
+                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${showGuru ? 'text-red-500' : ''}`} onClick={() => setShowGuru(true)}><i className="fa-solid fa-chalkboard-user text-xl"></i><span>Guru</span></div>
+                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${showTaskModal ? 'text-red-500' : ''}`} onClick={() => setShowTaskModal(true)}><i className="fa-solid fa-list-check text-xl"></i><span>Tugas</span></div>
+                        <div className={`flex flex-col items-center gap-1 cursor-pointer ${showPengumuman ? 'text-red-500' : ''}`} onClick={openAnnouncement}><div className="relative"><i className="fa-solid fa-bell text-xl"></i>{hasNewNotification && <span className="absolute top-0 right-0 w-2 h-2 bg-red-600 rounded-full border border-black"></span>}</div><span>Info</span></div>
+                        <div className="flex flex-col items-center gap-1 cursor-pointer text-gray-400" onClick={() => setUser(null)}><i className="fa-solid fa-right-from-bracket text-xl"></i><span>Keluar</span></div>
                     </nav>
 
                     {playingMovie && <VideoPlayer movie={playingMovie} onClose={() => setPlayingMovie(null)} />}
